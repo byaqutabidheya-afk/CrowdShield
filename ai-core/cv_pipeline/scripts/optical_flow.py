@@ -130,7 +130,7 @@ class OpticalFlowAnalyzer:
 
         mean_fx = float(np.mean(fx))
         mean_fy = float(np.mean(fy))
-        direction_deg = (math.degrees(math.atan2(-mean_fy, mean_fx)) + 360.0) % 360.0
+        direction_deg = (math.degrees(math.atan2(mean_fx, -mean_fy)) + 360.0) % 360.0
 
         return {
             "avg_flow_speed": normalized_speed,
@@ -142,6 +142,6 @@ class OpticalFlowAnalyzer:
     def _direction_label(direction_deg: float) -> str:
         """Map a compass heading in degrees to an 8-way label."""
 
-        compass_labels = ["E", "NE", "N", "NW", "W", "SW", "S", "SE"]
+        compass_labels = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
         sector = int(((direction_deg + 22.5) % 360.0) // 45.0)
         return compass_labels[sector]
