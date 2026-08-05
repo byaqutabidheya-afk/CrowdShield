@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-08-03T14:32:10Z",
+  "frame_number": 452,
+  "source_id": "cam_01",
+  "zones": [
+    {
+      "zone_id": "zone_A1",
+      "bounds_normalized": {"x_min": 0.0, "y_min": 0.0, "x_max": 0.33, "y_max": 0.5},
+      "crowd_count": 47,
+      "density_score": 0.71,
+      "avg_flow_speed": 0.42,
+      "avg_flow_direction_deg": 187.5,
+      "avg_flow_direction_label": "S",
+      "reverse_flow_detected": false,
+      "bottleneck_detected": true,
+      "anomaly_flags": ["sudden_stop"],
+      "tracked_ids_in_zone": [12, 15, 19, 22]
+    }
+  ],
+  "frame_totals": {
+    "total_crowd_count": 214,
+    "max_zone_density": 0.71,
+    "highest_risk_zone_id": "zone_A1"
+  }
+}
