@@ -71,7 +71,13 @@ def download_yolov8n_weights(destination_dir: Path | str | None = None) -> Path:
 
     source_path = _resolve_downloaded_asset()
     if source_path.resolve() != target_path.resolve():
-        shutil.copy2(source_path, target_path)
+        if (
+            source_path.exists()
+            and source_path.parent.resolve() == Path.cwd().resolve()
+        ):
+            shutil.move(str(source_path), target_path)
+        else:
+            shutil.copy2(source_path, target_path)
 
     return target_path
 
