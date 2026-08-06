@@ -64,6 +64,17 @@ class CrowdTracker:
     min_bottleneck_density: float = 0.01
     max_bottleneck_crowd_count: int = 2
 
+    MIN_REVERSE_VELOCITY: float = 0.8
+    BOTTLENECK_REVERSE_VELOCITY: float = 1.5
+    COSINE_SIMILARITY_THRESHOLD: float = -0.6
+    REVERSE_PERSISTENCE_FRAMES: int = 5
+    REVERSE_MIN_TRACKLETS: int = 2
+
+    BOTTLENECK_STALL_SPEED: float = 0.01
+    BOTTLENECK_PREVIOUS_SPEED: float = 0.02
+    BOTTLENECK_FLOW_CONTRAST: float = 0.01
+    BOTTLENECK_SPEED_DROP_RATIO: float = 0.5
+
     def __init__(self, model_path: Path | str | None = None) -> None:
         model_path = (
             Path(model_path) if model_path is not None else download_yolov8n_weights()
@@ -80,12 +91,23 @@ class CrowdTracker:
         self.model = YOLO(str(model_path))
         self.track_history: dict[int, deque[tuple[float, float]]] = {}
         self.frame_history: deque[dict[int, tuple[float, float]]] = deque(maxlen=30)
+        self._zone_bottleneck_state: dict[str, bool] = {}
+        self._zone_reverse_flow_history: dict[str, deque[set[int]]] = {}
+        self._frame_counter: int = 0
+
+    def _reset_anomaly_state(self) -> None:
+        self._zone_bottleneck_state.clear()
+        self._zone_reverse_flow_history.clear()
+        self._frame_counter = 0
 
     def track_frame(self, frame: np.ndarray) -> list[dict[str, Any]]:
         """Track detections in a frame and return persistent track IDs."""
 
         if frame is None:
             raise ValueError("frame must not be None.")
+
+        if not self.frame_history:
+            self._reset_anomaly_state()
 
         results = self.model.track(
             frame,
@@ -161,6 +183,7 @@ class CrowdTracker:
         history: dict[str, Any],
     ) -> dict[str, Any]:
         """Detect reverse flow, erratic movement, and bottleneck patterns."""
+        self._frame_counter += 1
 
         zone_history = history.get(zone_id, {}) if isinstance(history, dict) else {}
         current_crowd_count = (
@@ -174,10 +197,9 @@ class CrowdTracker:
             else None
         )
 
-        # Empty zones can still carry small optical-flow noise and stale rolling
-        # history, which is enough to satisfy the bottleneck comparison unless we
-        # short-circuit first. We never score anomalies when the zone has no people.
         if int(current_crowd_count or 0) == 0:
+            self._zone_bottleneck_state[zone_id] = False
+            self._zone_reverse_flow_history[zone_id] = deque(maxlen=self.REVERSE_PERSISTENCE_FRAMES)
             return {
                 "reverse_flow_detected": False,
                 "erratic_movement_flag": False,
@@ -185,11 +207,13 @@ class CrowdTracker:
                 "anomaly_flags": [],
             }
 
+        bottleneck_detected = self._detect_bottleneck(zone_id, history)
+        self._zone_bottleneck_state[zone_id] = bottleneck_detected
+
         reverse_flow_detected = self._detect_reverse_flow(
-            tracks_in_zone, zone_flow_direction_deg
+            tracks_in_zone, zone_flow_direction_deg, zone_id
         )
         erratic_movement_flag = self._detect_erratic_movement(tracks_in_zone)
-        bottleneck_detected = self._detect_bottleneck(zone_id, history)
 
         anomaly_flags: list[str] = []
         if reverse_flow_detected:
@@ -198,6 +222,9 @@ class CrowdTracker:
             anomaly_flags.append("erratic_movement")
         if bottleneck_detected:
             anomaly_flags.append("bottleneck")
+
+        if self._frame_counter % 10 == 0:
+            self._log_diagnostics(zone_id, tracks_in_zone, zone_flow_direction_deg, history)
 
         return {
             "reverse_flow_detected": reverse_flow_detected,
@@ -210,34 +237,18 @@ class CrowdTracker:
         self,
         tracks_in_zone: list[dict[str, Any]],
         zone_flow_direction_deg: float,
+        zone_id: str,
     ) -> bool:
         if not tracks_in_zone:
+            self._zone_reverse_flow_history[zone_id] = deque(maxlen=self.REVERSE_PERSISTENCE_FRAMES)
             return False
 
-        reverse_count = 0
-        evaluated_count = 0
+        corridor_rad = math.radians(zone_flow_direction_deg)
+        corridor_vec = (math.sin(corridor_rad), -math.cos(corridor_rad))
 
-        current_flow_speed = None
-        for track in tracks_in_zone:
-            track_id = track.get("track_id")
-            if track_id is None:
-                continue
+        velocity_threshold = self.MIN_REVERSE_VELOCITY
 
-            history = self.track_history.get(int(track_id), deque())
-            if len(history) < 2:
-                continue
-
-            zone_candidate_speed = _segment_speed(
-                history[-1][0] - history[-2][0], history[-1][1] - history[-2][1]
-            )
-            if current_flow_speed is None or zone_candidate_speed > current_flow_speed:
-                current_flow_speed = zone_candidate_speed
-
-        if (
-            current_flow_speed is None
-            or float(current_flow_speed) < self.min_directional_speed
-        ):
-            return False
+        current_reverse_tracklets: set[int] = set()
 
         for track in tracks_in_zone:
             track_id = track.get("track_id")
@@ -252,40 +263,42 @@ class CrowdTracker:
             if len(smoothed_history) < 3:
                 continue
 
-            recent_vectors: list[tuple[float, float]] = []
+            consistent_reverse = True
             for previous, current in zip(
                 smoothed_history[-4:], smoothed_history[-4:][1:], strict=False
             ):
                 dx = current[0] - previous[0]
                 dy = current[1] - previous[1]
                 speed = _segment_speed(dx, dy)
-                if speed < self.min_directional_speed:
-                    continue
-                recent_vectors.append((speed, _vector_heading_degrees(dx, dy)))
 
-            if len(recent_vectors) < 3:
-                continue
+                if speed < velocity_threshold:
+                    consistent_reverse = False
+                    break
 
-            headings = [heading for _, heading in recent_vectors[-3:]]
-            max_heading_spread = max(
-                _angle_difference_degrees(headings[0], headings[1]),
-                _angle_difference_degrees(headings[1], headings[2]),
-                _angle_difference_degrees(headings[0], headings[2]),
-            )
-            if max_heading_spread > 45.0:
-                continue
+                v_mag = speed
+                dot_product = dx * corridor_vec[0] + dy * corridor_vec[1]
+                cos_theta = dot_product / (v_mag * math.hypot(corridor_vec[0], corridor_vec[1]))
 
-            evaluated_count += 1
-            if all(
-                _angle_difference_degrees(heading, zone_flow_direction_deg) > 135.0
-                for heading in headings
-            ):
-                reverse_count += 1
+                if cos_theta >= self.COSINE_SIMILARITY_THRESHOLD:
+                    consistent_reverse = False
+                    break
 
-        if evaluated_count == 0:
+            if consistent_reverse:
+                current_reverse_tracklets.add(int(track_id))
+
+        if zone_id not in self._zone_reverse_flow_history:
+            self._zone_reverse_flow_history[zone_id] = deque(maxlen=self.REVERSE_PERSISTENCE_FRAMES)
+
+        self._zone_reverse_flow_history[zone_id].append(current_reverse_tracklets)
+
+        if len(self._zone_reverse_flow_history[zone_id]) < self.REVERSE_PERSISTENCE_FRAMES:
             return False
 
-        return (reverse_count / evaluated_count) > 0.4
+        persistent_tracklets: set[int] = set.intersection(
+            *self._zone_reverse_flow_history[zone_id]
+        )
+
+        return len(persistent_tracklets) >= self.REVERSE_MIN_TRACKLETS
 
     def _detect_erratic_movement(self, tracks_in_zone: list[dict[str, Any]]) -> bool:
         for track in tracks_in_zone:
@@ -354,24 +367,55 @@ class CrowdTracker:
         if rolling_speed <= 0:
             return False
 
-        # Surge footage shows a fast approach followed by an almost complete
-        # stop at the choke point. Use that sharp drop as the bottleneck signal,
-        # but only when the zone is slower than its adjacent cells.
         sustained_stall = (
-            float(current_speed) <= 0.0015 and float(previous_speed) >= 0.05
+            float(current_speed) <= self.BOTTLENECK_STALL_SPEED and float(previous_speed) >= self.BOTTLENECK_PREVIOUS_SPEED
         )
         local_flow_contrast = (
-            float(neighbor_avg_flow_speed) - float(current_speed) >= 0.03
+            float(neighbor_avg_flow_speed) - float(current_speed) >= self.BOTTLENECK_FLOW_CONTRAST
         )
-        crowding_signal = int(
-            current_crowd_count
-        ) <= self.max_bottleneck_crowd_count and (
-            float(current_density_score) >= self.min_bottleneck_density
-            or float(current_speed) <= 0.0015
-        )
-        if not (sustained_stall and crowding_signal and local_flow_contrast):
+        local_density_high = float(current_density_score) >= self.min_bottleneck_density
+        crowd_not_decreasing = int(current_crowd_count) >= int(previous_crowd_count)
+
+        if not (sustained_stall and local_flow_contrast and local_density_high and crowd_not_decreasing):
             return False
 
         speed_drop_ratio = 1.0 - (float(current_speed) / float(rolling_speed))
-        crowd_not_decreasing = int(current_crowd_count) >= int(previous_crowd_count)
-        return speed_drop_ratio > 0.6 and crowd_not_decreasing
+        return speed_drop_ratio > self.BOTTLENECK_SPEED_DROP_RATIO
+
+    def _log_diagnostics(
+        self,
+        zone_id: str,
+        tracks_in_zone: list[dict[str, Any]],
+        zone_flow_direction_deg: float,
+        history: dict[str, Any],
+    ) -> None:
+        zone_history = history.get(zone_id, {}) if isinstance(history, dict) else {}
+        current_speed = zone_history.get("current_flow_speed", 0.0)
+        current_crowd_count = zone_history.get("current_crowd_count", 0)
+        current_density = zone_history.get("current_density_score", 0.0)
+
+        opposing_vectors = 0
+        if tracks_in_zone:
+            corridor_rad = math.radians(zone_flow_direction_deg)
+            corridor_vec = (math.sin(corridor_rad), -math.cos(corridor_rad))
+            for track in tracks_in_zone:
+                track_id = track.get("track_id")
+                if track_id is None:
+                    continue
+                hist = self.track_history.get(int(track_id), deque())
+                if len(hist) >= 2:
+                    dx = hist[-1][0] - hist[-2][0]
+                    dy = hist[-1][1] - hist[-2][1]
+                    speed = _segment_speed(dx, dy)
+                    if speed >= self.MIN_REVERSE_VELOCITY:
+                        v_mag = speed
+                        dot_product = dx * corridor_vec[0] + dy * corridor_vec[1]
+                        cos_theta = dot_product / (v_mag * math.hypot(corridor_vec[0], corridor_vec[1]))
+                        if cos_theta < self.COSINE_SIMILARITY_THRESHOLD:
+                            opposing_vectors += 1
+
+        print(
+            f"[DIAG] Frame={self._frame_counter} Zone={zone_id} "
+            f"Tracks={current_crowd_count} Density={current_density:.3f} "
+            f"MeanVel={current_speed:.3f} Opposing={opposing_vectors}"
+        )

@@ -28,6 +28,7 @@ from zone_config import Zone, generate_grid_zones, load_zones_from_json
 DEFAULT_SOURCE_ID = "cam_01"
 DEFAULT_SAMPLE_EVERY_N_FRAMES = 3
 DEFAULT_MODE = "batch"
+DIAGNOSTIC_INTERVAL_FRAMES = 30
 
 
 def _format_utc_timestamp(start_time: datetime, frame_number: int, fps: float) -> str:
@@ -69,6 +70,80 @@ def _parse_grid_position(zone_id: str) -> tuple[int, int] | None:
     row_index -= 1
     col_index = int(col_part) - 1
     return (row_index, col_index) if row_index >= 0 and col_index >= 0 else None
+
+
+def _count_opposing_vectors(
+    flow_field: np.ndarray | None,
+    zone: Zone,
+    zone_flow_direction_deg: float,
+    frame_width: int,
+    frame_height: int,
+) -> int:
+    import math
+
+    if flow_field is None:
+        return 0
+
+    x_min = max(
+        0,
+        min(
+            frame_width,
+            int(math.floor(zone.bounds_normalized["x_min"] * frame_width)),
+        ),
+    )
+    y_min = max(
+        0,
+        min(
+            frame_height,
+            int(math.floor(zone.bounds_normalized["y_min"] * frame_height)),
+        ),
+    )
+    x_max = max(
+        0,
+        min(
+            frame_width,
+            int(math.ceil(zone.bounds_normalized["x_max"] * frame_width)),
+        ),
+    )
+    y_max = max(
+        0,
+        min(
+            frame_height,
+            int(math.ceil(zone.bounds_normalized["y_max"] * frame_height)),
+        ),
+    )
+
+    if x_max <= x_min or y_max <= y_min:
+        return 0
+
+    zone_flow = flow_field[y_min:y_max, x_min:x_max]
+    if zone_flow.size == 0:
+        return 0
+
+    fx = zone_flow[..., 0]
+    fy = zone_flow[..., 1]
+    magnitudes = np.sqrt(fx * fx + fy * fy)
+
+    corridor_rad = math.radians(zone_flow_direction_deg)
+    corridor_vec = (math.sin(corridor_rad), -math.cos(corridor_rad))
+    MIN_VELOCITY = 0.8
+    COSINE_THRESHOLD = -0.6
+
+    opposing = 0
+    for i in range(zone_flow.shape[0]):
+        for j in range(zone_flow.shape[1]):
+            speed = magnitudes[i, j]
+            if speed < MIN_VELOCITY:
+                continue
+            dx = fx[i, j]
+            dy = fy[i, j]
+            v_mag = speed
+            dot_product = dx * corridor_vec[0] + dy * corridor_vec[1]
+            cos_theta = dot_product / (v_mag * math.hypot(corridor_vec[0], corridor_vec[1]))
+            if cos_theta < COSINE_THRESHOLD:
+                opposing += 1
+
+    return opposing
 
 
 class CVPipeline:
@@ -293,6 +368,35 @@ class CVPipeline:
                     else:
                         max_zone_density = 0.0
                         highest_risk_zone_id = ""
+
+                    if frame_number % DIAGNOSTIC_INTERVAL_FRAMES == 0:
+                        mean_velocity = 0.0
+                        total_tracks = 0
+                        opposing_vectors_total = 0
+                        if zones_payload:
+                            velocities = [z["avg_flow_speed"] for z in zones_payload]
+                            mean_velocity = sum(velocities) / len(velocities)
+                            total_tracks = sum(z["crowd_count"] for z in zones_payload)
+                            for z in zones_payload:
+                                zone_obj = next(
+                                    (zone for zone in self.zones if zone.zone_id == z["zone_id"]),
+                                    None,
+                                )
+                                if zone_obj is not None:
+                                    opposing_vectors_total += _count_opposing_vectors(
+                                        flow_field,
+                                        zone_obj,
+                                        z["avg_flow_direction_deg"],
+                                        frame_width,
+                                        frame_height,
+                                    )
+                        print(
+                            f"[DIAG] Frame={frame_number} "
+                            f"TotalTracks={total_tracks} "
+                            f"MaxDensity={max_zone_density:.3f} "
+                            f"MeanVel={mean_velocity:.3f} "
+                            f"OpposingVecs={opposing_vectors_total}"
+                        )
 
                     yield {
                         "timestamp": _format_utc_timestamp(
