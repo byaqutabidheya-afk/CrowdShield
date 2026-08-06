@@ -61,8 +61,8 @@ class CrowdTracker:
     """ByteTrack-backed tracker with rolling motion history and anomaly flags."""
 
     min_directional_speed: float = 0.15
-    min_bottleneck_density: float = 0.01
-    max_bottleneck_crowd_count: int = 2
+    min_bottleneck_density: float = 0.20
+    min_bottleneck_crowd_count: int = 3
 
     MIN_REVERSE_VELOCITY: float = 0.8
     BOTTLENECK_REVERSE_VELOCITY: float = 1.5
@@ -73,7 +73,8 @@ class CrowdTracker:
     BOTTLENECK_STALL_SPEED: float = 0.01
     BOTTLENECK_PREVIOUS_SPEED: float = 0.02
     BOTTLENECK_FLOW_CONTRAST: float = 0.01
-    BOTTLENECK_SPEED_DROP_RATIO: float = 0.5
+    BOTTLENECK_SPEED_DROP_RATIO: float = 0.6
+    BOTTLENECK_MIN_ROLLING_SPEED: float = 0.05
 
     def __init__(self, model_path: Path | str | None = None) -> None:
         model_path = (
@@ -364,13 +365,14 @@ class CrowdTracker:
         ):
             return False
 
-        if float(rolling_speed) <= 0.0:
+        if float(rolling_speed) <= self.BOTTLENECK_MIN_ROLLING_SPEED:
             return False
 
         local_density_high = float(current_density_score) >= self.min_bottleneck_density
         crowd_not_decreasing = int(current_crowd_count) >= int(previous_crowd_count)
+        crowd_above_minimum = int(current_crowd_count) >= self.min_bottleneck_crowd_count
 
-        if not (local_density_high and crowd_not_decreasing):
+        if not (local_density_high and crowd_not_decreasing and crowd_above_minimum):
             return False
 
         speed_drop_ratio = 1.0 - (float(current_speed) / float(rolling_speed))
