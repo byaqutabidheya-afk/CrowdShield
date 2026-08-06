@@ -32,8 +32,37 @@ def _vector_heading_degrees(dx: float, dy: float) -> float:
     return (math.degrees(math.atan2(dx, -dy)) + 360.0) % 360.0
 
 
+def _smoothed_positions(
+    history: list[tuple[float, float]], window_size: int = 3
+) -> list[tuple[float, float]]:
+    """Return a simple moving-average trajectory to damp track jitter."""
+
+    if len(history) < window_size:
+        return []
+
+    smoothed_history: list[tuple[float, float]] = []
+    window_count = len(history) - window_size + 1
+    for start_index in range(window_count):
+        window = history[start_index : start_index + window_size]
+        x_values = [point[0] for point in window]
+        y_values = [point[1] for point in window]
+        smoothed_history.append(
+            (sum(x_values) / window_size, sum(y_values) / window_size)
+        )
+
+    return smoothed_history
+
+
+def _segment_speed(dx: float, dy: float) -> float:
+    return math.hypot(dx, dy)
+
+
 class CrowdTracker:
     """ByteTrack-backed tracker with rolling motion history and anomaly flags."""
+
+    min_directional_speed: float = 0.15
+    min_bottleneck_density: float = 0.01
+    max_bottleneck_crowd_count: int = 2
 
     def __init__(self, model_path: Path | str | None = None) -> None:
         model_path = (
@@ -133,6 +162,29 @@ class CrowdTracker:
     ) -> dict[str, Any]:
         """Detect reverse flow, erratic movement, and bottleneck patterns."""
 
+        zone_history = history.get(zone_id, {}) if isinstance(history, dict) else {}
+        current_crowd_count = (
+            zone_history.get("current_crowd_count")
+            if isinstance(zone_history, dict)
+            else None
+        )
+        current_flow_speed = (
+            zone_history.get("current_flow_speed")
+            if isinstance(zone_history, dict)
+            else None
+        )
+
+        # Empty zones can still carry small optical-flow noise and stale rolling
+        # history, which is enough to satisfy the bottleneck comparison unless we
+        # short-circuit first. We never score anomalies when the zone has no people.
+        if int(current_crowd_count or 0) == 0:
+            return {
+                "reverse_flow_detected": False,
+                "erratic_movement_flag": False,
+                "bottleneck_detected": False,
+                "anomaly_flags": [],
+            }
+
         reverse_flow_detected = self._detect_reverse_flow(
             tracks_in_zone, zone_flow_direction_deg
         )
@@ -165,6 +217,7 @@ class CrowdTracker:
         reverse_count = 0
         evaluated_count = 0
 
+        current_flow_speed = None
         for track in tracks_in_zone:
             track_id = track.get("track_id")
             if track_id is None:
@@ -174,18 +227,58 @@ class CrowdTracker:
             if len(history) < 2:
                 continue
 
-            prev_x, prev_y = history[-2]
-            curr_x, curr_y = history[-1]
-            dx = curr_x - prev_x
-            dy = curr_y - prev_y
-            if dx == 0.0 and dy == 0.0:
+            zone_candidate_speed = _segment_speed(
+                history[-1][0] - history[-2][0], history[-1][1] - history[-2][1]
+            )
+            if current_flow_speed is None or zone_candidate_speed > current_flow_speed:
+                current_flow_speed = zone_candidate_speed
+
+        if (
+            current_flow_speed is None
+            or float(current_flow_speed) < self.min_directional_speed
+        ):
+            return False
+
+        for track in tracks_in_zone:
+            track_id = track.get("track_id")
+            if track_id is None:
+                continue
+
+            history = self.track_history.get(int(track_id), deque())
+            if len(history) < 4:
+                continue
+
+            smoothed_history = _smoothed_positions(list(history)[-6:], window_size=3)
+            if len(smoothed_history) < 3:
+                continue
+
+            recent_vectors: list[tuple[float, float]] = []
+            for previous, current in zip(
+                smoothed_history[-4:], smoothed_history[-4:][1:], strict=False
+            ):
+                dx = current[0] - previous[0]
+                dy = current[1] - previous[1]
+                speed = _segment_speed(dx, dy)
+                if speed < self.min_directional_speed:
+                    continue
+                recent_vectors.append((speed, _vector_heading_degrees(dx, dy)))
+
+            if len(recent_vectors) < 3:
+                continue
+
+            headings = [heading for _, heading in recent_vectors[-3:]]
+            max_heading_spread = max(
+                _angle_difference_degrees(headings[0], headings[1]),
+                _angle_difference_degrees(headings[1], headings[2]),
+                _angle_difference_degrees(headings[0], headings[2]),
+            )
+            if max_heading_spread > 45.0:
                 continue
 
             evaluated_count += 1
-            movement_heading = _vector_heading_degrees(dx, dy)
-            if (
-                _angle_difference_degrees(movement_heading, zone_flow_direction_deg)
-                > 135.0
+            if all(
+                _angle_difference_degrees(heading, zone_flow_direction_deg) > 135.0
+                for heading in headings
             ):
                 reverse_count += 1
 
@@ -201,27 +294,33 @@ class CrowdTracker:
                 continue
 
             history = list(self.track_history.get(int(track_id), deque()))[-10:]
-            if len(history) < 4:
+            if len(history) < 6:
+                continue
+
+            smoothed_history = _smoothed_positions(history, window_size=3)
+            if len(smoothed_history) < 4:
                 continue
 
             headings: list[float] = []
-            for previous, current in zip(history, history[1:], strict=False):
+            for previous, current in zip(
+                smoothed_history, smoothed_history[1:], strict=False
+            ):
                 dx = current[0] - previous[0]
                 dy = current[1] - previous[1]
                 if dx == 0.0 and dy == 0.0:
                     continue
                 headings.append(_vector_heading_degrees(dx, dy))
 
-            if len(headings) < 3:
+            if len(headings) < 4:
                 continue
 
             consecutive_large_changes = 0
             for first_heading, second_heading in zip(
                 headings, headings[1:], strict=False
             ):
-                if _angle_difference_degrees(first_heading, second_heading) > 90.0:
+                if _angle_difference_degrees(first_heading, second_heading) > 120.0:
                     consecutive_large_changes += 1
-                    if consecutive_large_changes >= 3:
+                    if consecutive_large_changes >= 4:
                         return True
                 else:
                     consecutive_large_changes = 0
@@ -235,18 +334,42 @@ class CrowdTracker:
 
         current_speed = zone_history.get("current_flow_speed")
         rolling_speed = zone_history.get("rolling_avg_flow_speed")
+        previous_speed = zone_history.get("previous_flow_speed")
         current_crowd_count = zone_history.get("current_crowd_count")
         previous_crowd_count = zone_history.get("previous_crowd_count")
+        current_density_score = zone_history.get("current_density_score")
+        neighbor_avg_flow_speed = zone_history.get("neighbor_avg_flow_speed")
 
         if (
             current_speed is None
             or rolling_speed is None
+            or previous_speed is None
             or current_crowd_count is None
             or previous_crowd_count is None
+            or current_density_score is None
+            or neighbor_avg_flow_speed is None
         ):
             return False
 
         if rolling_speed <= 0:
+            return False
+
+        # Surge footage shows a fast approach followed by an almost complete
+        # stop at the choke point. Use that sharp drop as the bottleneck signal,
+        # but only when the zone is slower than its adjacent cells.
+        sustained_stall = (
+            float(current_speed) <= 0.0015 and float(previous_speed) >= 0.05
+        )
+        local_flow_contrast = (
+            float(neighbor_avg_flow_speed) - float(current_speed) >= 0.03
+        )
+        crowding_signal = int(
+            current_crowd_count
+        ) <= self.max_bottleneck_crowd_count and (
+            float(current_density_score) >= self.min_bottleneck_density
+            or float(current_speed) <= 0.0015
+        )
+        if not (sustained_stall and crowding_signal and local_flow_contrast):
             return False
 
         speed_drop_ratio = 1.0 - (float(current_speed) / float(rolling_speed))

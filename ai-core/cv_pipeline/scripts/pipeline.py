@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 from collections import deque
+from collections.abc import Iterator
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 try:
     import cv2
@@ -24,7 +24,6 @@ from detector import CrowdDetector
 from optical_flow import OpticalFlowAnalyzer
 from tracker import CrowdTracker
 from zone_config import Zone, generate_grid_zones, load_zones_from_json
-
 
 DEFAULT_SOURCE_ID = "cam_01"
 DEFAULT_SAMPLE_EVERY_N_FRAMES = 3
@@ -44,6 +43,32 @@ def _zone_bounds_payload(zone: Zone) -> dict[str, float]:
         "x_max": float(zone.bounds_normalized["x_max"]),
         "y_max": float(zone.bounds_normalized["y_max"]),
     }
+
+
+def _parse_grid_position(zone_id: str) -> tuple[int, int] | None:
+    if not zone_id.startswith("zone_"):
+        return None
+
+    suffix = zone_id[5:]
+    row_part = ""
+    col_part = ""
+    for character in suffix:
+        if character.isalpha() and not col_part:
+            row_part += character.upper()
+        elif character.isdigit():
+            col_part += character
+        else:
+            return None
+
+    if not row_part or not col_part:
+        return None
+
+    row_index = 0
+    for character in row_part:
+        row_index = row_index * 26 + (ord(character) - ord("A") + 1)
+    row_index -= 1
+    col_index = int(col_part) - 1
+    return (row_index, col_index) if row_index >= 0 and col_index >= 0 else None
 
 
 class CVPipeline:
@@ -69,6 +94,11 @@ class CVPipeline:
         self._zone_count_history: dict[str, deque[int]] = {
             zone.zone_id: deque(maxlen=2) for zone in zones
         }
+        self._zone_positions: dict[str, tuple[int, int]] = {}
+        for zone in zones:
+            parsed_position = _parse_grid_position(zone.zone_id)
+            if parsed_position is not None:
+                self._zone_positions[zone.zone_id] = parsed_position
 
     def _reset_runtime_state(self) -> None:
         self.tracker.track_history.clear()
@@ -122,6 +152,7 @@ class CVPipeline:
 
                 if frame_number % sample_every_n_frames == 0:
                     zones_payload: list[dict[str, Any]] = []
+                    zone_payload_map: dict[str, dict[str, Any]] = {}
                     for zone in self.zones:
                         zone_tracks = zone_assignments.get(zone.zone_id, [])
                         crowd_count = len(zone_tracks)
@@ -144,6 +175,11 @@ class CVPipeline:
                             }
 
                         flow_history = self._zone_flow_history[zone.zone_id]
+                        previous_flow_speed = (
+                            flow_history[-1]
+                            if flow_history
+                            else float(flow_stats["avg_flow_speed"])
+                        )
                         flow_history.append(float(flow_stats["avg_flow_speed"]))
                         rolling_avg_flow_speed = (
                             sum(flow_history) / len(flow_history)
@@ -163,8 +199,11 @@ class CVPipeline:
                                     flow_stats["avg_flow_speed"]
                                 ),
                                 "rolling_avg_flow_speed": float(rolling_avg_flow_speed),
+                                "previous_flow_speed": float(previous_flow_speed),
+                                "recent_flow_speeds": list(flow_history),
                                 "current_crowd_count": crowd_count,
                                 "previous_crowd_count": previous_crowd_count,
+                                "current_density_score": float(density_score),
                             }
                         }
                         anomaly_result = self.tracker.detect_anomalies(
@@ -200,6 +239,44 @@ class CVPipeline:
                                     if "track_id" in track
                                 ],
                             }
+                        )
+                        zone_payload_map[zone.zone_id] = zones_payload[-1]
+
+                    for zone in self.zones:
+                        zone_payload = zone_payload_map.get(zone.zone_id)
+                        if zone_payload is None:
+                            continue
+
+                        position = self._zone_positions.get(zone.zone_id)
+                        if position is None:
+                            continue
+
+                        row_index, col_index = position
+                        neighbor_speeds: list[float] = []
+                        for neighbor_row, neighbor_col in (
+                            (row_index - 1, col_index),
+                            (row_index + 1, col_index),
+                            (row_index, col_index - 1),
+                            (row_index, col_index + 1),
+                        ):
+                            for neighbor_zone in self.zones:
+                                if self._zone_positions.get(neighbor_zone.zone_id) == (
+                                    neighbor_row,
+                                    neighbor_col,
+                                ):
+                                    neighbor_speeds.append(
+                                        float(
+                                            zone_payload_map[neighbor_zone.zone_id][
+                                                "avg_flow_speed"
+                                            ]
+                                        )
+                                    )
+                                    break
+
+                        zone_payload["neighbor_avg_flow_speed"] = (
+                            sum(neighbor_speeds) / len(neighbor_speeds)
+                            if neighbor_speeds
+                            else 0.0
                         )
 
                     total_crowd_count = sum(
