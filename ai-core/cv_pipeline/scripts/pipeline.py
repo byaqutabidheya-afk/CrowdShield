@@ -226,8 +226,7 @@ class CVPipeline:
                     flow_field = None
 
                 if frame_number % sample_every_n_frames == 0:
-                    zones_payload: list[dict[str, Any]] = []
-                    zone_payload_map: dict[str, dict[str, Any]] = {}
+                    zone_drafts: list[dict[str, Any]] = []
                     for zone in self.zones:
                         zone_tracks = zone_assignments.get(zone.zone_id, [])
                         crowd_count = len(zone_tracks)
@@ -268,30 +267,10 @@ class CVPipeline:
                         )
                         count_history.append(crowd_count)
 
-                        anomaly_history = {
-                            zone.zone_id: {
-                                "current_flow_speed": float(
-                                    flow_stats["avg_flow_speed"]
-                                ),
-                                "rolling_avg_flow_speed": float(rolling_avg_flow_speed),
-                                "previous_flow_speed": float(previous_flow_speed),
-                                "recent_flow_speeds": list(flow_history),
-                                "current_crowd_count": crowd_count,
-                                "previous_crowd_count": previous_crowd_count,
-                                "current_density_score": float(density_score),
-                            }
-                        }
-                        anomaly_result = self.tracker.detect_anomalies(
-                            zone.zone_id,
-                            zone_tracks,
-                            float(flow_stats["avg_flow_direction_deg"]),
-                            anomaly_history,
-                        )
-
-                        zones_payload.append(
+                        zone_drafts.append(
                             {
-                                "zone_id": zone.zone_id,
-                                "bounds_normalized": _zone_bounds_payload(zone),
+                                "zone": zone,
+                                "zone_tracks": zone_tracks,
                                 "crowd_count": crowd_count,
                                 "density_score": float(density_score),
                                 "avg_flow_speed": float(flow_stats["avg_flow_speed"]),
@@ -301,29 +280,20 @@ class CVPipeline:
                                 "avg_flow_direction_label": str(
                                     flow_stats["avg_flow_direction_label"]
                                 ),
-                                "reverse_flow_detected": bool(
-                                    anomaly_result["reverse_flow_detected"]
-                                ),
-                                "bottleneck_detected": bool(
-                                    anomaly_result["bottleneck_detected"]
-                                ),
-                                "anomaly_flags": list(anomaly_result["anomaly_flags"]),
-                                "tracked_ids_in_zone": [
-                                    int(track["track_id"])
-                                    for track in zone_tracks
-                                    if "track_id" in track
-                                ],
+                                "previous_flow_speed": float(previous_flow_speed),
+                                "rolling_avg_flow_speed": float(rolling_avg_flow_speed),
+                                "previous_crowd_count": previous_crowd_count,
                             }
                         )
-                        zone_payload_map[zone.zone_id] = zones_payload[-1]
 
-                    for zone in self.zones:
-                        zone_payload = zone_payload_map.get(zone.zone_id)
-                        if zone_payload is None:
-                            continue
-
+                    zone_draft_map = {
+                        draft["zone"].zone_id: draft for draft in zone_drafts
+                    }
+                    for draft in zone_drafts:
+                        zone = draft["zone"]
                         position = self._zone_positions.get(zone.zone_id)
                         if position is None:
+                            draft["neighbor_avg_flow_speed"] = 0.0
                             continue
 
                         row_index, col_index = position
@@ -339,19 +309,65 @@ class CVPipeline:
                                     neighbor_row,
                                     neighbor_col,
                                 ):
-                                    neighbor_speeds.append(
-                                        float(
-                                            zone_payload_map[neighbor_zone.zone_id][
-                                                "avg_flow_speed"
-                                            ]
-                                        )
+                                    neighbor_draft = zone_draft_map.get(
+                                        neighbor_zone.zone_id
                                     )
+                                    if neighbor_draft is not None:
+                                        neighbor_speeds.append(
+                                            float(neighbor_draft["avg_flow_speed"])
+                                        )
                                     break
 
-                        zone_payload["neighbor_avg_flow_speed"] = (
+                        draft["neighbor_avg_flow_speed"] = (
                             sum(neighbor_speeds) / len(neighbor_speeds)
                             if neighbor_speeds
                             else 0.0
+                        )
+
+                    zones_payload: list[dict[str, Any]] = []
+                    for draft in zone_drafts:
+                        zone = draft["zone"]
+                        anomaly_history = {
+                            zone.zone_id: {
+                                "current_flow_speed": draft["avg_flow_speed"],
+                                "rolling_avg_flow_speed": draft["rolling_avg_flow_speed"],
+                                "previous_flow_speed": draft["previous_flow_speed"],
+                                "current_crowd_count": draft["crowd_count"],
+                                "previous_crowd_count": draft["previous_crowd_count"],
+                                "current_density_score": draft["density_score"],
+                                "neighbor_avg_flow_speed": draft["neighbor_avg_flow_speed"],
+                            }
+                        }
+                        anomaly_result = self.tracker.detect_anomalies(
+                            zone.zone_id,
+                            draft["zone_tracks"],
+                            draft["avg_flow_direction_deg"],
+                            anomaly_history,
+                        )
+
+                        zones_payload.append(
+                            {
+                                "zone_id": zone.zone_id,
+                                "bounds_normalized": _zone_bounds_payload(zone),
+                                "crowd_count": draft["crowd_count"],
+                                "density_score": draft["density_score"],
+                                "avg_flow_speed": draft["avg_flow_speed"],
+                                "avg_flow_direction_deg": draft["avg_flow_direction_deg"],
+                                "avg_flow_direction_label": draft["avg_flow_direction_label"],
+                                "neighbor_avg_flow_speed": draft["neighbor_avg_flow_speed"],
+                                "reverse_flow_detected": bool(
+                                    anomaly_result["reverse_flow_detected"]
+                                ),
+                                "bottleneck_detected": bool(
+                                    anomaly_result["bottleneck_detected"]
+                                ),
+                                "anomaly_flags": list(anomaly_result["anomaly_flags"]),
+                                "tracked_ids_in_zone": [
+                                    int(track["track_id"])
+                                    for track in draft["zone_tracks"]
+                                    if "track_id" in track
+                                ],
+                            }
                         )
 
                     total_crowd_count = sum(

@@ -364,19 +364,13 @@ class CrowdTracker:
         ):
             return False
 
-        if rolling_speed <= 0:
+        if float(rolling_speed) <= 0.0:
             return False
 
-        sustained_stall = (
-            float(current_speed) <= self.BOTTLENECK_STALL_SPEED and float(previous_speed) >= self.BOTTLENECK_PREVIOUS_SPEED
-        )
-        local_flow_contrast = (
-            float(neighbor_avg_flow_speed) - float(current_speed) >= self.BOTTLENECK_FLOW_CONTRAST
-        )
         local_density_high = float(current_density_score) >= self.min_bottleneck_density
         crowd_not_decreasing = int(current_crowd_count) >= int(previous_crowd_count)
 
-        if not (sustained_stall and local_flow_contrast and local_density_high and crowd_not_decreasing):
+        if not (local_density_high and crowd_not_decreasing):
             return False
 
         speed_drop_ratio = 1.0 - (float(current_speed) / float(rolling_speed))
