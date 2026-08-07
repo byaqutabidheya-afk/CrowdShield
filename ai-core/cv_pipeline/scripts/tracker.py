@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import torch
 
 
 CURRENT_DIR = Path(__file__).resolve().parent
@@ -79,10 +80,18 @@ class CrowdTracker:
     # Flow-only bottleneck path (fires when YOLO detects no persons but optical flow
     # shows a sustained high-magnitude, high-variance surge pattern).
     # Raw-space thresholds (pixels per frame before OpticalFlowAnalyzer normalisation).
-    FLOW_BOTTLENECK_MIN_ROLLING_RAW: float = 0.40   # rolling avg raw speed that signals prior surge activity
-    FLOW_BOTTLENECK_MIN_CURRENT_RAW: float = 0.30   # current raw speed must also be high (active surge)
-    FLOW_BOTTLENECK_MIN_VARIANCE: float = 12.0       # spatial variance must be elevated (chaotic compression)
-    FLOW_BOTTLENECK_PERSISTENCE: int = 5             # consecutive qualifying samples before triggering
+    FLOW_BOTTLENECK_MIN_ROLLING_RAW: float = (
+        0.40  # rolling avg raw speed that signals prior surge activity
+    )
+    FLOW_BOTTLENECK_MIN_CURRENT_RAW: float = (
+        0.30  # current raw speed must also be high (active surge)
+    )
+    FLOW_BOTTLENECK_MIN_VARIANCE: float = (
+        12.0  # spatial variance must be elevated (chaotic compression)
+    )
+    FLOW_BOTTLENECK_PERSISTENCE: int = (
+        5  # consecutive qualifying samples before triggering
+    )
 
     def __init__(self, model_path: Path | str | None = None) -> None:
         model_path = (
@@ -113,6 +122,20 @@ class CrowdTracker:
         self._frame_counter = 0
 
     def track_frame(self, frame: np.ndarray) -> list[dict[str, Any]]:
+        # Check for NVIDIA GPU availability
+        import torch
+
+        has_cuda = torch.cuda.is_available()
+
+        results = self.model.track(
+            frame,
+            persist=True,
+            tracker="bytetrack.yaml",
+            verbose=False,
+            imgsz=640,
+            quantize="fp16" if has_cuda else None,
+            device=0 if has_cuda else "cpu",
+        )
         """Track detections in a frame and return persistent track IDs."""
 
         if frame is None:
@@ -121,11 +144,16 @@ class CrowdTracker:
         if not self.frame_history:
             self._reset_anomaly_state()
 
+        cuda_available = torch.cuda.is_available()
+
         results = self.model.track(
             frame,
             persist=True,
             tracker="bytetrack.yaml",
             verbose=False,
+            imgsz=640,
+            quantize="fp16" if has_cuda else "fp32",
+            device=0 if cuda_available else "cpu",
         )
 
         tracked_objects: list[dict[str, Any]] = []
@@ -212,7 +240,9 @@ class CrowdTracker:
         # Reverse flow and erratic movement still require person tracks.
         if int(current_crowd_count or 0) == 0:
             if zone_id not in self._zone_reverse_flow_history:
-                self._zone_reverse_flow_history[zone_id] = deque(maxlen=self.REVERSE_PERSISTENCE_FRAMES)
+                self._zone_reverse_flow_history[zone_id] = deque(
+                    maxlen=self.REVERSE_PERSISTENCE_FRAMES
+                )
 
             anomaly_flags: list[str] = []
             if bottleneck_detected:
@@ -239,7 +269,9 @@ class CrowdTracker:
             anomaly_flags.append("bottleneck")
 
         if self._frame_counter % 10 == 0:
-            self._log_diagnostics(zone_id, tracks_in_zone, zone_flow_direction_deg, history)
+            self._log_diagnostics(
+                zone_id, tracks_in_zone, zone_flow_direction_deg, history
+            )
 
         return {
             "reverse_flow_detected": reverse_flow_detected,
@@ -255,7 +287,9 @@ class CrowdTracker:
         zone_id: str,
     ) -> bool:
         if not tracks_in_zone:
-            self._zone_reverse_flow_history[zone_id] = deque(maxlen=self.REVERSE_PERSISTENCE_FRAMES)
+            self._zone_reverse_flow_history[zone_id] = deque(
+                maxlen=self.REVERSE_PERSISTENCE_FRAMES
+            )
             return False
 
         corridor_rad = math.radians(zone_flow_direction_deg)
@@ -292,7 +326,9 @@ class CrowdTracker:
 
                 v_mag = speed
                 dot_product = dx * corridor_vec[0] + dy * corridor_vec[1]
-                cos_theta = dot_product / (v_mag * math.hypot(corridor_vec[0], corridor_vec[1]))
+                cos_theta = dot_product / (
+                    v_mag * math.hypot(corridor_vec[0], corridor_vec[1])
+                )
 
                 if cos_theta >= self.COSINE_SIMILARITY_THRESHOLD:
                     consistent_reverse = False
@@ -302,11 +338,16 @@ class CrowdTracker:
                 current_reverse_tracklets.add(int(track_id))
 
         if zone_id not in self._zone_reverse_flow_history:
-            self._zone_reverse_flow_history[zone_id] = deque(maxlen=self.REVERSE_PERSISTENCE_FRAMES)
+            self._zone_reverse_flow_history[zone_id] = deque(
+                maxlen=self.REVERSE_PERSISTENCE_FRAMES
+            )
 
         self._zone_reverse_flow_history[zone_id].append(current_reverse_tracklets)
 
-        if len(self._zone_reverse_flow_history[zone_id]) < self.REVERSE_PERSISTENCE_FRAMES:
+        if (
+            len(self._zone_reverse_flow_history[zone_id])
+            < self.REVERSE_PERSISTENCE_FRAMES
+        ):
             return False
 
         persistent_tracklets: set[int] = set.intersection(
@@ -408,7 +449,9 @@ class CrowdTracker:
                     speed_drop_ratio = 1.0 - (
                         float(current_speed) / float(rolling_speed)
                     )
-                    person_bottleneck = speed_drop_ratio > self.BOTTLENECK_SPEED_DROP_RATIO
+                    person_bottleneck = (
+                        speed_drop_ratio > self.BOTTLENECK_SPEED_DROP_RATIO
+                    )
 
         if person_bottleneck:
             return True
@@ -456,12 +499,9 @@ class CrowdTracker:
         # We accept the sample if the *current* frame's variance is high OR if
         # the current frame is a near-zero frame but rolling speed is well above
         # threshold (implying prior high-variance frames are in the window).
-        variance_active = (
-            float(flow_variance) >= self.FLOW_BOTTLENECK_MIN_VARIANCE
-            or (
-                float(raw_current) < self.FLOW_BOTTLENECK_MIN_CURRENT_RAW * 0.1
-                and float(raw_rolling) >= self.FLOW_BOTTLENECK_MIN_ROLLING_RAW
-            )
+        variance_active = float(flow_variance) >= self.FLOW_BOTTLENECK_MIN_VARIANCE or (
+            float(raw_current) < self.FLOW_BOTTLENECK_MIN_CURRENT_RAW * 0.1
+            and float(raw_rolling) >= self.FLOW_BOTTLENECK_MIN_ROLLING_RAW
         )
 
         qualifies = rolling_active and current_active and variance_active
@@ -504,7 +544,9 @@ class CrowdTracker:
                     if speed >= self.MIN_REVERSE_VELOCITY:
                         v_mag = speed
                         dot_product = dx * corridor_vec[0] + dy * corridor_vec[1]
-                        cos_theta = dot_product / (v_mag * math.hypot(corridor_vec[0], corridor_vec[1]))
+                        cos_theta = dot_product / (
+                            v_mag * math.hypot(corridor_vec[0], corridor_vec[1])
+                        )
                         if cos_theta < self.COSINE_SIMILARITY_THRESHOLD:
                             opposing_vectors += 1
 

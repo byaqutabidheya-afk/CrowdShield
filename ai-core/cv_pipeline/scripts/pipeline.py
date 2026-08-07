@@ -129,19 +129,10 @@ def _count_opposing_vectors(
     MIN_VELOCITY = 0.8
     COSINE_THRESHOLD = -0.6
 
-    opposing = 0
-    for i in range(zone_flow.shape[0]):
-        for j in range(zone_flow.shape[1]):
-            speed = magnitudes[i, j]
-            if speed < MIN_VELOCITY:
-                continue
-            dx = fx[i, j]
-            dy = fy[i, j]
-            v_mag = speed
-            dot_product = dx * corridor_vec[0] + dy * corridor_vec[1]
-            cos_theta = dot_product / (v_mag * math.hypot(corridor_vec[0], corridor_vec[1]))
-            if cos_theta < COSINE_THRESHOLD:
-                opposing += 1
+    dot_product = fx * corridor_vec[0] + fy * corridor_vec[1]
+    corridor_mag = math.hypot(corridor_vec[0], corridor_vec[1])
+    cos_theta = dot_product / (magnitudes * corridor_mag)
+    opposing = int(np.sum((magnitudes >= MIN_VELOCITY) & (cos_theta < COSINE_THRESHOLD)))
 
     return opposing
 
@@ -215,6 +206,8 @@ class CVPipeline:
                 ok, frame = capture.read()
                 if not ok:
                     break
+
+                frame = cv2.resize(frame, (640, 360))
 
                 frame_height, frame_width = frame.shape[:2]
                 tracked_detections = self.tracker.track_frame(frame)
