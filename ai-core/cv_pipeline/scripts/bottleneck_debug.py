@@ -11,15 +11,18 @@ import numpy as np
 
 CURRENT_DIR = Path(__file__).resolve().parent
 CV_PIPELINE_DIR = CURRENT_DIR.parent
+AI_CORE_DIR = CV_PIPELINE_DIR.parent
 if str(CV_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(CV_PIPELINE_DIR))
+if str(AI_CORE_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_CORE_DIR))
 if str(CURRENT_DIR) not in sys.path:
     sys.path.insert(0, str(CURRENT_DIR))
 
 from detector import CrowdDetector
 from optical_flow import OpticalFlowAnalyzer
 from tracker import CrowdTracker
-from zone_config import generate_grid_zones
+from shared.zone_config import generate_grid_zones
 
 
 def debug_video(video_path: str, video_label: str) -> None:
