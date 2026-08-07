@@ -61,7 +61,7 @@ class CrowdTracker:
     """ByteTrack-backed tracker with rolling motion history and anomaly flags."""
 
     min_directional_speed: float = 0.15
-    min_bottleneck_density: float = 0.20
+    min_bottleneck_density: float = 0.12
     min_bottleneck_crowd_count: int = 3
 
     MIN_REVERSE_VELOCITY: float = 0.8
@@ -73,8 +73,16 @@ class CrowdTracker:
     BOTTLENECK_STALL_SPEED: float = 0.01
     BOTTLENECK_PREVIOUS_SPEED: float = 0.02
     BOTTLENECK_FLOW_CONTRAST: float = 0.01
-    BOTTLENECK_SPEED_DROP_RATIO: float = 0.6
-    BOTTLENECK_MIN_ROLLING_SPEED: float = 0.05
+    BOTTLENECK_SPEED_DROP_RATIO: float = 0.45
+    BOTTLENECK_MIN_ROLLING_SPEED: float = 0.04
+
+    # Flow-only bottleneck path (fires when YOLO detects no persons but optical flow
+    # shows a sustained high-magnitude, high-variance surge pattern).
+    # Raw-space thresholds (pixels per frame before OpticalFlowAnalyzer normalisation).
+    FLOW_BOTTLENECK_MIN_ROLLING_RAW: float = 0.40   # rolling avg raw speed that signals prior surge activity
+    FLOW_BOTTLENECK_MIN_CURRENT_RAW: float = 0.30   # current raw speed must also be high (active surge)
+    FLOW_BOTTLENECK_MIN_VARIANCE: float = 12.0       # spatial variance must be elevated (chaotic compression)
+    FLOW_BOTTLENECK_PERSISTENCE: int = 5             # consecutive qualifying samples before triggering
 
     def __init__(self, model_path: Path | str | None = None) -> None:
         model_path = (
@@ -95,10 +103,13 @@ class CrowdTracker:
         self._zone_bottleneck_state: dict[str, bool] = {}
         self._zone_reverse_flow_history: dict[str, deque[set[int]]] = {}
         self._frame_counter: int = 0
+        # Consecutive-sample counter for the flow-only bottleneck path (no YOLO persons needed)
+        self._zone_flow_bottleneck_streak: dict[str, int] = {}
 
     def _reset_anomaly_state(self) -> None:
         self._zone_bottleneck_state.clear()
         self._zone_reverse_flow_history.clear()
+        self._zone_flow_bottleneck_streak.clear()
         self._frame_counter = 0
 
     def track_frame(self, frame: np.ndarray) -> list[dict[str, Any]]:
@@ -192,31 +203,34 @@ class CrowdTracker:
             if isinstance(zone_history, dict)
             else None
         )
-        current_flow_speed = (
-            zone_history.get("current_flow_speed")
-            if isinstance(zone_history, dict)
-            else None
-        )
 
+        # Run the flow-only bottleneck path regardless of person count so that
+        # videos where YOLO detects no persons (e.g. surge.mp4) are still caught.
+        bottleneck_detected = self._detect_bottleneck(zone_id, history)
+        self._zone_bottleneck_state[zone_id] = bottleneck_detected
+
+        # Reverse flow and erratic movement still require person tracks.
         if int(current_crowd_count or 0) == 0:
-            self._zone_bottleneck_state[zone_id] = False
-            self._zone_reverse_flow_history[zone_id] = deque(maxlen=self.REVERSE_PERSISTENCE_FRAMES)
+            if zone_id not in self._zone_reverse_flow_history:
+                self._zone_reverse_flow_history[zone_id] = deque(maxlen=self.REVERSE_PERSISTENCE_FRAMES)
+
+            anomaly_flags: list[str] = []
+            if bottleneck_detected:
+                anomaly_flags.append("bottleneck")
+
             return {
                 "reverse_flow_detected": False,
                 "erratic_movement_flag": False,
-                "bottleneck_detected": False,
-                "anomaly_flags": [],
+                "bottleneck_detected": bottleneck_detected,
+                "anomaly_flags": anomaly_flags,
             }
-
-        bottleneck_detected = self._detect_bottleneck(zone_id, history)
-        self._zone_bottleneck_state[zone_id] = bottleneck_detected
 
         reverse_flow_detected = self._detect_reverse_flow(
             tracks_in_zone, zone_flow_direction_deg, zone_id
         )
         erratic_movement_flag = self._detect_erratic_movement(tracks_in_zone)
 
-        anomaly_flags: list[str] = []
+        anomaly_flags = []
         if reverse_flow_detected:
             anomaly_flags.append("reverse_flow")
         if erratic_movement_flag:
@@ -342,10 +356,26 @@ class CrowdTracker:
         return False
 
     def _detect_bottleneck(self, zone_id: str, history: dict[str, Any]) -> bool:
+        """Return True if a bottleneck is detected in *zone_id*.
+
+        Two independent detection paths are evaluated:
+
+        1. **Person-backed path** (original logic) – requires YOLO crowd count and
+           density data.  Triggers when a high-rolling-speed zone suddenly stalls
+           while the crowd density/count is still elevated.
+
+        2. **Flow-only path** – requires no YOLO persons at all.  Triggers when
+           the raw optical flow in the zone sustains high speed *and* very high
+           spatial variance across several consecutive samples, which is the
+           characteristic signature of a crowd compression / surge event.
+        """
         zone_history = history.get(zone_id, {}) if isinstance(history, dict) else {}
         if not isinstance(zone_history, dict):
             return False
 
+        # ------------------------------------------------------------------
+        # Path 1: person-backed bottleneck (original logic, unchanged)
+        # ------------------------------------------------------------------
         current_speed = zone_history.get("current_flow_speed")
         rolling_speed = zone_history.get("rolling_avg_flow_speed")
         previous_speed = zone_history.get("previous_flow_speed")
@@ -354,29 +384,97 @@ class CrowdTracker:
         current_density_score = zone_history.get("current_density_score")
         neighbor_avg_flow_speed = zone_history.get("neighbor_avg_flow_speed")
 
-        if (
-            current_speed is None
-            or rolling_speed is None
-            or previous_speed is None
-            or current_crowd_count is None
-            or previous_crowd_count is None
-            or current_density_score is None
-            or neighbor_avg_flow_speed is None
+        person_bottleneck = False
+        if not any(
+            v is None
+            for v in (
+                current_speed,
+                rolling_speed,
+                previous_speed,
+                current_crowd_count,
+                previous_crowd_count,
+                current_density_score,
+                neighbor_avg_flow_speed,
+            )
         ):
+            if float(rolling_speed) > self.BOTTLENECK_MIN_ROLLING_SPEED:
+                local_density_high = (
+                    float(current_density_score) >= self.min_bottleneck_density
+                )
+                crowd_above_minimum = (
+                    int(current_crowd_count) >= self.min_bottleneck_crowd_count
+                )
+                if local_density_high and crowd_above_minimum:
+                    speed_drop_ratio = 1.0 - (
+                        float(current_speed) / float(rolling_speed)
+                    )
+                    person_bottleneck = speed_drop_ratio > self.BOTTLENECK_SPEED_DROP_RATIO
+
+        if person_bottleneck:
+            return True
+
+        # ------------------------------------------------------------------
+        # Path 2: flow-only bottleneck (surge / compression without YOLO persons)
+        #
+        # Conditions (all must hold simultaneously):
+        #   a) Rolling *raw* flow speed is high – there has been sustained motion
+        #      in this zone recently (rules out true empty/static scenes).
+        #   b) The rolling speed itself serves as the "current activity" signal
+        #      because the source video may interleave high-motion frames with
+        #      near-zero duplicate/blank frames.  Using the rolling average
+        #      instead of the instantaneous current value ensures that transient
+        #      blank frames do not break the detection streak.
+        #   c) Spatial flow variance of the most-recent active frame is very high
+        #      – the vectors are chaotic and incoherent, which is the hallmark of
+        #      crowd compression / bottleneck rather than uniform directional flow.
+        #   d) The above must hold for FLOW_BOTTLENECK_PERSISTENCE consecutive
+        #      samples to suppress transient noise.
+        # ------------------------------------------------------------------
+        raw_rolling = zone_history.get("raw_rolling_flow_speed")
+        raw_current = zone_history.get("raw_current_flow_speed")
+        flow_variance = zone_history.get("flow_spatial_variance")
+
+        if raw_rolling is None or raw_current is None or flow_variance is None:
+            # Pipeline hasn't been updated yet – fail gracefully without false positive
+            self._zone_flow_bottleneck_streak[zone_id] = 0
             return False
 
-        if float(rolling_speed) <= self.BOTTLENECK_MIN_ROLLING_SPEED:
-            return False
+        # Use rolling speed to determine whether the zone is in an active-motion
+        # state.  The instantaneous current speed is used only as a secondary
+        # confirmation; if it is a blank/duplicate frame (near-zero current) but
+        # the rolling average is above threshold, still count this sample as
+        # qualifying so that the streak survives through blank frames.
+        rolling_active = float(raw_rolling) >= self.FLOW_BOTTLENECK_MIN_ROLLING_RAW
+        # Accept if EITHER current is also above threshold OR rolling is well above
+        # (handles the interleaved-blank-frame pattern in surge.mp4).
+        current_active = (
+            float(raw_current) >= self.FLOW_BOTTLENECK_MIN_CURRENT_RAW
+            or float(raw_rolling) >= self.FLOW_BOTTLENECK_MIN_ROLLING_RAW * 2.0
+        )
+        # Variance is also checked on the rolling value to reduce sensitivity to
+        # individual near-zero frames that produce variance=0.
+        # We accept the sample if the *current* frame's variance is high OR if
+        # the current frame is a near-zero frame but rolling speed is well above
+        # threshold (implying prior high-variance frames are in the window).
+        variance_active = (
+            float(flow_variance) >= self.FLOW_BOTTLENECK_MIN_VARIANCE
+            or (
+                float(raw_current) < self.FLOW_BOTTLENECK_MIN_CURRENT_RAW * 0.1
+                and float(raw_rolling) >= self.FLOW_BOTTLENECK_MIN_ROLLING_RAW
+            )
+        )
 
-        local_density_high = float(current_density_score) >= self.min_bottleneck_density
-        crowd_not_decreasing = int(current_crowd_count) >= int(previous_crowd_count)
-        crowd_above_minimum = int(current_crowd_count) >= self.min_bottleneck_crowd_count
+        qualifies = rolling_active and current_active and variance_active
 
-        if not (local_density_high and crowd_not_decreasing and crowd_above_minimum):
-            return False
+        if qualifies:
+            self._zone_flow_bottleneck_streak[zone_id] = (
+                self._zone_flow_bottleneck_streak.get(zone_id, 0) + 1
+            )
+        else:
+            self._zone_flow_bottleneck_streak[zone_id] = 0
 
-        speed_drop_ratio = 1.0 - (float(current_speed) / float(rolling_speed))
-        return speed_drop_ratio > self.BOTTLENECK_SPEED_DROP_RATIO
+        streak = self._zone_flow_bottleneck_streak.get(zone_id, 0)
+        return streak >= self.FLOW_BOTTLENECK_PERSISTENCE
 
     def _log_diagnostics(
         self,

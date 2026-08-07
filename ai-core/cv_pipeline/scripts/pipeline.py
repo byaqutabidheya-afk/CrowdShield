@@ -169,6 +169,12 @@ class CVPipeline:
         self._zone_count_history: dict[str, deque[int]] = {
             zone.zone_id: deque(maxlen=2) for zone in zones
         }
+        # Raw (un-normalised) flow speed history for the flow-only bottleneck path.
+        # Updated on every frame (not just sampled ones) so that burst motion
+        # events in interleaved-frame source videos are captured correctly.
+        self._zone_raw_flow_history: dict[str, deque[float]] = {
+            zone.zone_id: deque(maxlen=30) for zone in zones
+        }
         self._zone_positions: dict[str, tuple[int, int]] = {}
         for zone in zones:
             parsed_position = _parse_grid_position(zone.zone_id)
@@ -181,6 +187,8 @@ class CVPipeline:
         for history in self._zone_flow_history.values():
             history.clear()
         for history in self._zone_count_history.values():
+            history.clear()
+        for history in self._zone_raw_flow_history.values():
             history.clear()
 
     def _iter_frame_records(
@@ -225,6 +233,20 @@ class CVPipeline:
                 else:
                     flow_field = None
 
+                # Update raw-flow rolling history on every frame so that the
+                # flow-only bottleneck path captures burst motion even when
+                # the source video interleaves high-motion and near-static frames
+                # (as surge.mp4 does).  The rolling average is therefore built
+                # from all frames, not just sampled ones.
+                if flow_field is not None:
+                    for zone in self.zones:
+                        raw_stats_frame = self.optical_flow.compute_zone_raw_flow(
+                            flow_field, zone, frame_width, frame_height
+                        )
+                        self._zone_raw_flow_history[zone.zone_id].append(
+                            float(raw_stats_frame["raw_avg_speed"])
+                        )
+
                 if frame_number % sample_every_n_frames == 0:
                     zone_drafts: list[dict[str, Any]] = []
                     for zone in self.zones:
@@ -241,11 +263,18 @@ class CVPipeline:
                             flow_stats = self.optical_flow.compute_zone_flow(
                                 flow_field, zone, frame_width, frame_height
                             )
+                            raw_flow_stats = self.optical_flow.compute_zone_raw_flow(
+                                flow_field, zone, frame_width, frame_height
+                            )
                         else:
                             flow_stats = {
                                 "avg_flow_speed": 0.0,
                                 "avg_flow_direction_deg": 0.0,
                                 "avg_flow_direction_label": "N",
+                            }
+                            raw_flow_stats = {
+                                "raw_avg_speed": 0.0,
+                                "flow_spatial_variance": 0.0,
                             }
 
                         flow_history = self._zone_flow_history[zone.zone_id]
@@ -259,6 +288,18 @@ class CVPipeline:
                             sum(flow_history) / len(flow_history)
                             if flow_history
                             else 0.0
+                        )
+
+                        # Rolling average of raw (un-normalised) flow speed for the
+                        # flow-only bottleneck detection path in the tracker.
+                        # The rolling history is already maintained per-frame above,
+                        # so here we only read the current statistics from it.
+                        raw_flow_history = self._zone_raw_flow_history[zone.zone_id]
+                        raw_current_speed = float(raw_flow_stats["raw_avg_speed"])
+                        raw_rolling_flow_speed = (
+                            sum(raw_flow_history) / len(raw_flow_history)
+                            if raw_flow_history
+                            else raw_current_speed
                         )
 
                         count_history = self._zone_count_history[zone.zone_id]
@@ -283,6 +324,12 @@ class CVPipeline:
                                 "previous_flow_speed": float(previous_flow_speed),
                                 "rolling_avg_flow_speed": float(rolling_avg_flow_speed),
                                 "previous_crowd_count": previous_crowd_count,
+                                # Raw flow metrics for the flow-only bottleneck path
+                                "raw_current_flow_speed": raw_current_speed,
+                                "raw_rolling_flow_speed": raw_rolling_flow_speed,
+                                "flow_spatial_variance": float(
+                                    raw_flow_stats["flow_spatial_variance"]
+                                ),
                             }
                         )
 
@@ -336,6 +383,10 @@ class CVPipeline:
                                 "previous_crowd_count": draft["previous_crowd_count"],
                                 "current_density_score": draft["density_score"],
                                 "neighbor_avg_flow_speed": draft["neighbor_avg_flow_speed"],
+                                # Raw flow metrics for the flow-only bottleneck path
+                                "raw_current_flow_speed": draft["raw_current_flow_speed"],
+                                "raw_rolling_flow_speed": draft["raw_rolling_flow_speed"],
+                                "flow_spatial_variance": draft["flow_spatial_variance"],
                             }
                         }
                         anomaly_result = self.tracker.detect_anomalies(

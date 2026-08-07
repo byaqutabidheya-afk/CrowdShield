@@ -145,3 +145,80 @@ class OpticalFlowAnalyzer:
         compass_labels = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
         sector = int(((direction_deg + 22.5) % 360.0) // 45.0)
         return compass_labels[sector]
+
+    def compute_zone_raw_flow(
+        self,
+        flow_field: np.ndarray,
+        zone: Zone,
+        frame_width: int,
+        frame_height: int,
+    ) -> dict[str, float]:
+        """Return raw (un-normalised) flow speed and spatial variance for a zone.
+
+        Unlike :meth:`compute_zone_flow`, the speed here is in pixels-per-frame
+        with no normalisation applied.  This gives the flow-only bottleneck detector
+        stable, physics-grounded thresholds that are independent of the
+        ``max_expected_speed`` parameter.
+
+        Returns a dict with keys:
+        - ``raw_avg_speed``: mean magnitude of flow vectors (px/frame).
+        - ``flow_spatial_variance``: sum of per-component spatial variance
+          (``Var(fx) + Var(fy)``).  High values indicate chaotic / incoherent
+          flow, which is the hallmark of crowd compression.
+        """
+
+        if flow_field is None:
+            raise ValueError("flow_field must not be None.")
+        if flow_field.ndim != 3 or flow_field.shape[-1] != 2:
+            raise ValueError("flow_field must have shape (height, width, 2).")
+        if frame_width <= 0 or frame_height <= 0:
+            raise ValueError(
+                "frame_width and frame_height must both be greater than zero."
+            )
+
+        x_min = max(
+            0,
+            min(
+                frame_width,
+                int(math.floor(zone.bounds_normalized["x_min"] * frame_width)),
+            ),
+        )
+        y_min = max(
+            0,
+            min(
+                frame_height,
+                int(math.floor(zone.bounds_normalized["y_min"] * frame_height)),
+            ),
+        )
+        x_max = max(
+            0,
+            min(
+                frame_width,
+                int(math.ceil(zone.bounds_normalized["x_max"] * frame_width)),
+            ),
+        )
+        y_max = max(
+            0,
+            min(
+                frame_height,
+                int(math.ceil(zone.bounds_normalized["y_max"] * frame_height)),
+            ),
+        )
+
+        if x_max <= x_min or y_max <= y_min or flow_field.size == 0:
+            return {"raw_avg_speed": 0.0, "flow_spatial_variance": 0.0}
+
+        zone_flow = flow_field[y_min:y_max, x_min:x_max]
+        if zone_flow.size == 0:
+            return {"raw_avg_speed": 0.0, "flow_spatial_variance": 0.0}
+
+        fx = zone_flow[..., 0]
+        fy = zone_flow[..., 1]
+        magnitudes = np.sqrt(fx * fx + fy * fy)
+        raw_avg_speed = float(np.mean(magnitudes))
+        flow_spatial_variance = float(np.var(fx) + np.var(fy))
+
+        return {
+            "raw_avg_speed": raw_avg_speed,
+            "flow_spatial_variance": flow_spatial_variance,
+        }
