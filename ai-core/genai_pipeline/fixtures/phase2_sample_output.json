@@ -1,0 +1,192 @@
+{
+  "timestamp": "2026-08-09T00:00:00Z",
+  "zones": [
+    {
+      "zone_id": "zone_A1",
+      "risk_score": 0.9533333333333334,
+      "risk_level": "critical",
+      "contributing_factors": {
+        "density_score": 0.95,
+        "density_rate_of_change": 0.95,
+        "flow_convergence_score": 1.0,
+        "bottleneck_score": 1.0,
+        "anomaly_score": 0.6666666666666666,
+        "weights": {
+          "density": 0.35,
+          "rate": 0.25,
+          "convergence": 0.2,
+          "bottleneck": 0.15,
+          "anomaly": 0.05
+        },
+        "weighted_components": {
+          "density": 0.33249999999999996,
+          "rate": 0.2375,
+          "convergence": 0.2,
+          "bottleneck": 0.15,
+          "anomaly": 0.03333333333333333
+        }
+      }
+    },
+    {
+      "zone_id": "zone_A2",
+      "risk_score": 0.27,
+      "risk_level": "low",
+      "contributing_factors": {
+        "density_score": 0.2,
+        "density_rate_of_change": 0.0,
+        "flow_convergence_score": 1.0,
+        "bottleneck_score": 0.0,
+        "anomaly_score": 0.0,
+        "weights": {
+          "density": 0.35,
+          "rate": 0.25,
+          "convergence": 0.2,
+          "bottleneck": 0.15,
+          "anomaly": 0.05
+        },
+        "weighted_components": {
+          "density": 0.06999999999999999,
+          "rate": 0.0,
+          "convergence": 0.2,
+          "bottleneck": 0.0,
+          "anomaly": 0.0
+        }
+      }
+    }
+  ],
+  "panic_propagation": {
+    "simulated_steps": [
+      {
+        "step": 1,
+        "time_offset_seconds": 30,
+        "zone_risk_scores": {
+          "zone_A1": 0.9438333333333333,
+          "zone_A2": 0.36300000000000004
+        }
+      },
+      {
+        "step": 2,
+        "time_offset_seconds": 60,
+        "zone_risk_scores": {
+          "zone_A1": 0.9482833333333333,
+          "zone_A2": 0.454575
+        }
+      },
+      {
+        "step": 3,
+        "time_offset_seconds": 90,
+        "zone_risk_scores": {
+          "zone_A1": 0.9664695833333332,
+          "zone_A2": 0.5468175
+        }
+      },
+      {
+        "step": 4,
+        "time_offset_seconds": 120,
+        "zone_risk_scores": {
+          "zone_A1": 0.9984922083333332,
+          "zone_A2": 0.6417879374999998
+        }
+      },
+      {
+        "step": 5,
+        "time_offset_seconds": 150,
+        "zone_risk_scores": {
+          "zone_A1": 1.0,
+          "zone_A2": 0.7415617687499998
+        }
+      },
+      {
+        "step": 6,
+        "time_offset_seconds": 180,
+        "zone_risk_scores": {
+          "zone_A1": 1.0,
+          "zone_A2": 0.8415617687499998
+        }
+      },
+      {
+        "step": 7,
+        "time_offset_seconds": 210,
+        "zone_risk_scores": {
+          "zone_A1": 1.0,
+          "zone_A2": 0.9415617687499998
+        }
+      },
+      {
+        "step": 8,
+        "time_offset_seconds": 240,
+        "zone_risk_scores": {
+          "zone_A1": 1.0,
+          "zone_A2": 1.0
+        }
+      },
+      {
+        "step": 9,
+        "time_offset_seconds": 270,
+        "zone_risk_scores": {
+          "zone_A1": 1.0,
+          "zone_A2": 1.0
+        }
+      },
+      {
+        "step": 10,
+        "time_offset_seconds": 300,
+        "zone_risk_scores": {
+          "zone_A1": 1.0,
+          "zone_A2": 1.0
+        }
+      }
+    ]
+  },
+  "predicted_crush_timeline": [
+    {
+      "zone_id": "zone_A1",
+      "predicted_critical_at_seconds": 30.0,
+      "confidence": "high"
+    },
+    {
+      "zone_id": "zone_A2",
+      "predicted_critical_at_seconds": 180.0,
+      "confidence": "low"
+    }
+  ],
+  "resource_allocation_suggestions": [
+    {
+      "zone_id": "zone_A1",
+      "suggestion_type": "barricade_reconfiguration",
+      "reason": "zone_A1 shows strong flow convergence (1.00 via flow_convergence_score), suggesting barriers should be adjusted to redirect incoming movement.",
+      "priority": "high"
+    },
+    {
+      "zone_id": "zone_A2",
+      "suggestion_type": "barricade_reconfiguration",
+      "reason": "zone_A2 shows strong flow convergence (1.00 via flow_convergence_score), suggesting barriers should be adjusted to redirect incoming movement.",
+      "priority": "high"
+    }
+  ],
+  "route_blockage_predictions": [
+    {
+      "route_id": "route_zone_A1_to_zone_A1",
+      "origin_zone_id": "zone_A1",
+      "exit_zone_id": "zone_A1",
+      "zone_sequence": [
+        "zone_A1"
+      ],
+      "at_risk_of_blockage": true,
+      "blocking_zone_id": "zone_A1",
+      "reason": "currently_high_risk"
+    },
+    {
+      "route_id": "route_zone_A2_to_zone_A2",
+      "origin_zone_id": "zone_A2",
+      "exit_zone_id": "zone_A2",
+      "zone_sequence": [
+        "zone_A2"
+      ],
+      "at_risk_of_blockage": false,
+      "blocking_zone_id": null,
+      "reason": null
+    }
+  ],
+  "synthetic": true
+}
