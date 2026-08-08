@@ -1,0 +1,4210 @@
+[
+  {
+    "timestamp": "2026-08-07T16:55:24.758074Z",
+    "frame_number": 44,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.045237743854522706,
+        "avg_flow_direction_deg": 168.809288287267,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.051948235183954236,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.09228181838989258,
+        "avg_flow_direction_deg": 130.77950560284785,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06721273064613342,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.03892613053321838,
+        "avg_flow_direction_deg": 69.16615060116135,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.05693939104676247,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0116146519780159,
+        "avg_flow_direction_deg": 201.93971675175888,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.054649317233512795,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.11747431755065918,
+        "avg_flow_direction_deg": 355.43530022767993,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.05572519227862358,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          59
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.021596963703632354,
+        "avg_flow_direction_deg": 347.75722649151464,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0650750478108724,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0012358902953565122,
+        "avg_flow_direction_deg": 136.36062963625653,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.05451099351048469,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.09740733504295349,
+        "avg_flow_direction_deg": 186.93346010801037,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.05251163439825177,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.03882469534873963,
+        "avg_flow_direction_deg": 347.5320539003779,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.05950214937329292,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4,
+          73,
+          74,
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 20,
+      "max_zone_density": 0.1,
+      "highest_risk_zone_id": "zone_A2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:24.791407Z",
+    "frame_number": 45,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.051899492740631104,
+        "avg_flow_direction_deg": 168.82087123532506,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.04550628811120987,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.08007118105888367,
+        "avg_flow_direction_deg": 122.03707091265738,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06537700990835825,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.03609754145145416,
+        "avg_flow_direction_deg": 73.07028261725765,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.04973976388573646,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.010941395163536071,
+        "avg_flow_direction_deg": 188.94665782707236,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.053889971971511845,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.1081339955329895,
+        "avg_flow_direction_deg": 358.9533780999914,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.05221305154263973,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          59
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.019408346712589265,
+        "avg_flow_direction_deg": 344.4611822880127,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.062239582339922585,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.001636427640914917,
+        "avg_flow_direction_deg": 213.06771057899886,
+        "avg_flow_direction_label": "SW",
+        "neighbor_avg_flow_speed": 0.054686339199542994,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.09843128323554992,
+        "avg_flow_direction_deg": 193.82532700587035,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.050752544403076166,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.042487210035324095,
+        "avg_flow_direction_deg": 349.5850575491619,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.05891981497406959,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 19,
+      "max_zone_density": 0.1,
+      "highest_risk_zone_id": "zone_A2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:24.824740Z",
+    "frame_number": 46,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.05377670526504517,
+        "avg_flow_direction_deg": 168.27990427799455,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.04374922625720501,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          53,
+          79
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.07771575450897217,
+        "avg_flow_direction_deg": 131.85413326084716,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06217072208722433,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.033489131927490236,
+        "avg_flow_direction_deg": 72.74955377955291,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.048796498030424115,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.009782698005437851,
+        "avg_flow_direction_deg": 182.62430395388375,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.05136526649196943,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.09924632906913758,
+        "avg_flow_direction_deg": 357.90476082248523,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.05100815761834383,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          59,
+          81
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.01987724155187607,
+        "avg_flow_direction_deg": 344.8272326476217,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.05883972048759461,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0010727651417255402,
+        "avg_flow_direction_deg": 279.79495271590656,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.053219817206263544,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.09665693640708924,
+        "avg_flow_direction_deg": 196.49137317273053,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0480342648923397,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.043783700466156004,
+        "avg_flow_direction_deg": 352.16162093798664,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.058267088979482656,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 21,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:24.858074Z",
+    "frame_number": 47,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.0012359890155494214,
+        "avg_flow_direction_deg": 35.03959011031969,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.0016783094964921475,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          53,
+          79
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.0017384206876158714,
+        "avg_flow_direction_deg": 171.4338555853476,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0011365544671813647,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.0006433809176087379,
+        "avg_flow_direction_deg": 245.8222207128042,
+        "avg_flow_direction_label": "SW",
+        "neighbor_avg_flow_speed": 0.0016805020160973072,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0016181983053684234,
+        "avg_flow_direction_deg": 120.86931826220484,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.001050708442926407,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.001530293468385935,
+        "avg_flow_direction_deg": 164.17500754146693,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0015929737128317356,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": true,
+        "anomaly_flags": [
+          "bottleneck"
+        ],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          59,
+          81
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.001622583344578743,
+        "avg_flow_direction_deg": 67.22798419392552,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.0010277306040128071,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0003858428448438644,
+        "avg_flow_direction_deg": 136.12138684673556,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.001505445409566164,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.0013926925137639045,
+        "avg_flow_direction_deg": 14.368041577478266,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0009418845797578494,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.0009095174260437489,
+        "avg_flow_direction_deg": 310.6627725997107,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.0015076379291713237,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 21,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:24.891407Z",
+    "frame_number": 48,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.04926978349685669,
+        "avg_flow_direction_deg": 167.6868188986931,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.04440987333655357,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          53,
+          79
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.08021000027656555,
+        "avg_flow_direction_deg": 142.90192922887695,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06274948020776112,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.030325683951377868,
+        "avg_flow_direction_deg": 65.6009549456844,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.05169974491000175,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.008609746396541596,
+        "avg_flow_direction_deg": 185.6748623502343,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.052778980073829494,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.10865297317504882,
+        "avg_flow_direction_deg": 359.8066430082267,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.052267269045114514,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          59
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.02318948954343796,
+        "avg_flow_direction_deg": 338.9411340408625,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0610828032096227,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.00041418354958295823,
+        "avg_flow_direction_deg": 187.78444001987927,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.052834793180227275,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.09705983996391296,
+        "avg_flow_direction_deg": 216.12190028477372,
+        "avg_flow_direction_label": "SW",
+        "neighbor_avg_flow_speed": 0.05111230307569106,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.044269752502441403,
+        "avg_flow_direction_deg": 352.3876117680977,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.06012466475367546,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 20,
+      "max_zone_density": 0.1,
+      "highest_risk_zone_id": "zone_A2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:24.924740Z",
+    "frame_number": 49,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.04495504200458526,
+        "avg_flow_direction_deg": 173.355630944444,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.04339683465659618,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.07721718549728393,
+        "avg_flow_direction_deg": 150.25481691470748,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.066554061571757,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.03329447209835053,
+        "avg_flow_direction_deg": 52.57637130414474,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.052915082871913904,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.009576483815908431,
+        "avg_flow_direction_deg": 198.60638459908688,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.05578198271493117,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.12141267061233521,
+        "avg_flow_direction_deg": 354.1081766743665,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.055053876154124735,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.028612980246543886,
+        "avg_flow_direction_deg": 341.74470455630535,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.06704900960127513,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0009782355278730392,
+        "avg_flow_direction_deg": 86.3244546626023,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.057192669436335566,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.1048088550567627,
+        "avg_flow_direction_deg": 260.4943957200756,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.056276930744449304,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          17,
+          74
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.04643988609313965,
+        "avg_flow_direction_deg": 352.18132166831026,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0667109176516533,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 18,
+      "max_zone_density": 0.1,
+      "highest_risk_zone_id": "zone_A2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:24.958074Z",
+    "frame_number": 50,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.038757136464118956,
+        "avg_flow_direction_deg": 175.19753991585083,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.04224087707698345,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.07339291572570801,
+        "avg_flow_direction_deg": 140.53650874952268,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06815177003542582,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.040211692452430725,
+        "avg_flow_direction_deg": 52.666586070478786,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.053405134379863745,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.011088838428258896,
+        "avg_flow_direction_deg": 198.52593347470827,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.05509368243316809,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.12548648118972777,
+        "avg_flow_direction_deg": 5.217271316272445,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.057405507378280166,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.03341735303401947,
+        "avg_flow_direction_deg": 341.7857593540583,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07199051082134246,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0010374296456575395,
+        "avg_flow_direction_deg": 176.82825067335727,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.06140588037669659,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.11172292232513428,
+        "avg_flow_direction_deg": 296.4555505847786,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.058932423219084734,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          74
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.050273358821868896,
+        "avg_flow_direction_deg": 354.51546405585174,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07257013767957687,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 18,
+      "max_zone_density": 0.1,
+      "highest_risk_zone_id": "zone_A2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:24.991407Z",
+    "frame_number": 51,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.04036298096179962,
+        "avg_flow_direction_deg": 174.0559841615676,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.04443173259496689,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.07625866532325745,
+        "avg_flow_direction_deg": 143.70907231084823,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06912179191907246,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.03740587532520294,
+        "avg_flow_direction_deg": 58.239605839714386,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.05518130958080292,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.012604799866676331,
+        "avg_flow_direction_deg": 176.08260367588764,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.05715761836618185,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.12959651947021483,
+        "avg_flow_direction_deg": 268.8061292765833,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.05877841338515282,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.03410395383834839,
+        "avg_flow_direction_deg": 339.4410979861195,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07258977989355724,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.001513354666531086,
+        "avg_flow_direction_deg": 147.64784452277138,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06237551718950272,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.11214623451232911,
+        "avg_flow_direction_deg": 297.7955245435616,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.060625606340666605,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          74
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.050766944885253906,
+        "avg_flow_direction_deg": 355.43156309384216,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07312509417533875,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 18,
+      "max_zone_density": 0.1,
+      "highest_risk_zone_id": "zone_A2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.024740Z",
+    "frame_number": 52,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0007444573100656271,
+        "avg_flow_direction_deg": 277.4184919893849,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.0006633496610447764,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.0007897197268903255,
+        "avg_flow_direction_deg": 158.68678926035625,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0005491889392336209,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.00043689408339560033,
+        "avg_flow_direction_deg": 179.80594153796574,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0007027886807918548,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0005369795951992273,
+        "avg_flow_direction_deg": 350.5790928826941,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0006667838276674349,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.00046621542423963547,
+        "avg_flow_direction_deg": 343.13500352543247,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0006081552943214773,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0006158576346933841,
+        "avg_flow_direction_deg": 331.40972227865774,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.0005476357725759347,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0007896787486970424,
+        "avg_flow_direction_deg": 106.92105900323065,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.0005135219078510999,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.0004900642205029726,
+        "avg_flow_direction_deg": 283.2104501485336,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.0006652306610097488,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          74
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0007397978100925684,
+        "avg_flow_direction_deg": 4.019752813864557,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0005529609275981783,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 18,
+      "max_zone_density": 0.1,
+      "highest_risk_zone_id": "zone_A2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.058074Z",
+    "frame_number": 53,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.03660467565059662,
+        "avg_flow_direction_deg": 170.94131041297328,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.05254237875342369,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 5,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.0838882327079773,
+        "avg_flow_direction_deg": 149.77813198165813,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.07077573637167613,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.03778206706047058,
+        "avg_flow_direction_deg": 63.96393451751038,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.059064808487892154,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.021196524798870086,
+        "avg_flow_direction_deg": 144.89429615229233,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.05840360649550955,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.13794046640396118,
+        "avg_flow_direction_deg": 166.92673295943007,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.06146488450467587,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          17,
+          81
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.034241384267807005,
+        "avg_flow_direction_deg": 340.7913250150397,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07611062924067179,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0006656774319708347,
+        "avg_flow_direction_deg": 250.3275909990645,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.06386496052145958,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.10653339624404908,
+        "avg_flow_direction_deg": 293.6254856667109,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.06373849936450521,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          74
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.05260935425758362,
+        "avg_flow_direction_deg": 355.1307557435299,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07038739025592804,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 19,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.091407Z",
+    "frame_number": 54,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.03670487701892853,
+        "avg_flow_direction_deg": 167.691664532157,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.056489952653646466,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.09124011993408203,
+        "avg_flow_direction_deg": 154.81932871885806,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.07539761066436768,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          15,
+          55,
+          92
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.03672512471675873,
+        "avg_flow_direction_deg": 61.967852477791325,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.0637112408876419,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.021739785373210908,
+        "avg_flow_direction_deg": 161.38226678923456,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.063367336227869,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.15276283025741577,
+        "avg_flow_direction_deg": 116.6605512400007,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06227030865848065,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          17,
+          81
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.036182361841201785,
+        "avg_flow_direction_deg": 339.9390329602392,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.08168403605620066,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0006343014072626829,
+        "avg_flow_direction_deg": 208.12639511322223,
+        "avg_flow_direction_label": "SW",
+        "neighbor_avg_flow_speed": 0.06082937642931938,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.09991896748542786,
+        "avg_flow_direction_deg": 288.07871742638474,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.06965376161970198,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          74
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.05556415319442749,
+        "avg_flow_direction_deg": 354.78449296881223,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.06805066466331483,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 20,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_A2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.124740Z",
+    "frame_number": 55,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.039666390419006346,
+        "avg_flow_direction_deg": 167.3691298385396,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.05957367718219757,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.09216010570526123,
+        "avg_flow_direction_deg": 148.48641187263473,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.08137029508749644,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.041167357563972475,
+        "avg_flow_direction_deg": 64.24679408821237,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.06313076168298722,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.026987248659133913,
+        "avg_flow_direction_deg": 170.66188638355788,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0681317325681448,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.1632771372795105,
+        "avg_flow_direction_deg": 159.06455905809707,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.059769279509782794,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.034101417660713194,
+        "avg_flow_direction_deg": 335.4844903631052,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.08686875402927398,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0014516700059175492,
+        "avg_flow_direction_deg": 146.5587006379934,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.05640779733657837,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.08582834601402282,
+        "avg_flow_direction_deg": 320.29384795453933,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.07363019150992234,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          16,
+          74,
+          96
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.05616176724433899,
+        "avg_flow_direction_deg": 354.1975647554036,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.059964881837368006,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 19,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.158074Z",
+    "frame_number": 56,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.04793599247932434,
+        "avg_flow_direction_deg": 164.11285520334502,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.059919515252113344,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.09691280126571655,
+        "avg_flow_direction_deg": 127.74226310714647,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.08519371251265208,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04194615185260773,
+        "avg_flow_direction_deg": 63.93390368117656,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.0651758149266243,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.02292622923851013,
+        "avg_flow_direction_deg": 190.436680134797,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.07177480583389599,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.16569899320602416,
+        "avg_flow_direction_deg": 314.01515707501005,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.05941950604319572,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.03343882858753204,
+        "avg_flow_direction_deg": 336.35780897289527,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.08754196067651111,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0016894318163394929,
+        "avg_flow_direction_deg": 222.60991076530104,
+        "avg_flow_direction_label": "SW",
+        "neighbor_avg_flow_speed": 0.053663197159767154,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.08440016508102417,
+        "avg_flow_direction_deg": 335.70593423147324,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.07412305399775505,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          96,
+          99
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.054980736970901486,
+        "avg_flow_direction_deg": 353.68992111961893,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.05891949683427811,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 19,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.191407Z",
+    "frame_number": 57,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0005750925745815038,
+        "avg_flow_direction_deg": 352.64492956276376,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0004882618552073836,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.00035665915347635744,
+        "avg_flow_direction_deg": 100.8180114759262,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.0002821165369823575,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 2.616122364997864e-05,
+        "avg_flow_direction_deg": 354.7855978842327,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0002412391360849142,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0006198645569384098,
+        "avg_flow_direction_deg": 84.00559788619262,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.0005029765811438362,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.00024509581271559,
+        "avg_flow_direction_deg": 331.4449790265868,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.0004991075024008751,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": true,
+        "anomaly_flags": [
+          "bottleneck"
+        ],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.00012581911869347095,
+        "avg_flow_direction_deg": 160.5741419035336,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0002189397346228361,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0006887413561344147,
+        "avg_flow_direction_deg": 172.96802380097483,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.000756975868716836,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.0008940871804952622,
+        "avg_flow_direction_deg": 88.8836986232327,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.0004397997787843148,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          96,
+          99
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0003855621675029397,
+        "avg_flow_direction_deg": 276.13100993673095,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.0005099531495943666,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 19,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.224740Z",
+    "frame_number": 58,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.055482125282287596,
+        "avg_flow_direction_deg": 160.84073640374777,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.06572427898645401,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.10758131742477417,
+        "avg_flow_direction_deg": 134.69436962384367,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.0895850787560145,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.04509146511554718,
+        "avg_flow_direction_deg": 61.05039854811946,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.07052232325077057,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13,
+          100
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.02386724054813385,
+        "avg_flow_direction_deg": 201.69558862663723,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0750974291935563,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.16818164587020873,
+        "avg_flow_direction_deg": 346.87634087627896,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.06167100891470909,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.03346332907676697,
+        "avg_flow_direction_deg": 335.86757478075134,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.089661772052447,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0016285164281725883,
+        "avg_flow_direction_deg": 150.44717697603903,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.052819694578647616,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.08177214860916138,
+        "avg_flow_direction_deg": 349.1341727243807,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0751741224899888,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          96,
+          99
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.05571220517158508,
+        "avg_flow_direction_deg": 355.87872799688733,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.05761773884296417,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 20,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.258074Z",
+    "frame_number": 59,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.06096193790435791,
+        "avg_flow_direction_deg": 159.85600047301784,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.06750718504190445,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.11064074039459229,
+        "avg_flow_direction_deg": 120.45835383931319,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.09159616728623708,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04858850538730621,
+        "avg_flow_direction_deg": 58.814058887630495,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.0739931806921959,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.024373629689216615,
+        "avg_flow_direction_deg": 211.7965323141863,
+        "avg_flow_direction_label": "SW",
+        "neighbor_avg_flow_speed": 0.0762398694952329,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.16523805856704712,
+        "avg_flow_direction_deg": 9.451703825498385,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.06151070594787598,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0373456209897995,
+        "avg_flow_direction_deg": 331.34002315921276,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.09173988600571951,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0025196120142936705,
+        "avg_flow_direction_deg": 162.80067012596214,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.049028231203556066,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.07368283271789551,
+        "avg_flow_direction_deg": 348.77263069442665,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07638358821471532,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          96,
+          99
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.06139309406280517,
+        "avg_flow_direction_deg": 356.3724573387938,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.055514226853847506,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 19,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.291407Z",
+    "frame_number": 60,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.058794045448303224,
+        "avg_flow_direction_deg": 161.31404863741375,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.06842411160469056,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.10994884967803956,
+        "avg_flow_direction_deg": 101.8803811156597,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.08588352700074514,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04195888340473175,
+        "avg_flow_direction_deg": 66.21774725945414,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.07502587139606476,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.02689937353134155,
+        "avg_flow_direction_deg": 204.53903084564573,
+        "avg_flow_direction_label": "SW",
+        "neighbor_avg_flow_speed": 0.07302145597835381,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          110
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.15689765214920043,
+        "avg_flow_direction_deg": 49.95618969834891,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.0643063098192215,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.04010289311408997,
+        "avg_flow_direction_deg": 326.3492860317592,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.08743401666482291,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.003372670337557793,
+        "avg_flow_direction_deg": 149.53777913402894,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.05358674824237823,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.08027412295341492,
+        "avg_flow_direction_deg": 356.7892881911414,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07457194564243157,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          96,
+          99
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0634455144405365,
+        "avg_flow_direction_deg": 358.8428468535855,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.06018850803375245,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 20,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.324740Z",
+    "frame_number": 61,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.05774003267288208,
+        "avg_flow_direction_deg": 163.24688827838202,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.06682742983102799,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.10820529460906983,
+        "avg_flow_direction_deg": 115.23315959987491,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.08192287882169087,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.03986830115318298,
+        "avg_flow_direction_deg": 60.154122182113326,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.07637786865234375,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.025449565052986144,
+        "avg_flow_direction_deg": 202.75534533661633,
+        "avg_flow_direction_label": "SW",
+        "neighbor_avg_flow_speed": 0.06934481468051672,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          110
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.14816030263900756,
+        "avg_flow_direction_deg": 69.186985616073,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.0651922844350338,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.04455044269561768,
+        "avg_flow_direction_deg": 324.60662563024994,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.08519126971562703,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.002134108729660511,
+        "avg_flow_direction_deg": 70.52353124245656,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.054006700217723844,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.08256383538246155,
+        "avg_flow_direction_deg": 352.28782281994205,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07261320557445287,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          96,
+          99
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.06754520535469055,
+        "avg_flow_direction_deg": 357.35763333565757,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.06355713903903962,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 20,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.358074Z",
+    "frame_number": 62,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.0005363768432289362,
+        "avg_flow_direction_deg": 83.49908208684212,
+        "avg_flow_direction_label": "E",
+        "neighbor_avg_flow_speed": 0.0008688829839229584,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.0008848081342875957,
+        "avg_flow_direction_deg": 258.45306881023436,
+        "avg_flow_direction_label": "W",
+        "neighbor_avg_flow_speed": 0.000950342183932662,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.001264386996626854,
+        "avg_flow_direction_deg": 357.77250272098803,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.001717585837468505,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.000852957833558321,
+        "avg_flow_direction_deg": 52.12194863001224,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.0009134844411164523,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          110
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.001050262711942196,
+        "avg_flow_direction_deg": 4.593608639444881,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0014057794585824012,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": true,
+        "anomaly_flags": [
+          "bottleneck"
+        ],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.002550363540649414,
+        "avg_flow_direction_deg": 15.186582747131354,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.0014723217735687893,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0011538137681782247,
+        "avg_flow_direction_deg": 123.53706841769838,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.0010939730796962976,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.0013349883258342743,
+        "avg_flow_direction_deg": 23.411304535825536,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.0014354640307525795,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          96,
+          99
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.002102315612137318,
+        "avg_flow_direction_deg": 14.318478415103073,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.001942675933241844,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 20,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-07T16:55:25.391407Z",
+    "frame_number": 63,
+    "source_id": "cam_01",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.05763292908668518,
+        "avg_flow_direction_deg": 162.13996427681354,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.0719113066792488,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          53
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.0,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 4,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.11436152458190918,
+        "avg_flow_direction_deg": 129.42635057705456,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.08113969564437866,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          3,
+          5,
+          14,
+          55
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.3333333333333333
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.03969988226890564,
+        "avg_flow_direction_deg": 62.589349497607145,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.08090626150369644,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          12,
+          13
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.3333333333333333,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 2,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.02946108877658844,
+        "avg_flow_direction_deg": 192.75578301355512,
+        "avg_flow_direction_label": "S",
+        "neighbor_avg_flow_speed": 0.06860390957444906,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          9,
+          110
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.3333333333333333,
+          "x_max": 0.6666666666666666,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 6,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.14608627557754517,
+        "avg_flow_direction_deg": 140.9361610103756,
+        "avg_flow_direction_label": "SE",
+        "neighbor_avg_flow_speed": 0.06736111491918564,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2,
+          7,
+          10,
+          15,
+          17
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.3333333333333333,
+          "x_max": 1.0,
+          "y_max": 0.6666666666666666
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.047450998425483705,
+        "avg_flow_direction_deg": 325.9478792597563,
+        "avg_flow_direction_label": "NW",
+        "neighbor_avg_flow_speed": 0.08499397238095602,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          4
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.3333333333333333,
+          "y_max": 1.0
+        },
+        "crowd_count": 0,
+        "density_score": 0.0,
+        "avg_flow_speed": 0.0020925240591168404,
+        "avg_flow_direction_deg": 67.30183747787123,
+        "avg_flow_direction_label": "NE",
+        "neighbor_avg_flow_speed": 0.053815968334674835,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": []
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.3333333333333333,
+          "y_min": 0.6666666666666666,
+          "x_max": 0.6666666666666666,
+          "y_max": 1.0
+        },
+        "crowd_count": 3,
+        "density_score": 0.06,
+        "avg_flow_speed": 0.07817084789276123,
+        "avg_flow_direction_deg": 355.88941816517763,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.07245818631102642,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          74,
+          96,
+          99
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.6666666666666666,
+          "y_min": 0.6666666666666666,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.02,
+        "avg_flow_speed": 0.06919575929641723,
+        "avg_flow_direction_deg": 359.5894193738538,
+        "avg_flow_direction_label": "N",
+        "neighbor_avg_flow_speed": 0.06281092315912247,
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          77
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 20,
+      "max_zone_density": 0.12,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  }
+]

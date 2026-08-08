@@ -1,0 +1,56 @@
+[
+  {
+    "zone_id": "zone_A1",
+    "bounds_normalized": {"x_min": 0.0, "y_min": 0.0, "x_max": 0.3333333333333333, "y_max": 0.3333333333333333},
+    "max_expected_count": 50,
+    "is_exit": true
+  },
+  {
+    "zone_id": "zone_A2",
+    "bounds_normalized": {"x_min": 0.3333333333333333, "y_min": 0.0, "x_max": 0.6666666666666666, "y_max": 0.3333333333333333},
+    "max_expected_count": 50,
+    "is_exit": false
+  },
+  {
+    "zone_id": "zone_A3",
+    "bounds_normalized": {"x_min": 0.6666666666666666, "y_min": 0.0, "x_max": 1.0, "y_max": 0.3333333333333333},
+    "max_expected_count": 50,
+    "is_exit": false
+  },
+  {
+    "zone_id": "zone_B1",
+    "bounds_normalized": {"x_min": 0.0, "y_min": 0.3333333333333333, "x_max": 0.3333333333333333, "y_max": 0.6666666666666666},
+    "max_expected_count": 50,
+    "is_exit": false
+  },
+  {
+    "zone_id": "zone_B2",
+    "bounds_normalized": {"x_min": 0.3333333333333333, "y_min": 0.3333333333333333, "x_max": 0.6666666666666666, "y_max": 0.6666666666666666},
+    "max_expected_count": 50,
+    "is_exit": false
+  },
+  {
+    "zone_id": "zone_B3",
+    "bounds_normalized": {"x_min": 0.6666666666666666, "y_min": 0.3333333333333333, "x_max": 1.0, "y_max": 0.6666666666666666},
+    "max_expected_count": 50,
+    "is_exit": false
+  },
+  {
+    "zone_id": "zone_C1",
+    "bounds_normalized": {"x_min": 0.0, "y_min": 0.6666666666666666, "x_max": 0.3333333333333333, "y_max": 1.0},
+    "max_expected_count": 50,
+    "is_exit": false
+  },
+  {
+    "zone_id": "zone_C2",
+    "bounds_normalized": {"x_min": 0.3333333333333333, "y_min": 0.6666666666666666, "x_max": 0.6666666666666666, "y_max": 1.0},
+    "max_expected_count": 50,
+    "is_exit": false
+  },
+  {
+    "zone_id": "zone_C3",
+    "bounds_normalized": {"x_min": 0.6666666666666666, "y_min": 0.6666666666666666, "x_max": 1.0, "y_max": 1.0},
+    "max_expected_count": 50,
+    "is_exit": true
+  }
+]
