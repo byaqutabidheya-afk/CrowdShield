@@ -52,6 +52,42 @@ def _density_from_count(crowd_count: int, max_expected_count: int) -> float:
     return _clamp(crowd_count / float(max_expected_count))
 
 
+def _distribute_arrivals(
+    start_zone_id: str,
+    people_to_add: int,
+    zone_records: dict[str, dict[str, Any]],
+    adjacency_map: dict[str, list[str]],
+) -> None:
+    """Distribute arriving people into start_zone_id, overflowing into adjacent zones as capacity fills."""
+    queue = [start_zone_id]
+    visited: set[str] = set()
+    remaining_people = people_to_add
+
+    while remaining_people > 0 and queue:
+        current_id = queue.pop(0)
+        if current_id in visited:
+            continue
+        visited.add(current_id)
+
+        zone_data = zone_records[current_id]
+        max_cap = _max_expected_count(zone_data)
+        current_count = _safe_int(zone_data.get("crowd_count", 0), 0)
+        available = max(0, max_cap - current_count)
+
+        if available > 0:
+            assigned = min(remaining_people, available)
+            zone_data["crowd_count"] = current_count + assigned
+            remaining_people -= assigned
+
+        if remaining_people > 0:
+            for nbr in adjacency_map.get(current_id, []):
+                if nbr in zone_records and nbr not in visited:
+                    queue.append(nbr)
+
+    if remaining_people > 0:
+        zone_records[start_zone_id]["crowd_count"] += remaining_people
+
+
 class PreEventSimulator:
     """Simulate offline arrival buildup and congestion diffusion."""
 
@@ -103,7 +139,9 @@ class PreEventSimulator:
                 base_share, remainder = divmod(arrivals_this_step, len(entry_zone_ids))
                 for entry_index, entry_zone_id in enumerate(entry_zone_ids):
                     added_people = base_share + (1 if entry_index < remainder else 0)
-                    zone_records[entry_zone_id]["crowd_count"] += added_people
+                    _distribute_arrivals(
+                        entry_zone_id, added_people, zone_records, adjacency_map
+                    )
 
             for zone_id, zone_data in zone_records.items():
                 zone_data["density_score"] = _density_from_count(

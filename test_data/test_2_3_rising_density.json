@@ -1,0 +1,2078 @@
+[
+  {
+    "timestamp": "2026-08-08T10:00:00Z",
+    "frame_number": 0,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.06,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 17,
+      "max_zone_density": 0.1,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:01Z",
+    "frame_number": 1,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 3,
+        "density_score": 0.13,
+        "avg_flow_speed": 0.063,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 18,
+      "max_zone_density": 0.13,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:02Z",
+    "frame_number": 2,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 4,
+        "density_score": 0.17,
+        "avg_flow_speed": 0.067,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102,
+          103
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 19,
+      "max_zone_density": 0.17,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:03Z",
+    "frame_number": 3,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 6,
+        "density_score": 0.22,
+        "avg_flow_speed": 0.072,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 21,
+      "max_zone_density": 0.22,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:04Z",
+    "frame_number": 4,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 7,
+        "density_score": 0.29,
+        "avg_flow_speed": 0.079,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 22,
+      "max_zone_density": 0.29,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:05Z",
+    "frame_number": 5,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 9,
+        "density_score": 0.37,
+        "avg_flow_speed": 0.087,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 24,
+      "max_zone_density": 0.37,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:06Z",
+    "frame_number": 6,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 12,
+        "density_score": 0.47,
+        "avg_flow_speed": 0.097,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 27,
+      "max_zone_density": 0.47,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:07Z",
+    "frame_number": 7,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 14,
+        "density_score": 0.58,
+        "avg_flow_speed": 0.108,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 29,
+      "max_zone_density": 0.58,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:08Z",
+    "frame_number": 8,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 18,
+        "density_score": 0.7,
+        "avg_flow_speed": 0.12,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 33,
+      "max_zone_density": 0.7,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  },
+  {
+    "timestamp": "2026-08-08T10:00:09Z",
+    "frame_number": 9,
+    "source_id": "cam_test_2_3",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.0,
+          "x_max": 0.33,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.1,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          1,
+          2
+        ]
+      },
+      {
+        "zone_id": "zone_A2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.0,
+          "x_max": 0.66,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          10,
+          11
+        ]
+      },
+      {
+        "zone_id": "zone_A3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.0,
+          "x_max": 1.0,
+          "y_max": 0.33
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          20,
+          21
+        ]
+      },
+      {
+        "zone_id": "zone_B1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.33,
+          "x_max": 0.33,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.12,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          30,
+          31
+        ]
+      },
+      {
+        "zone_id": "zone_B2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.33,
+          "x_max": 0.66,
+          "y_max": 0.66
+        },
+        "crowd_count": 21,
+        "density_score": 0.83,
+        "avg_flow_speed": 0.133,
+        "avg_flow_direction_deg": 90.0,
+        "avg_flow_direction_label": "E",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120
+        ]
+      },
+      {
+        "zone_id": "zone_B3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.33,
+          "x_max": 1.0,
+          "y_max": 0.66
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          40,
+          41
+        ]
+      },
+      {
+        "zone_id": "zone_C1",
+        "bounds_normalized": {
+          "x_min": 0.0,
+          "y_min": 0.66,
+          "x_max": 0.33,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.08,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          50,
+          51
+        ]
+      },
+      {
+        "zone_id": "zone_C2",
+        "bounds_normalized": {
+          "x_min": 0.33,
+          "y_min": 0.66,
+          "x_max": 0.66,
+          "y_max": 1.0
+        },
+        "crowd_count": 1,
+        "density_score": 0.04,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          60
+        ]
+      },
+      {
+        "zone_id": "zone_C3",
+        "bounds_normalized": {
+          "x_min": 0.66,
+          "y_min": 0.66,
+          "x_max": 1.0,
+          "y_max": 1.0
+        },
+        "crowd_count": 2,
+        "density_score": 0.09,
+        "avg_flow_speed": 0.04,
+        "avg_flow_direction_deg": 270.0,
+        "avg_flow_direction_label": "W",
+        "reverse_flow_detected": false,
+        "bottleneck_detected": false,
+        "anomaly_flags": [],
+        "tracked_ids_in_zone": [
+          70,
+          71
+        ]
+      }
+    ],
+    "frame_totals": {
+      "total_crowd_count": 36,
+      "max_zone_density": 0.83,
+      "highest_risk_zone_id": "zone_B2"
+    }
+  }
+]

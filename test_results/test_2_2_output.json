@@ -1,0 +1,1084 @@
+[
+  {
+    "timestamp": "2026-08-08T10:00:00Z",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "risk_score": 0.034999999999999996,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.1,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.0,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.034999999999999996,
+            "rate": 0.0,
+            "convergence": 0.0,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_A2",
+        "risk_score": 0.06133333333333333,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.08,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.16666666666666666,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.027999999999999997,
+            "rate": 0.0,
+            "convergence": 0.03333333333333333,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_A3",
+        "risk_score": 0.1315,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.09,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.5,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.0315,
+            "rate": 0.0,
+            "convergence": 0.1,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_B1",
+        "risk_score": 0.041999999999999996,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.12,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.0,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.041999999999999996,
+            "rate": 0.0,
+            "convergence": 0.0,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_B2",
+        "risk_score": 0.33499999999999996,
+        "risk_level": "moderate",
+        "contributing_factors": {
+          "density_score": 0.6,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.625,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.21,
+            "rate": 0.0,
+            "convergence": 0.125,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_B3",
+        "risk_score": 0.16483333333333336,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.09,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.6666666666666667,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.0315,
+            "rate": 0.0,
+            "convergence": 0.13333333333333336,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_C1",
+        "risk_score": 0.078,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.08,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.25,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.027999999999999997,
+            "rate": 0.0,
+            "convergence": 0.05,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_C2",
+        "risk_score": 0.04848275862068965,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.04,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.17241379310344826,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.013999999999999999,
+            "rate": 0.0,
+            "convergence": 0.034482758620689655,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_C3",
+        "risk_score": 0.0315,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.09,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.0,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.0315,
+            "rate": 0.0,
+            "convergence": 0.0,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      }
+    ],
+    "panic_propagation": {
+      "simulated_steps": [
+        {
+          "step": 1,
+          "time_offset_seconds": 30,
+          "zone_risk_scores": {
+            "zone_A1": 0.0004999999999999935,
+            "zone_A2": 0.0865583333333333,
+            "zone_A3": 0.11542500000000001,
+            "zone_B1": 0.05919999999999999,
+            "zone_B2": 0.33249741379310344,
+            "zone_B3": 0.18953333333333333,
+            "zone_C1": 0.04157241379310345,
+            "zone_C2": 0.06515775862068965,
+            "zone_C3": 0.013497413793103444
+          }
+        },
+        {
+          "step": 2,
+          "time_offset_seconds": 60,
+          "zone_risk_scores": {
+            "zone_A1": 0.0,
+            "zone_A2": 0.10382169540229884,
+            "zone_A3": 0.10683875,
+            "zone_B1": 0.06538547413793101,
+            "zone_B2": 0.3425648275862069,
+            "zone_B3": 0.20874630747126438,
+            "zone_C1": 0.010226077586206889,
+            "zone_C2": 0.07329284482758619,
+            "zone_C3": 0.0017010775862068839
+          }
+        },
+        {
+          "step": 3,
+          "time_offset_seconds": 90,
+          "zone_risk_scores": {
+            "zone_A1": 0.0,
+            "zone_A2": 0.12123223204022986,
+            "zone_A3": 0.10372395043103448,
+            "zone_B1": 0.06830410991379307,
+            "zone_B2": 0.36025177586206897,
+            "zone_B3": 0.22641200574712644,
+            "zone_C1": 0.0,
+            "zone_C2": 0.07646664224137927,
+            "zone_C3": 0.0
+          }
+        },
+        {
+          "step": 4,
+          "time_offset_seconds": 120,
+          "zone_risk_scores": {
+            "zone_A1": 0.0,
+            "zone_A2": 0.14082859098419537,
+            "zone_A3": 0.10587058609913792,
+            "zone_B1": 0.07234187629310342,
+            "zone_B2": 0.38411402435344827,
+            "zone_B3": 0.24600836469109194,
+            "zone_C1": 0.0,
+            "zone_C2": 0.0805044086206896,
+            "zone_C3": 0.0
+          }
+        },
+        {
+          "step": 5,
+          "time_offset_seconds": 150,
+          "zone_risk_scores": {
+            "zone_A1": 0.0,
+            "zone_A2": 0.1643262825520833,
+            "zone_A3": 0.11389612945043102,
+            "zone_B1": 0.07995897994612065,
+            "zone_B2": 0.41506651044181037,
+            "zone_B3": 0.2695060562589799,
+            "zone_C1": 0.0,
+            "zone_C2": 0.08812151227370683,
+            "zone_C3": 0.0
+          }
+        },
+        {
+          "step": 6,
+          "time_offset_seconds": 180,
+          "zone_risk_scores": {
+            "zone_A1": 0.0,
+            "zone_A2": 0.19367067853591952,
+            "zone_A3": 0.12897098027209053,
+            "zone_B1": 0.09221895651239219,
+            "zone_B2": 0.45535343509644394,
+            "zone_B3": 0.2988504522428161,
+            "zone_C1": 0.0,
+            "zone_C2": 0.10038148883997837,
+            "zone_C3": 0.0036441352799030033
+          }
+        },
+        {
+          "step": 7,
+          "time_offset_seconds": 210,
+          "zone_risk_scores": {
+            "zone_A1": 0.0,
+            "zone_A2": 0.2313193408411997,
+            "zone_A3": 0.15284914988890086,
+            "zone_B1": 0.11052197177685878,
+            "zone_B2": 0.5081216715161098,
+            "zone_B3": 0.3370457348400817,
+            "zone_C1": 0.0,
+            "zone_C2": 0.1192311243964304,
+            "zone_C3": 0.013528926442322162
+          }
+        },
+        {
+          "step": 8,
+          "time_offset_seconds": 240,
+          "zone_risk_scores": {
+            "zone_A1": 0.0012761968927087614,
+            "zone_A2": 0.2804649640519513,
+            "zone_A3": 0.18810391124109305,
+            "zone_B1": 0.13674022250427526,
+            "zone_B2": 0.5778393972942952,
+            "zone_B3": 0.38822069701718165,
+            "zone_C1": 0.0,
+            "zone_C2": 0.1474787140901952,
+            "zone_C3": 0.03197045532779896
+          }
+        },
+        {
+          "step": 9,
+          "time_offset_seconds": 270,
+          "zone_risk_scores": {
+            "zone_A1": 0.013856974876142736,
+            "zone_A2": 0.34554788986616586,
+            "zone_A3": 0.23840676040146297,
+            "zone_B1": 0.17360756163232588,
+            "zone_B2": 0.6707750869438357,
+            "zone_B3": 0.45790776159665975,
+            "zone_C1": 0.0,
+            "zone_C2": 0.18895019198350932,
+            "zone_C3": 0.06232536699390548
+          }
+        },
+        {
+          "step": 10,
+          "time_offset_seconds": 300,
+          "zone_risk_scores": {
+            "zone_A1": 0.041730292600916485,
+            "zone_A2": 0.4340037131993821,
+            "zone_A3": 0.3089251081208868,
+            "zone_B1": 0.22630237090532263,
+            "zone_B2": 0.7956770977056348,
+            "zone_B3": 0.5536338437475403,
+            "zone_C1": 0.00438366304237528,
+            "zone_C2": 0.24891526007417047,
+            "zone_C3": 0.10935406003093083
+          }
+        }
+      ]
+    },
+    "predicted_crush_timeline": [
+      {
+        "zone_id": "zone_B2",
+        "predicted_critical_at_seconds": 300.0,
+        "confidence": "low"
+      }
+    ],
+    "resource_allocation_suggestions": [
+      {
+        "zone_id": "zone_B2",
+        "suggestion_type": "barricade_reconfiguration",
+        "reason": "zone_B2 shows strong flow convergence (0.62 via flow_convergence_score), suggesting barriers should be adjusted to redirect incoming movement.",
+        "priority": "high"
+      },
+      {
+        "zone_id": "zone_B3",
+        "suggestion_type": "barricade_reconfiguration",
+        "reason": "zone_B3 shows strong flow convergence (0.67 via flow_convergence_score), suggesting barriers should be adjusted to redirect incoming movement.",
+        "priority": "high"
+      },
+      {
+        "zone_id": "zone_A3",
+        "suggestion_type": "barricade_reconfiguration",
+        "reason": "zone_A3 shows strong flow convergence (0.50 via flow_convergence_score), suggesting barriers should be adjusted to redirect incoming movement.",
+        "priority": "high"
+      }
+    ],
+    "route_blockage_predictions": [
+      {
+        "route_id": "route_zone_A1_to_zone_A1",
+        "origin_zone_id": "zone_A1",
+        "exit_zone_id": "zone_A1",
+        "zone_sequence": [
+          "zone_A1"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_A2_to_zone_A2",
+        "origin_zone_id": "zone_A2",
+        "exit_zone_id": "zone_A2",
+        "zone_sequence": [
+          "zone_A2"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_A3_to_zone_A3",
+        "origin_zone_id": "zone_A3",
+        "exit_zone_id": "zone_A3",
+        "zone_sequence": [
+          "zone_A3"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_B1_to_zone_B1",
+        "origin_zone_id": "zone_B1",
+        "exit_zone_id": "zone_B1",
+        "zone_sequence": [
+          "zone_B1"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_B2_to_zone_B2",
+        "origin_zone_id": "zone_B2",
+        "exit_zone_id": "zone_B2",
+        "zone_sequence": [
+          "zone_B2"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_B3_to_zone_B3",
+        "origin_zone_id": "zone_B3",
+        "exit_zone_id": "zone_B3",
+        "zone_sequence": [
+          "zone_B3"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_C1_to_zone_C1",
+        "origin_zone_id": "zone_C1",
+        "exit_zone_id": "zone_C1",
+        "zone_sequence": [
+          "zone_C1"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_C2_to_zone_C2",
+        "origin_zone_id": "zone_C2",
+        "exit_zone_id": "zone_C2",
+        "zone_sequence": [
+          "zone_C2"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_C3_to_zone_C3",
+        "origin_zone_id": "zone_C3",
+        "exit_zone_id": "zone_C3",
+        "zone_sequence": [
+          "zone_C3"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-08-08T10:00:01Z",
+    "zones": [
+      {
+        "zone_id": "zone_A1",
+        "risk_score": 0.034999999999999996,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.1,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.0,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.034999999999999996,
+            "rate": 0.0,
+            "convergence": 0.0,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_A2",
+        "risk_score": 0.11133333333333333,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.08,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.41666666666666663,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.027999999999999997,
+            "rate": 0.0,
+            "convergence": 0.08333333333333333,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_A3",
+        "risk_score": 0.1315,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.09,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.5,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.0315,
+            "rate": 0.0,
+            "convergence": 0.1,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_B1",
+        "risk_score": 0.041999999999999996,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.12,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.0,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.041999999999999996,
+            "rate": 0.0,
+            "convergence": 0.0,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_B2",
+        "risk_score": 0.6816666666666668,
+        "risk_level": "high",
+        "contributing_factors": {
+          "density_score": 0.9,
+          "density_rate_of_change": 0.30000000000000004,
+          "flow_convergence_score": 0.625,
+          "bottleneck_score": 1.0,
+          "anomaly_score": 0.3333333333333333,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.315,
+            "rate": 0.07500000000000001,
+            "convergence": 0.125,
+            "bottleneck": 0.15,
+            "anomaly": 0.016666666666666666
+          }
+        }
+      },
+      {
+        "zone_id": "zone_B3",
+        "risk_score": 0.06483333333333333,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.09,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.16666666666666666,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.0315,
+            "rate": 0.0,
+            "convergence": 0.03333333333333333,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_C1",
+        "risk_score": 0.078,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.08,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.25,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.027999999999999997,
+            "rate": 0.0,
+            "convergence": 0.05,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_C2",
+        "risk_score": 0.10490909090909092,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.04,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.4545454545454546,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.013999999999999999,
+            "rate": 0.0,
+            "convergence": 0.09090909090909093,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      },
+      {
+        "zone_id": "zone_C3",
+        "risk_score": 0.0315,
+        "risk_level": "low",
+        "contributing_factors": {
+          "density_score": 0.09,
+          "density_rate_of_change": 0.0,
+          "flow_convergence_score": 0.0,
+          "bottleneck_score": 0.0,
+          "anomaly_score": 0.0,
+          "weights": {
+            "density": 0.35,
+            "rate": 0.25,
+            "convergence": 0.2,
+            "bottleneck": 0.15,
+            "anomaly": 0.05
+          },
+          "weighted_components": {
+            "density": 0.0315,
+            "rate": 0.0,
+            "convergence": 0.0,
+            "bottleneck": 0.0,
+            "anomaly": 0.0
+          }
+        }
+      }
+    ],
+    "panic_propagation": {
+      "simulated_steps": [
+        {
+          "step": 1,
+          "time_offset_seconds": 30,
+          "zone_risk_scores": {
+            "zone_A1": 0.007999999999999993,
+            "zone_A2": 0.18855833333333333,
+            "zone_A3": 0.10792500000000001,
+            "zone_B1": 0.11120000000000001,
+            "zone_B2": 0.6801280303030304,
+            "zone_B3": 0.14153333333333334,
+            "zone_C1": 0.05003636363636364,
+            "zone_C2": 0.17358409090909094,
+            "zone_C3": 0.006961363636363634
+          }
+        },
+        {
+          "step": 2,
+          "time_offset_seconds": 60,
+          "zone_risk_scores": {
+            "zone_A1": 0.0029637499999999872,
+            "zone_A2": 0.2579662878787879,
+            "zone_A3": 0.10743875000000001,
+            "zone_B1": 0.1719246590909091,
+            "zone_B2": 0.722359393939394,
+            "zone_B3": 0.21078549242424244,
+            "zone_C1": 0.042753977272727284,
+            "zone_C2": 0.2341529545454546,
+            "zone_C3": 0.004228977272727273
+          }
+        },
+        {
+          "step": 3,
+          "time_offset_seconds": 90,
+          "zone_risk_scores": {
+            "zone_A1": 0.01744739204545452,
+            "zone_A2": 0.332880571969697,
+            "zone_A3": 0.12775151704545457,
+            "zone_B1": 0.23713622727272726,
+            "zone_B2": 0.8035838030303031,
+            "zone_B3": 0.28588956060606063,
+            "zone_C1": 0.053665619318181826,
+            "zone_C2": 0.2995543068181819,
+            "zone_C3": 0.02096974431818184
+          }
+        },
+        {
+          "step": 4,
+          "time_offset_seconds": 120,
+          "zone_risk_scores": {
+            "zone_A1": 0.05294991193181817,
+            "zone_A2": 0.42519797878787885,
+            "zone_A3": 0.17056703693181818,
+            "zone_B1": 0.31834074943181817,
+            "zone_B2": 0.9269029030303031,
+            "zone_B3": 0.37873532026515155,
+            "zone_C1": 0.0841691994318182,
+            "zone_C2": 0.38128718181818194,
+            "zone_C3": 0.05878632443181822
+          }
+        },
+        {
+          "step": 5,
+          "time_offset_seconds": 150,
+          "zone_risk_scores": {
+            "zone_A1": 0.11448072116477272,
+            "zone_A2": 0.5477609565719697,
+            "zone_A3": 0.2411570317897727,
+            "zone_B1": 0.4279440515909091,
+            "zone_B2": 1.0,
+            "zone_B3": 0.5021737599242424,
+            "zone_C1": 0.1391133891193182,
+            "zone_C2": 0.4917659458522729,
+            "zone_C3": 0.12278969974431823
+          }
+        },
+        {
+          "step": 6,
+          "time_offset_seconds": 180,
+          "zone_risk_scores": {
+            "zone_A1": 0.2108364723892045,
+            "zone_A2": 0.7011066195151514,
+            "zone_A3": 0.34864723926420454,
+            "zone_B1": 0.5659831681335227,
+            "zone_B2": 1.0,
+            "zone_B3": 0.656765769654356,
+            "zone_C1": 0.22706988873579553,
+            "zone_C2": 0.6310514091818183,
+            "zone_C3": 0.22188065561079556
+          }
+        },
+        {
+          "step": 7,
+          "time_offset_seconds": 210,
+          "zone_risk_scores": {
+            "zone_A1": 0.3508999405365056,
+            "zone_A2": 0.8850291762631627,
+            "zone_A3": 0.5023280976396306,
+            "zone_B1": 0.7316691223022727,
+            "zone_B2": 1.0,
+            "zone_B3": 0.8423449538856059,
+            "zone_C1": 0.3566250753330967,
+            "zone_C2": 0.7983939908338069,
+            "zone_C3": 0.36505323243622173
+          }
+        },
+        {
+          "step": 8,
+          "time_offset_seconds": 240,
+          "zone_risk_scores": {
+            "zone_A1": 0.5434046853213208,
+            "zone_A2": 1.0,
+            "zone_A3": 0.7114342171619459,
+            "zone_B1": 0.9377978746827129,
+            "zone_B2": 1.0,
+            "zone_B3": 1.0,
+            "zone_C1": 0.5361345423035085,
+            "zone_C2": 1.0,
+            "zone_C3": 0.5611640741441336
+          }
+        },
+        {
+          "step": 9,
+          "time_offset_seconds": 270,
+          "zone_risk_scores": {
+            "zone_A1": 0.7840743665237278,
+            "zone_A2": 1.0,
+            "zone_A3": 0.9614342171619459,
+            "zone_B1": 1.0,
+            "zone_B2": 1.0,
+            "zone_B3": 1.0,
+            "zone_C1": 0.7768042235059154,
+            "zone_C2": 1.0,
+            "zone_C3": 0.8111640741441335
+          }
+        },
+        {
+          "step": 10,
+          "time_offset_seconds": 300,
+          "zone_risk_scores": {
+            "zone_A1": 1.0,
+            "zone_A2": 1.0,
+            "zone_A3": 1.0,
+            "zone_B1": 1.0,
+            "zone_B2": 1.0,
+            "zone_B3": 1.0,
+            "zone_C1": 1.0,
+            "zone_C2": 1.0,
+            "zone_C3": 1.0
+          }
+        }
+      ]
+    },
+    "predicted_crush_timeline": [
+      {
+        "zone_id": "zone_A1",
+        "predicted_critical_at_seconds": 270.0,
+        "confidence": "low"
+      },
+      {
+        "zone_id": "zone_A2",
+        "predicted_critical_at_seconds": 210.0,
+        "confidence": "low"
+      },
+      {
+        "zone_id": "zone_A3",
+        "predicted_critical_at_seconds": 270.0,
+        "confidence": "low"
+      },
+      {
+        "zone_id": "zone_B1",
+        "predicted_critical_at_seconds": 240.0,
+        "confidence": "low"
+      },
+      {
+        "zone_id": "zone_B2",
+        "predicted_critical_at_seconds": 90.0,
+        "confidence": "high"
+      },
+      {
+        "zone_id": "zone_B3",
+        "predicted_critical_at_seconds": 210.0,
+        "confidence": "low"
+      },
+      {
+        "zone_id": "zone_C1",
+        "predicted_critical_at_seconds": 270.0,
+        "confidence": "low"
+      },
+      {
+        "zone_id": "zone_C2",
+        "predicted_critical_at_seconds": 210.0,
+        "confidence": "low"
+      },
+      {
+        "zone_id": "zone_C3",
+        "predicted_critical_at_seconds": 270.0,
+        "confidence": "low"
+      }
+    ],
+    "resource_allocation_suggestions": [
+      {
+        "zone_id": "zone_B2",
+        "suggestion_type": "security_personnel",
+        "reason": "zone_B2 is being driven mainly by bottleneck_score=1.00, so additional security personnel should be placed to manage crowd pressure.",
+        "priority": "high"
+      },
+      {
+        "zone_id": "zone_A3",
+        "suggestion_type": "barricade_reconfiguration",
+        "reason": "zone_A3 shows strong flow convergence (0.50 via flow_convergence_score), suggesting barriers should be adjusted to redirect incoming movement.",
+        "priority": "high"
+      },
+      {
+        "zone_id": "zone_A2",
+        "suggestion_type": "barricade_reconfiguration",
+        "reason": "zone_A2 shows strong flow convergence (0.42 via flow_convergence_score), suggesting barriers should be adjusted to redirect incoming movement.",
+        "priority": "high"
+      }
+    ],
+    "route_blockage_predictions": [
+      {
+        "route_id": "route_zone_A1_to_zone_A1",
+        "origin_zone_id": "zone_A1",
+        "exit_zone_id": "zone_A1",
+        "zone_sequence": [
+          "zone_A1"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_A2_to_zone_A2",
+        "origin_zone_id": "zone_A2",
+        "exit_zone_id": "zone_A2",
+        "zone_sequence": [
+          "zone_A2"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_A3_to_zone_A3",
+        "origin_zone_id": "zone_A3",
+        "exit_zone_id": "zone_A3",
+        "zone_sequence": [
+          "zone_A3"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_B1_to_zone_B1",
+        "origin_zone_id": "zone_B1",
+        "exit_zone_id": "zone_B1",
+        "zone_sequence": [
+          "zone_B1"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_B2_to_zone_B2",
+        "origin_zone_id": "zone_B2",
+        "exit_zone_id": "zone_B2",
+        "zone_sequence": [
+          "zone_B2"
+        ],
+        "at_risk_of_blockage": true,
+        "blocking_zone_id": "zone_B2",
+        "reason": "currently_high_risk"
+      },
+      {
+        "route_id": "route_zone_B3_to_zone_B3",
+        "origin_zone_id": "zone_B3",
+        "exit_zone_id": "zone_B3",
+        "zone_sequence": [
+          "zone_B3"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_C1_to_zone_C1",
+        "origin_zone_id": "zone_C1",
+        "exit_zone_id": "zone_C1",
+        "zone_sequence": [
+          "zone_C1"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_C2_to_zone_C2",
+        "origin_zone_id": "zone_C2",
+        "exit_zone_id": "zone_C2",
+        "zone_sequence": [
+          "zone_C2"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      },
+      {
+        "route_id": "route_zone_C3_to_zone_C3",
+        "origin_zone_id": "zone_C3",
+        "exit_zone_id": "zone_C3",
+        "zone_sequence": [
+          "zone_C3"
+        ],
+        "at_risk_of_blockage": false,
+        "blocking_zone_id": null,
+        "reason": null
+      }
+    ]
+  }
+]

@@ -133,7 +133,8 @@ class RiskScorer:
             neighbor_centroid = _centroid(neighbor_bounds)
             dx = current_centroid[0] - neighbor_centroid[0]
             dy = current_centroid[1] - neighbor_centroid[1]
-            target_angle = (math.degrees(math.atan2(dy, dx)) + 360.0) % 360.0
+            # Compass bearing convention (0=N, 90=E, 180=S, 270=W) matching optical_flow.py
+            target_angle = (math.degrees(math.atan2(dx, -dy)) + 360.0) % 360.0
             neighbor_direction = (
                 _safe_float(neighbor_zone.get("avg_flow_direction_deg")) % 360.0
             )
