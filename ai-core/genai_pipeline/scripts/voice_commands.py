@@ -70,7 +70,7 @@ class VoiceCommandProcessor:
         try:
             model = self._get_model()
             segments, info = model.transcribe(str(path), beam_size=5)
-            transcribed_text = " ".join(seg.text for seg.text in segments).strip()
+            transcribed_text = " ".join(s.text for s in segments).strip()
             logger.info("Transcribed text: '%s'", transcribed_text)
             return transcribed_text
         except Exception as exc:

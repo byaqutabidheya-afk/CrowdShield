@@ -213,6 +213,9 @@ class GenAIPipeline:
 # ---------------------------------------------------------------------------
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
     parser = argparse.ArgumentParser(
         description="CrowdShield GenAI Pipeline Orchestration CLI"
     )
