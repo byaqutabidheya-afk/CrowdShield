@@ -62,15 +62,36 @@ class EventOrchestrator:
         self.active_alerts: Dict[str, str] = {}  # zone_id -> alert_id
         self.previous_zone_risk_levels: Dict[str, str] = {}  # zone_id -> risk_level
 
+        # Live processing status & stats for demo runner & video_control router
+        self.is_processing: bool = False
+        self.frames_processed: int = 0
+        self.start_time: Optional[datetime] = None
+        self.max_risk_score_seen: float = 0.0
+
     async def _trigger_push_notification_hook(self, alert_data: Dict[str, Any]) -> None:
         """
-        Identifiable hook for sending FCM push notifications when a new high/critical
-        risk alert is created. Will be connected during FCM integration.
+        Triggers FCM push notifications to registered mobile devices when a new high/critical
+        risk alert is created.
         """
-        logger.info(
-            f"[FCM Push Notification Hook] Alert created for zone {alert_data.get('zone_id')} "
-            f"(risk: {alert_data.get('risk_level')}). Ready for FCM service dispatch."
-        )
+        zone_id = alert_data.get("zone_id", "Unknown")
+        risk_level = str(alert_data.get("risk_level", "HIGH")).upper()
+        recs = alert_data.get("recommendations", [])
+        top_action = recs[0].get("action") if recs and isinstance(recs[0], dict) else None
+
+        title = f"🚨 CROWD SAFETY ALERT: Zone {zone_id} ({risk_level})"
+        body = top_action if top_action else f"High risk detected in Zone {zone_id}. Please follow safety directions."
+        data_payload = {
+            "zone_id": str(zone_id),
+            "risk_level": str(risk_level),
+            "alert_id": str(alert_data.get("id", "")),
+        }
+
+        logger.info(f"Firing FCM push notification for alert in zone '{zone_id}'...")
+        try:
+            from app.services import fcm_service
+            await fcm_service.send_push_to_all_devices(title, body, data_payload)
+        except Exception as e:
+            logger.error(f"Error dispatching FCM push notification: {e}")
 
     async def run_live_processing(
         self,
@@ -87,6 +108,11 @@ class EventOrchestrator:
         and broadcasting combined frame packets over WebSockets.
         """
         logger.info(f"Starting live orchestrator loop for venue '{venue_id}' with video '{video_source}'.")
+
+        self.is_processing = True
+        self.start_time = datetime.now(timezone.utc)
+        self.frames_processed = 0
+        self.max_risk_score_seen = 0.0
 
         # a) Normalize zones and instantiate CVPipeline
         normalized_zones = _normalize_zones(zones)
@@ -307,6 +333,13 @@ class EventOrchestrator:
                 if new_alerts_this_frame:
                     combined_payload["new_alerts"] = new_alerts_this_frame
 
+                # Track processing stats for video_control router and presenter dashboard
+                self.frames_processed += 1
+                for rz in risk_data.get("zones", []):
+                    score = float(rz.get("risk_score", 0.0))
+                    if score > self.max_risk_score_seen:
+                        self.max_risk_score_seen = score
+
                 # h) Broadcast combined payload over WebSockets
                 await websocket_manager.broadcast(combined_payload)
 
@@ -316,6 +349,9 @@ class EventOrchestrator:
         except Exception as e:
             logger.error(f"Error during live processing orchestrator loop: {e}", exc_info=True)
             raise
+        finally:
+            self.is_processing = False
+            logger.info(f"Live processing loop stopped. Total frames processed: {self.frames_processed}.")
 
     async def run_pre_event_simulation(
         self,
