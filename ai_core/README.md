@@ -22,4 +22,4 @@ ai_core/
 
 ## Python Environment
 
-Dependencies for all three pipelines are declared in `setup_python_env.sh` at the project root. Run `bash setup_python_env.sh` to construct the shared virtual environment (location: `ai_core/venv/`).
+Dependencies for all three pipelines are declared in `setup_python_env.sh` at the project root. Run `bash setup_python_env.sh` to construct the shared virtual environment (location: `.venv/`).

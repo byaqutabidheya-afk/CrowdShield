@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # =============================================================================
 # CrowdShield — Python Virtual Environment Setup
-# Creates a venv inside ai_core/ and installs all required packages.
+# Creates a single shared .venv at the repo root and installs all required packages.
 #
 # Usage:
 #   bash setup_python_env.sh
 #
 # After running, activate the venv:
-#   source ai_core/venv/bin/activate        # Linux / macOS
-#   ai_core\venv\Scripts\activate           # Windows (cmd)
+#   source .venv/bin/activate        # Linux / macOS
+#   .venv\Scripts\activate           # Windows (cmd)
 # =============================================================================
 
 set -euo pipefail
@@ -16,7 +16,7 @@ set -euo pipefail
 # --- Locate the repo root (parent of this script's directory) ----------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${SCRIPT_DIR}"
-VENV_DIR="${REPO_ROOT}/ai_core/venv"
+VENV_DIR="${REPO_ROOT}/.venv"
 
 echo "==> Repo root:       ${REPO_ROOT}"
 echo "==> Virtual env dir: ${VENV_DIR}"
@@ -68,11 +68,14 @@ python -m pip install \
     websockets \
     pytest
 
+echo "==> Installing ai_core package editable..."
+python -m pip install -e "${REPO_ROOT}"
+
 echo ""
 echo "==> Done! Virtual environment created at: ${VENV_DIR}"
 echo "    Activate it with:"
-echo "      source ai_core/venv/bin/activate   (Linux/macOS)"
-echo "      ai_core\\venv\\Scripts\\activate      (Windows cmd)"
+echo "      source .venv/bin/activate   (Linux/macOS)"
+echo "      .venv\\Scripts\\activate      (Windows cmd)"
 echo ""
 echo "    Sanity check:"
 echo "      python -c \"import ultralytics, cv2, fastapi; print('OK')\""

@@ -149,7 +149,7 @@ Do not write any AI/ML logic yet — this step is scaffolding only.
 | # | Test | Expected Result |
 |---|---|---|
 | 0.1 | Run `tree crowdshield/ -L 3` (or `find` if `tree` unavailable) | Matches the folder structure above exactly |
-| 0.2 | Run `bash setup_python_env.sh` | Completes with no pip errors; `ai_core/venv` exists |
+| 0.2 | Run `bash setup_python_env.sh` | Completes with no pip errors; `.venv` exists |
 | 0.3 | Run `python -c "import ultralytics, cv2, fastapi"` inside the venv | No `ModuleNotFoundError` |
 | 0.4 | Check `.env.example` | Contains all 9 listed variables, no real secrets committed |
 | 0.5 | Run `git status` after first commit | `.env`, `node_modules/`, `venv/` are NOT tracked |
