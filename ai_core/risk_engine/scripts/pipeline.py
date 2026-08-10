@@ -67,6 +67,8 @@ class RiskEngine:
         self,
         cv_pipeline_frame_json: dict[str, Any],
         known_routes: list[dict[str, Any]] | None = None,
+        diffusion_rate: float = 0.15,
+        decay_rate: float = 0.05,
     ) -> dict[str, Any]:
         zones = _frame_zones(cv_pipeline_frame_json)
         adjacency_map = compute_zone_adjacency_map(zones)
@@ -87,6 +89,8 @@ class RiskEngine:
             current_zone_risk_scores=current_zone_risk_scores,
             zone_crowd_counts=zone_crowd_counts,
             adjacency_map=adjacency_map,
+            diffusion_rate=diffusion_rate,
+            decay_rate=decay_rate,
         )
         predicted_crush_timeline = self.diffuser.predict_crush_timeline(simulated_steps)
 
