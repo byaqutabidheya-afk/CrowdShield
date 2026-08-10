@@ -133,7 +133,7 @@ class RiskAlertResponse(RiskAlertBase):
 # Incident Reports (incident_reports)
 # ------------------------------------------------------------------------------
 class IncidentReportBase(BaseModel):
-    source: str  # 'citizen' or 'ai_generated'
+    source: str = "citizen"  # 'citizen' or 'ai_generated'
     zone_id: Optional[str] = None
     gps_coordinates: Optional[Dict[str, float]] = None
     photo_url: Optional[str] = None

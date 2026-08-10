@@ -136,6 +136,13 @@ class EventOrchestrator:
                     "resource_allocation_suggestions": risk_output.get("resource_allocation_suggestions", []),
                 }
 
+                # Update in-memory route predictions cache for GET /api/routes
+                try:
+                    from app.routers.zones import update_route_predictions_cache
+                    update_route_predictions_cache(venue_id, risk_output.get("route_blockage_predictions", []))
+                except Exception as e:
+                    logger.debug(f"Could not update route predictions cache: {e}")
+
                 frame_timestamp = cv_frame.get("timestamp") or datetime.now(timezone.utc).isoformat()
                 combined_payload: Dict[str, Any] = {
                     "timestamp": frame_timestamp,
