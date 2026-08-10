@@ -1,6 +1,6 @@
 import json
 
-old_data = json.load(open('ai-core/risk_engine/tests/sample_data/phase2_output.json'))
+old_data = json.load(open('ai_core/risk_engine/tests/sample_data/phase2_output.json'))
 new_data = json.load(open('phase2_output_v2.json'))
 
 print("=== 1. FRAME-BY-FRAME MAX ZONE RISK SCORE COMPARISON ===")

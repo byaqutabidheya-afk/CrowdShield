@@ -8,7 +8,7 @@ from pathlib import Path
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent
-SCRIPTS_DIR = PROJECT_ROOT / "ai-core" / "risk_engine" / "scripts"
+SCRIPTS_DIR = PROJECT_ROOT / "ai_core" / "risk_engine" / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 

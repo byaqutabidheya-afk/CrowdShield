@@ -10,10 +10,17 @@ CURRENT_DIR = Path(__file__).resolve().parent
 RISK_ENGINE_DIR = CURRENT_DIR.parent
 AI_CORE_DIR = RISK_ENGINE_DIR.parent
 
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
+if str(RISK_ENGINE_DIR) not in sys.path:
+    sys.path.insert(0, str(RISK_ENGINE_DIR))
 if str(AI_CORE_DIR) not in sys.path:
     sys.path.insert(0, str(AI_CORE_DIR))
 
-from shared.zone_config import Zone
+try:
+    from ai_core.shared.zone_config import Zone
+except ImportError:
+    from shared.zone_config import Zone
 
 
 def _zone_bounds(zone: Zone | Mapping[str, Any]) -> tuple[str, dict[str, float]]:

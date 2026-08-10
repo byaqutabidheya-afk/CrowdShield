@@ -23,9 +23,9 @@ build/
 Thumbs.db
 
 # Models / large media (keep repo light — track via Git LFS or re-download scripts instead)
-ai-core/cv_pipeline/models/*.pt
+ai_core/cv_pipeline/models/*.pt
 demo/videos/*.mp4
-ai-core/cv_pipeline/sample_videos/*.mp4
+ai_core/cv_pipeline/sample_videos/*.mp4
 
 # IDE
 .vscode/

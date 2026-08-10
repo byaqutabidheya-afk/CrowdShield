@@ -328,7 +328,7 @@ def parse_args() -> argparse.Namespace:
         "--source-path",
         type=Path,
         default=None,
-        help="Optional explicit path to Phase 1 JSON file or directory (default: ai-core/cv_pipeline/)",
+        help="Optional explicit path to Phase 1 JSON file or directory (default: ai_core/cv_pipeline/)",
     )
     parser.add_argument(
         "--force",

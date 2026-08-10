@@ -12,16 +12,29 @@ CURRENT_DIR = Path(__file__).resolve().parent
 RISK_ENGINE_DIR = CURRENT_DIR.parent
 AI_CORE_DIR = RISK_ENGINE_DIR.parent
 
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
+if str(RISK_ENGINE_DIR) not in sys.path:
+    sys.path.insert(0, str(RISK_ENGINE_DIR))
 if str(AI_CORE_DIR) not in sys.path:
     sys.path.insert(0, str(AI_CORE_DIR))
 
-from panic_diffusion import PanicDiffusionModel
-from pre_event_simulator import PreEventSimulator
-from resource_allocator import ResourceAllocator
-from route_blockage_predictor import RouteBlockagePredictor
-from risk_scorer import RiskScorer
-from shared.zone_config import Zone, load_zones_from_json
-from zone_adjacency import compute_zone_adjacency_map
+try:
+    from ai_core.risk_engine.scripts.panic_diffusion import PanicDiffusionModel
+    from ai_core.risk_engine.scripts.pre_event_simulator import PreEventSimulator
+    from ai_core.risk_engine.scripts.resource_allocator import ResourceAllocator
+    from ai_core.risk_engine.scripts.route_blockage_predictor import RouteBlockagePredictor
+    from ai_core.risk_engine.scripts.risk_scorer import RiskScorer
+    from ai_core.risk_engine.scripts.zone_adjacency import compute_zone_adjacency_map
+    from ai_core.shared.zone_config import Zone, load_zones_from_json
+except ImportError:
+    from panic_diffusion import PanicDiffusionModel
+    from pre_event_simulator import PreEventSimulator
+    from resource_allocator import ResourceAllocator
+    from route_blockage_predictor import RouteBlockagePredictor
+    from risk_scorer import RiskScorer
+    from zone_adjacency import compute_zone_adjacency_map
+    from shared.zone_config import Zone, load_zones_from_json
 
 
 def _safe_float(value: Any, default: float = 0.0) -> float:

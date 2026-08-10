@@ -1,13 +1,13 @@
 import sys
 import os
 
-# 1. Get the directory this test script is in (ai-core/scripts/)
+# 1. Get the directory this test script is in (ai_core/scripts/)
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# 2. Go up one level to get the absolute path to ai-core/
+# 2. Go up one level to get the absolute path to ai_core/
 ai_core_dir = os.path.abspath(os.path.join(current_dir, ".."))
 
-# 3. Add ai-core to Python's path so it can find the 'shared' folder
+# 3. Add ai_core to Python's path so it can find the 'shared' folder
 if ai_core_dir not in sys.path:
     sys.path.insert(0, ai_core_dir)
 

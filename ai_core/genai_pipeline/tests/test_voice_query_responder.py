@@ -102,5 +102,5 @@ async def test_answer_to_speech(tmp_path):
 
     assert audio_path.endswith("answer.mp3")
     mock_announcer.generate_audio.assert_called_once_with(
-        "Zone A1 is critical.", "en", output_dir="ai-core/genai_pipeline/audio_output/"
+        "Zone A1 is critical.", "en", output_dir="ai_core/genai_pipeline/audio_output/"
     )

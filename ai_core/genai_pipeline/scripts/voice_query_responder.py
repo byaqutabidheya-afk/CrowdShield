@@ -121,7 +121,7 @@ class VoiceQueryResponder:
         self,
         answer_text: str,
         language_code: str = "en",
-        output_dir: str = "ai-core/genai_pipeline/audio_output/",
+        output_dir: str = "ai_core/genai_pipeline/audio_output/",
     ) -> str:
         """
         Synthesize speech audio from an answer string.

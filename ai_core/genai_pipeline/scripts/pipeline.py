@@ -26,22 +26,34 @@ from typing import Any
 # Ensure script directory is in sys.path
 SCRIPT_DIR = Path(__file__).resolve().parent
 GENAI_PIPELINE_DIR = SCRIPT_DIR.parent
+AI_CORE_DIR = GENAI_PIPELINE_DIR.parent
 DEFAULT_FIXTURE_PATH = GENAI_PIPELINE_DIR / "fixtures" / "phase2_sample_output.json"
 
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
+if str(GENAI_PIPELINE_DIR) not in sys.path:
+    sys.path.insert(0, str(GENAI_PIPELINE_DIR))
+if str(AI_CORE_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_CORE_DIR))
 
 try:
-    from llm_client import LLMClient, LLMClientError
-    from recommendation_engine import RecommendationEngine
-    from incident_summary import IncidentSummaryGenerator
-    from translation_tts import MultilingualAnnouncer
-    from sentiment_analysis import SentimentAnalyzer, generate_mock_social_posts
-    from voice_commands import VoiceCommandProcessor
-    from voice_query_responder import VoiceQueryResponder
-except ImportError as _exc:
-    # Direct import attempt for relative context
+    from ai_core.genai_pipeline.scripts.llm_client import LLMClient, LLMClientError
+    from ai_core.genai_pipeline.scripts.recommendation_engine import RecommendationEngine
+    from ai_core.genai_pipeline.scripts.incident_summary import IncidentSummaryGenerator
+    from ai_core.genai_pipeline.scripts.translation_tts import MultilingualAnnouncer
+    from ai_core.genai_pipeline.scripts.sentiment_analysis import SentimentAnalyzer, generate_mock_social_posts
+    from ai_core.genai_pipeline.scripts.voice_commands import VoiceCommandProcessor
+    from ai_core.genai_pipeline.scripts.voice_query_responder import VoiceQueryResponder
+except ImportError:
     try:
+        from llm_client import LLMClient, LLMClientError
+        from recommendation_engine import RecommendationEngine
+        from incident_summary import IncidentSummaryGenerator
+        from translation_tts import MultilingualAnnouncer
+        from sentiment_analysis import SentimentAnalyzer, generate_mock_social_posts
+        from voice_commands import VoiceCommandProcessor
+        from voice_query_responder import VoiceQueryResponder
+    except ImportError:
         from .llm_client import LLMClient, LLMClientError
         from .recommendation_engine import RecommendationEngine
         from .incident_summary import IncidentSummaryGenerator
@@ -49,8 +61,6 @@ except ImportError as _exc:
         from .sentiment_analysis import SentimentAnalyzer, generate_mock_social_posts
         from .voice_commands import VoiceCommandProcessor
         from .voice_query_responder import VoiceQueryResponder
-    except ImportError:
-        raise ImportError(f"Failed to import required genai_pipeline modules: {_exc}") from _exc
 
 logger = logging.getLogger("genai_pipeline")
 
@@ -130,7 +140,7 @@ class GenAIPipeline:
         self,
         base_message_en: str,
         target_languages: list[str] | None = None,
-        output_dir: str = "ai-core/genai_pipeline/audio_output/",
+        output_dir: str = "ai_core/genai_pipeline/audio_output/",
     ) -> dict[str, Any]:
         """Generate multilingual translations, speech audio, and social dispatch payloads."""
         try:

@@ -154,7 +154,7 @@ class MultilingualAnnouncer:
         self,
         translated_text: str,
         language_code: str,
-        output_dir: str = "ai-core/genai_pipeline/audio_output/",
+        output_dir: str = "ai_core/genai_pipeline/audio_output/",
     ) -> str:
         """
         Synthesize speech from text using Edge-TTS (with gTTS fallback).
@@ -214,7 +214,7 @@ class MultilingualAnnouncer:
         self,
         base_message_en: str,
         target_languages: list[str] | None = None,
-        output_dir: str = "ai-core/genai_pipeline/audio_output/",
+        output_dir: str = "ai_core/genai_pipeline/audio_output/",
     ) -> dict[str, Any]:
         """
         Orchestrate translation and async audio generation concurrently.

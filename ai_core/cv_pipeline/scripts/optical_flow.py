@@ -14,12 +14,17 @@ import numpy as np
 CURRENT_DIR = Path(__file__).resolve().parent
 CV_PIPELINE_DIR = CURRENT_DIR.parent
 AI_CORE_DIR = CV_PIPELINE_DIR.parent
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
 if str(CV_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(CV_PIPELINE_DIR))
 if str(AI_CORE_DIR) not in sys.path:
     sys.path.insert(0, str(AI_CORE_DIR))
 
-from shared.zone_config import Zone
+try:
+    from ai_core.shared.zone_config import Zone
+except ImportError:
+    from shared.zone_config import Zone
 
 
 class OpticalFlowAnalyzer:

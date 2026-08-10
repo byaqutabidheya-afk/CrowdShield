@@ -71,7 +71,7 @@ Create a monorepo with this exact structure — every later phase writes into a 
 
 ```
 crowdshield/
-├── ai-core/
+├── ai_core/
 │   ├── cv_pipeline/            # Phase 1
 │   │   ├── models/             # downloaded YOLO weights
 │   │   ├── scripts/
@@ -114,7 +114,7 @@ folder structure with placeholder README.md files in each major folder explainin
 its purpose:
 
 crowdshield/
-├── ai-core/
+├── ai_core/
 │   ├── cv_pipeline/{models,scripts,sample_videos}
 │   ├── risk_engine/scripts
 │   ├── genai_pipeline/scripts
@@ -137,7 +137,7 @@ Also create:
    crowd stampede early-warning system) and links to docs/Build_Guide.md for
    full build instructions.
 4. A Python virtual environment setup script (setup_python_env.sh) that creates
-   a venv in ai-core/ and installs: ultralytics, opencv-python, numpy, pandas,
+   a venv in ai_core/ and installs: ultralytics, opencv-python, numpy, pandas,
    fastapi, uvicorn, python-socketio, supabase, google-generativeai, anthropic,
    faster-whisper, edge-tts, gTTS, requests, python-dotenv, websockets, pytest.
 
@@ -149,7 +149,7 @@ Do not write any AI/ML logic yet — this step is scaffolding only.
 | # | Test | Expected Result |
 |---|---|---|
 | 0.1 | Run `tree crowdshield/ -L 3` (or `find` if `tree` unavailable) | Matches the folder structure above exactly |
-| 0.2 | Run `bash setup_python_env.sh` | Completes with no pip errors; `ai-core/venv` exists |
+| 0.2 | Run `bash setup_python_env.sh` | Completes with no pip errors; `ai_core/venv` exists |
 | 0.3 | Run `python -c "import ultralytics, cv2, fastapi"` inside the venv | No `ModuleNotFoundError` |
 | 0.4 | Check `.env.example` | Contains all 9 listed variables, no real secrets committed |
 | 0.5 | Run `git status` after first commit | `.env`, `node_modules/`, `venv/` are NOT tracked |
@@ -182,7 +182,7 @@ This corresponds to **Features.md → Section 1: Crowd Monitoring** in full (Den
 
 ## Prerequisites
 - Phase 0 complete: Python venv working, `ultralytics` + `opencv-python` installed
-- At least 2–3 sample crowd videos placed in `ai-core/cv_pipeline/sample_videos/` (can be stock stampede/crowd footage for now — your hand-picked demo videos come in Phase 8)
+- At least 2–3 sample crowd videos placed in `ai_core/cv_pipeline/sample_videos/` (can be stock stampede/crowd footage for now — your hand-picked demo videos come in Phase 8)
 - Google Colab access for GPU-accelerated testing (optional but recommended, since YOLO inference on long videos is slow on CPU)
 
 ---
@@ -249,12 +249,12 @@ Lock this schema in now. Every later phase depends on it exactly as written:
 
 ```
 I'm building the CV pipeline for a hackathon project called CrowdShield (an
-AI-powered crowd stampede early-warning system). Work inside ai-core/cv_pipeline/.
+AI-powered crowd stampede early-warning system). Work inside ai_core/cv_pipeline/.
 
 Build a Python module with the following components:
 
 1. `models/download_weights.py` — downloads YOLOv8n (yolov8n.pt) via the
-   ultralytics package on first run, saves it to ai-core/cv_pipeline/models/.
+   ultralytics package on first run, saves it to ai_core/cv_pipeline/models/.
 
 2. `scripts/zone_config.py` — defines a configurable zone grid system.
    - A `Zone` dataclass: zone_id (str), bounds_normalized (dict with x_min,
@@ -376,7 +376,7 @@ above from raw video.
 
 ```
 Create a Google Colab notebook (as a .ipynb file at
-ai-core/cv_pipeline/colab_test_pipeline.ipynb) that:
+ai_core/cv_pipeline/colab_test_pipeline.ipynb) that:
 1. Installs ultralytics and opencv-python-headless via pip.
 2. Mounts Google Drive (for uploading test videos) or accepts a direct file
    upload via google.colab.files.upload().
@@ -587,7 +587,7 @@ from an existing CV pipeline (Phase 1) with this exact input schema per frame:
     "highest_risk_zone_id": "zone_A1"}
 }
 
-Work inside ai-core/risk_engine/. Build:
+Work inside ai_core/risk_engine/. Build:
 
 1. `scripts/zone_adjacency.py` — given a list of zones with bounds_normalized
    (assume a grid layout, e.g. zone_A1, zone_A2 = row A columns 1,2; zone_B1
@@ -760,7 +760,7 @@ Work inside ai-core/risk_engine/. Build:
      `--pre-event` flag that instead runs PreEventSimulator given a zones
      config and --attendance number, ignoring the input frames file.
 
-Include unit tests (pytest, in ai-core/risk_engine/tests/) for:
+Include unit tests (pytest, in ai_core/risk_engine/tests/) for:
 - RiskScorer.compute_risk_score with hand-crafted inputs verifying weight math
 - PanicDiffusionModel.simulate_steps confirming risk only spreads to zones
   with crowd_count > 0
@@ -771,7 +771,7 @@ Include unit tests (pytest, in ai-core/risk_engine/tests/) for:
   high/critical, and correctly returns false when no zone on the route is
   currently or predicted to be at risk
 
-Add a README.md in ai-core/risk_engine/ explaining the weight constants are
+Add a README.md in ai_core/risk_engine/ explaining the weight constants are
 tunable and documenting how to adjust them for Phase 8 fine-tuning against
 real demo footage.
 ```
@@ -821,7 +821,7 @@ real demo footage.
 
 ## Common Pitfalls
 
-- **Circular import risk between Phase 1 and Phase 2 zone configs**: keep zone definitions (the `Zone` dataclass / adjacency logic) in `ai-core/shared/` if both phases need to reference the same zone objects, rather than duplicating zone logic in each phase's folder.
+- **Circular import risk between Phase 1 and Phase 2 zone configs**: keep zone definitions (the `Zone` dataclass / adjacency logic) in `ai_core/shared/` if both phases need to reference the same zone objects, rather than duplicating zone logic in each phase's folder.
 - **Diffusion runaway**: if `diffusion_rate` is set too high relative to `decay_rate`, simulated risk scores can saturate to 1.0 for every zone within a few steps, making the simulation useless for demo purposes (everything looks equally critical). Always sanity-check simulation output visually (or via test 2.7) before wiring it into the dashboard.
 - **Weights don't need to be "correct," they need to be *defensible* in a pitch** — judges will ask "how did you decide these weights?" Have an answer ready: they're heuristic-initialized based on domain literature on crowd crush precursors (density + convergence + rate-of-change are well-documented risk factors in crowd safety research), and are tuned empirically against demo footage in Phase 8.
 - **Don't confuse `risk_score` (real-time, current) with `predicted_crush_timeline` (future, simulated)** in the dashboard later — keep these visually distinct so a judge doesn't think a "predicted" risk is already happening.
@@ -940,7 +940,7 @@ this schema:
   "resource_allocation_suggestions": [...]
 }
 
-Work inside ai-core/genai_pipeline/. Use the google-generativeai package
+Work inside ai_core/genai_pipeline/. Use the google-generativeai package
 (Gemini) as primary LLM, with an anthropic-based fallback/supplementary
 option. Load API keys from environment variables (GEMINI_API_KEY,
 ANTHROPIC_API_KEY) via python-dotenv. Build:
@@ -1018,7 +1018,7 @@ ANTHROPIC_API_KEY) via python-dotenv. Build:
      announcement system. Preserve the urgency but do not add extra
      information. Respond with only the translated text, no explanation."
    - Method `generate_audio(translated_text: str, language_code: str,
-     output_dir="ai-core/genai_pipeline/audio_output/") -> str` that uses
+     output_dir="ai_core/genai_pipeline/audio_output/") -> str` that uses
      edge-tts (preferred; use appropriate per-language voice names, e.g.
      hi-IN-MadhurNeural for Hindi, ta-IN-PallaviNeural for Tamil — look up
      correct edge-tts voice identifiers for each of the 5 target languages)
@@ -1239,7 +1239,7 @@ Enable Supabase's built-in Realtime feature on `crowd_metrics` and `risk_alerts`
 
 ### Step 4.2: FastAPI Backend Core
 
-Build the FastAPI app as the **single orchestration point**: it owns the "run the AI pipeline on a video source" loop, calling into `ai-core/cv_pipeline`, `ai-core/risk_engine`, and `ai-core/genai_pipeline` as imported Python modules (not subprocess calls — same-language, same-process, direct function calls are faster and simpler for a hackathon build than a microservices split).
+Build the FastAPI app as the **single orchestration point**: it owns the "run the AI pipeline on a video source" loop, calling into `ai_core/cv_pipeline`, `ai_core/risk_engine`, and `ai_core/genai_pipeline` as imported Python modules (not subprocess calls — same-language, same-process, direct function calls are faster and simpler for a hackathon build than a microservices split).
 
 REST endpoints to expose:
 - `POST /api/incidents` — citizen or operator incident submission (Section 5 mobile app feature)
@@ -1502,7 +1502,7 @@ Build:
       elapsed time).
 
 Wire all routers into main.py. Add a backend/requirements.txt (or confirm
-it matches ai-core's shared venv) and a backend/.env.example inheriting
+it matches ai_core's shared venv) and a backend/.env.example inheriting
 the root .env.example variables plus BACKEND_PORT.
 
 Add basic structured logging throughout (Python logging module) so a

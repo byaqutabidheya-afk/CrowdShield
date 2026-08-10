@@ -12,13 +12,19 @@ import numpy as np
 CURRENT_DIR = Path(__file__).resolve().parent
 CV_PIPELINE_DIR = CURRENT_DIR.parent
 AI_CORE_DIR = CV_PIPELINE_DIR.parent
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
 if str(CV_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(CV_PIPELINE_DIR))
 if str(AI_CORE_DIR) not in sys.path:
     sys.path.insert(0, str(AI_CORE_DIR))
 
-from models.download_weights import download_yolov8n_weights
-from shared.zone_config import Zone
+try:
+    from ai_core.cv_pipeline.models.download_weights import download_yolov8n_weights
+    from ai_core.shared.zone_config import Zone
+except ImportError:
+    from models.download_weights import download_yolov8n_weights
+    from shared.zone_config import Zone
 
 
 def _point_in_bounds(

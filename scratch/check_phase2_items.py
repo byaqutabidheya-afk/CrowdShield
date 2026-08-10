@@ -4,7 +4,7 @@ from pathlib import Path
 
 CURRENT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = CURRENT_DIR.parent
-SCRIPTS_DIR = PROJECT_ROOT / "ai-core" / "risk_engine" / "scripts"
+SCRIPTS_DIR = PROJECT_ROOT / "ai_core" / "risk_engine" / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
@@ -80,7 +80,7 @@ except Exception as e:
 # Item 16: Unit tests
 try:
     import subprocess
-    res = subprocess.run([sys.executable, "-m", "pytest", "ai-core/risk_engine/tests"], capture_output=True, text=True)
+    res = subprocess.run([sys.executable, "-m", "pytest", "ai_core/risk_engine/tests"], capture_output=True, text=True)
     if res.returncode == 0:
         print("[PASS] Item 16: Unit tests pass 100% via pytest.")
     else:
@@ -89,7 +89,7 @@ except Exception as e:
     print(f"[X] Item 16 Error: {e}")
 
 # Item 17: README weight tuning documentation
-readme_path = PROJECT_ROOT / "ai-core" / "risk_engine" / "README.md"
+readme_path = PROJECT_ROOT / "ai_core" / "risk_engine" / "README.md"
 if readme_path.exists() and "Phase 8 Fine-Tuning Plan" in readme_path.read_text(encoding="utf-8"):
     print("[PASS] Item 17: README documents weight tuning process for Phase 8.")
 else:

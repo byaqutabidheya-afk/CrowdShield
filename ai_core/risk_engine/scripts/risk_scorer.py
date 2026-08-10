@@ -12,10 +12,17 @@ CURRENT_DIR = Path(__file__).resolve().parent
 RISK_ENGINE_DIR = CURRENT_DIR.parent
 AI_CORE_DIR = RISK_ENGINE_DIR.parent
 
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
+if str(RISK_ENGINE_DIR) not in sys.path:
+    sys.path.insert(0, str(RISK_ENGINE_DIR))
 if str(AI_CORE_DIR) not in sys.path:
     sys.path.insert(0, str(AI_CORE_DIR))
 
-from zone_adjacency import compute_zone_adjacency_map
+try:
+    from ai_core.risk_engine.scripts.zone_adjacency import compute_zone_adjacency_map
+except ImportError:
+    from zone_adjacency import compute_zone_adjacency_map
 
 
 def _clamp(value: float, lower: float = 0.0, upper: float = 1.0) -> float:

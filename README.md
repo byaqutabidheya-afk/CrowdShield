@@ -19,7 +19,7 @@ with predictive public safety:
 
 | Folder | Purpose |
 |---|---|
-| `ai-core/` | CV pipeline, risk engine, and generative AI / voice pipeline |
+| `ai_core/` | CV pipeline, risk engine, and generative AI / voice pipeline |
 | `backend/` | FastAPI orchestrator, REST API, and real-time WebSockets |
 | `dashboard/` | React command dashboard (2D map, analytics, 3D digital twin) |
 | `mobile/` | React Native citizen app (alerts, safe routing, incident reports) |
@@ -37,3 +37,5 @@ with predictive public safety:
    [Build Guide](docs/Build_Guide.md).
 
 > **Status:** Project scaffolding only. No AI/ML logic has been implemented yet.
+## Setup
+Single shared `.venv` at repo root — do not create per-folder venvs.

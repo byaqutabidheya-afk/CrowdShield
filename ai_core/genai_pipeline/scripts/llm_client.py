@@ -62,7 +62,7 @@ except ImportError as _exc:
 # Load environment variables from the nearest .env file up the directory tree
 # ---------------------------------------------------------------------------
 _THIS_DIR = Path(__file__).resolve().parent
-# Walk up: scripts/ -> genai_pipeline/ -> ai-core/ -> project root
+# Walk up: scripts/ -> genai_pipeline/ -> ai_core/ -> project root
 for _candidate in [
     _THIS_DIR / ".env",
     _THIS_DIR.parent / ".env",
@@ -151,7 +151,7 @@ class LLMClient:
         if not resolved_key:
             raise LLMClientError(
                 "GEMINI_API_KEY is not set. "
-                "Add it to ai-core/genai_pipeline/.env (or the project root .env) "
+                "Add it to ai_core/genai_pipeline/.env (or the project root .env) "
                 "and export GEMINI_API_KEY=<your-key>."
             )
 

@@ -25,15 +25,23 @@ import sys
 CURRENT_DIR = Path(__file__).resolve().parent
 CV_PIPELINE_DIR = CURRENT_DIR.parent
 AI_CORE_DIR = CV_PIPELINE_DIR.parent
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
 if str(CV_PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(CV_PIPELINE_DIR))
 if str(AI_CORE_DIR) not in sys.path:
     sys.path.insert(0, str(AI_CORE_DIR))
 
-from detector import CrowdDetector
-from optical_flow import OpticalFlowAnalyzer
-from tracker import CrowdTracker
-from shared.zone_config import Zone, generate_grid_zones, load_zones_from_json
+try:
+    from ai_core.cv_pipeline.scripts.detector import CrowdDetector
+    from ai_core.cv_pipeline.scripts.optical_flow import OpticalFlowAnalyzer
+    from ai_core.cv_pipeline.scripts.tracker import CrowdTracker
+    from ai_core.shared.zone_config import Zone, generate_grid_zones, load_zones_from_json
+except ImportError:
+    from detector import CrowdDetector
+    from optical_flow import OpticalFlowAnalyzer
+    from tracker import CrowdTracker
+    from shared.zone_config import Zone, generate_grid_zones, load_zones_from_json
 
 DEFAULT_SOURCE_ID = "cam_01"
 DEFAULT_SAMPLE_EVERY_N_FRAMES = 3
