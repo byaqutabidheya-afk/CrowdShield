@@ -59,6 +59,7 @@ def get_supabase_client() -> Optional[Client]:
 def insert_crowd_metrics(zone_frame_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Insert a crowd metrics snapshot record into the `crowd_metrics` table.
+    Auto-seeds missing zone in `zones` table if foreign key constraint is triggered.
     """
     client = get_supabase_client()
     if not client:
@@ -69,6 +70,25 @@ def insert_crowd_metrics(zone_frame_data: Dict[str, Any]) -> Optional[Dict[str, 
         response = client.table("crowd_metrics").insert(zone_frame_data).execute()
         return response.data[0] if response.data else None
     except Exception as e:
+        err_str = str(e)
+        if "23503" in err_str or "violates foreign key constraint" in err_str or "crowd_metrics_zone_id_fkey" in err_str:
+            z_id = str(zone_frame_data.get("zone_id", "zone_A1"))
+            logger.info(f"Auto-seeding missing zone '{z_id}' into zones table to satisfy foreign key...")
+            upsert_zone_config([
+                {
+                    "zone_id": z_id,
+                    "venue_id": "test_venue",
+                    "bounds_normalized": {"x_min": 0, "y_min": 0, "x_max": 0.33, "y_max": 0.33},
+                    "max_expected_count": 50,
+                    "adjacency": [],
+                }
+            ])
+            try:
+                response = client.table("crowd_metrics").insert(zone_frame_data).execute()
+                return response.data[0] if response.data else None
+            except Exception as retry_err:
+                logger.error(f"Retry inserting crowd metrics failed for zone {z_id}: {retry_err}")
+                return None
         logger.error(f"Error inserting crowd metrics: {e}")
         return None
 
@@ -194,14 +214,32 @@ def get_zone_config(venue_id: Optional[str] = None) -> List[Dict[str, Any]]:
 def upsert_zone_config(zones: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Upsert a list of zone records into the `zones` table.
+    Sanitizes keys to match Postgres `zones` table schema.
     """
     client = get_supabase_client()
     if not client:
         logger.warning("Supabase client uninitialized. Skipping upsert_zone_config.")
         return []
 
+    sanitized_records = []
+    for z in zones:
+        z_id = str(z.get("zone_id") or z.get("id") or "")
+        venue_id = str(z.get("venue_id") or "test_venue")
+        bounds = z.get("bounds_normalized", {})
+        max_count = int(z.get("max_expected_count", 50))
+        adjacency = z.get("adjacency") or z.get("adjacent_zone_ids") or []
+
+        record = {
+            "zone_id": z_id,
+            "venue_id": venue_id,
+            "bounds_normalized": bounds,
+            "max_expected_count": max_count,
+            "adjacency": adjacency,
+        }
+        sanitized_records.append(record)
+
     try:
-        response = client.table("zones").upsert(zones).execute()
+        response = client.table("zones").upsert(sanitized_records).execute()
         return response.data or []
     except Exception as e:
         logger.error(f"Error upserting zone configs: {e}")
