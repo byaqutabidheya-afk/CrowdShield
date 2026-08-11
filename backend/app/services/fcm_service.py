@@ -34,19 +34,25 @@ def _init_firebase_admin() -> bool:
             return True
 
         service_account_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH")
-        firebase_json_str = os.getenv("FIREBASE_CONFIG_JSON")
+        firebase_json_str = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
 
         cred = None
         if service_account_path and os.path.exists(service_account_path):
-            logger.info(f"Initializing Firebase Admin from service account file: {service_account_path}")
+            logger.info(
+                f"Initializing Firebase Admin from service account file: {service_account_path}"
+            )
             cred = credentials.Certificate(service_account_path)
         elif firebase_json_str and firebase_json_str.strip():
             try:
                 cred_dict = json.loads(firebase_json_str)
-                logger.info("Initializing Firebase Admin from FIREBASE_CONFIG_JSON string.")
+                logger.info(
+                    "Initializing Firebase Admin from FIREBASE_SERVICE_ACCOUNT_JSON string."
+                )
                 cred = credentials.Certificate(cred_dict)
             except Exception as json_err:
-                logger.warning(f"Failed to parse FIREBASE_CONFIG_JSON: {json_err}")
+                logger.warning(
+                    f"Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON: {json_err}"
+                )
 
         if cred:
             firebase_admin.initialize_app(cred)
@@ -55,7 +61,7 @@ def _init_firebase_admin() -> bool:
             return True
         else:
             logger.warning(
-                "Firebase credentials missing (FIREBASE_SERVICE_ACCOUNT_PATH / FIREBASE_CONFIG_JSON). "
+                "Firebase credentials missing (FIREBASE_SERVICE_ACCOUNT_PATH / FIREBASE_SERVICE_ACCOUNT_JSON). "
                 "FCM push notifications will run in mock/log-only mode."
             )
             return False
@@ -78,7 +84,9 @@ async def send_push_to_all_devices(
 
     client = supabase_client.get_supabase_client()
     if not client:
-        logger.warning("[FCM Push] Supabase client uninitialized. Skipping push delivery.")
+        logger.warning(
+            "[FCM Push] Supabase client uninitialized. Skipping push delivery."
+        )
         return
 
     # 1. Fetch registered tokens from Supabase `devices` table
