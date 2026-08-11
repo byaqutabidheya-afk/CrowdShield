@@ -52,9 +52,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Start background weather polling task if API key is provided
     api_key = os.getenv("OPENWEATHERMAP_API_KEY", "")
-    lat = float(os.getenv("VENUE_LAT", "28.6139"))
-    lon = float(os.getenv("VENUE_LON", "77.2090"))
+    lat = float(os.getenv("VENUE_LAT", "20.34472597223267"))
+    lon = float(os.getenv("VENUE_LON", "85.80678043814832"))
     poll_interval = int(os.getenv("WEATHER_POLL_INTERVAL_SECONDS", "600"))
+
+    logger.info(f"[WEATHER CONFIG] Resolved demo venue coordinates: VENUE_LAT={lat}, VENUE_LON={lon}")
 
     weather_task = None
     if api_key:
