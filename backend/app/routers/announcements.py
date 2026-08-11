@@ -74,6 +74,7 @@ async def create_announcement(payload: AnnouncementRequest) -> Dict[str, Any]:
         "action_taken": f"Announcement: {payload.base_message_en} (Channels: {', '.join(channels)})",
         "category": "communication",
         "triggered_by": "operator",
+        "channels": channels,
     }
     supabase_client.insert_intervention(intervention_data)
 
