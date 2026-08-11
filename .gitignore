@@ -33,3 +33,6 @@ ai_core/cv_pipeline/sample_videos/*.mp4
 
 #Firebase JSON
 backend/crowdshield-bd6cd-firebase-adminsdk-fbsvc-529295d0fd.json
+
+#Importand commads for reference
+imp_commands.md
