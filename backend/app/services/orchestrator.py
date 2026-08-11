@@ -18,14 +18,10 @@ from typing import Any, Dict, List, Optional
 
 # Import AI Core modules with fallbacks
 try:
-    from ai_core.cv_pipeline.scripts.pipeline import CVPipeline
     from ai_core.genai_pipeline.scripts.pipeline import GenAIPipeline
-    from ai_core.risk_engine.scripts.pipeline import RiskEngine
     from ai_core.shared.zone_config import Zone
 except ImportError:
-    from cv_pipeline.scripts.pipeline import CVPipeline
     from genai_pipeline.scripts.pipeline import GenAIPipeline
-    from risk_engine.scripts.pipeline import RiskEngine
     from shared.zone_config import Zone
 
 from app.services import supabase_client, weather_service
@@ -55,7 +51,7 @@ class EventOrchestrator:
     """
 
     def __init__(self) -> None:
-        self.risk_engine = RiskEngine()
+        self._risk_engine = None
         self.genai = GenAIPipeline()
 
         # In-memory tracking of zone alert states
@@ -67,6 +63,16 @@ class EventOrchestrator:
         self.frames_processed: int = 0
         self.start_time: Optional[datetime] = None
         self.max_risk_score_seen: float = 0.0
+
+    @property
+    def risk_engine(self):
+        if self._risk_engine is None:
+            try:
+                from ai_core.risk_engine.scripts.pipeline import RiskEngine
+            except ImportError:
+                from risk_engine.scripts.pipeline import RiskEngine
+            self._risk_engine = RiskEngine()
+        return self._risk_engine
 
     async def _trigger_push_notification_hook(self, alert_data: Dict[str, Any]) -> None:
         """
@@ -117,6 +123,11 @@ class EventOrchestrator:
         # a) Normalize zones and instantiate CVPipeline
         normalized_zones = _normalize_zones(zones)
         zone_config_map = {z.zone_id: z.to_dict() for z in normalized_zones}
+
+        try:
+            from ai_core.cv_pipeline.scripts.pipeline import CVPipeline
+        except ImportError:
+            from cv_pipeline.scripts.pipeline import CVPipeline
 
         cv_pipeline = CVPipeline(
             video_path=video_source,
