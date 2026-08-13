@@ -308,6 +308,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   const connectionStatus = useLiveDataStore((state) => state.connectionStatus);
   const latestFrame = useLiveDataStore((state) => state.latestFrame);
   const processWebSocketMessage = useLiveDataStore((state) => state.processWebSocketMessage);
+  const clearAlerts = useLiveDataStore((state) => state.clearAlerts);
 
   // Enumerate camera devices on mount
   useEffect(() => {
@@ -523,6 +524,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     isBackendActiveRef.current = true;
     setIsProcessingBackend(true);
     setBackendMessage('Uploading & initializing video in Python CV Pipeline...');
+    clearAlerts();
     try {
       let res;
       if (mode === 'uploaded' && selectedFile) {
@@ -561,6 +563,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     }
     setIsProcessingBackend(false);
     setBackendMessage('CV Pipeline processing loop stopped. Upload a new video to continue.');
+    clearAlerts();
     // Reset counters so a fresh Feed shows clean metrics
     setCvFramesProcessed(0);
     stepIndexRef.current = 1;

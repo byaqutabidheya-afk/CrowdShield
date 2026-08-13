@@ -3,6 +3,7 @@ Processing & Video Control Router for CrowdShield Backend.
 
 Provides endpoints to start/stop the live video processing orchestrator loop,
 upload video files for CV processing, and query rich processing status.
+# Forced reload for ai_core updates
 """
 
 import asyncio

@@ -50,7 +50,9 @@ class ResourceAllocator:
             effective_rank = _safe_float(zone.get("risk_score"))
             if zone_id in historical_set:
                 effective_rank += 0.1
-            candidates.append((effective_rank, zone_id, zone))
+                
+            if effective_rank >= 0.35 or zone_id in historical_set:
+                candidates.append((effective_rank, zone_id, zone))
 
         candidates.sort(key=lambda item: (-item[0], item[1]))
         selected_zone_ids: list[str] = []
@@ -99,11 +101,11 @@ class ResourceAllocator:
                 historical=zone_id in historical_set,
             )
 
+            risk_val = _safe_float(zone.get("risk_score"))
             priority = (
-                "high"
-                if _safe_float(zone.get("risk_score")) >= 0.55
-                or zone_id not in historical_set
-                else "medium"
+                "high" if risk_val >= 0.55
+                else "medium" if risk_val >= 0.35
+                else "low"
             )
             suggestions.append(
                 {

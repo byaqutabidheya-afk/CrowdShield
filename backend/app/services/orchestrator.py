@@ -246,10 +246,10 @@ class EventOrchestrator:
                         "contributing_factors": risk_zone.get("contributing_factors", {}),
                     }
 
-                    # Non-blocking background persistence task
-                    asyncio.create_task(
-                        asyncio.to_thread(supabase_client.insert_crowd_metrics, metrics_record)
-                    )
+                    # Prevent thread pool exhaustion by skipping heavy synchronous DB inserts
+                    # asyncio.create_task(
+                    #     asyncio.to_thread(supabase_client.insert_crowd_metrics, metrics_record)
+                    # )
 
                 # g) Alert Lifecycle Management & Recommendations
                 new_alerts_this_frame = []
@@ -258,12 +258,17 @@ class EventOrchestrator:
                     curr_level = str(risk_zone.get("risk_level", "low"))
                     prev_level = self.previous_zone_risk_levels.get(z_id, "low")
 
-                    # Check transition INTO high or critical state
-                    if (
-                        curr_level in ("high", "critical")
-                        and prev_level not in ("high", "critical")
-                        and z_id not in self.active_alerts
-                    ):
+                    # Clear active alert tracking if zone returns to safe levels
+                    if curr_level in ("low", "moderate") and z_id in self.active_alerts:
+                        del self.active_alerts[z_id]
+
+                    # Check escalation into high or critical state
+                    escalated = (
+                        (curr_level == "high" and prev_level in ("low", "moderate")) or
+                        (curr_level == "critical" and prev_level in ("low", "moderate", "high"))
+                    )
+
+                    if escalated:
                         logger.warning(
                             f"Zone '{z_id}' escalated from '{prev_level}' to '{curr_level}'. "
                             f"Generating GenAI recommendations."
