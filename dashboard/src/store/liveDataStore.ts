@@ -30,13 +30,13 @@ export interface LiveDataState {
 }
 
 export const useLiveDataStore = create<LiveDataState>((set, get) => ({
-  // Initial state
+  // Initial state — starts in 'connecting' mode while WebSocket handshakes on page load
   latestFrame: null,
   zoneHistory: new Map<string, ZoneHistoryPoint[]>(),
   activeAlerts: [],
   resourceAllocationSuggestions: [],
   incidentReports: [],
-  connectionStatus: 'disconnected',
+  connectionStatus: 'connecting',
 
   // Set WebSocket connection status
   setConnectionStatus: (status: ConnectionStatus) => {

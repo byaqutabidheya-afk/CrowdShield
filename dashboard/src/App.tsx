@@ -28,7 +28,7 @@ export const App: React.FC = () => {
   // Focused / Selected Zone state for live map panning & highlighting
   const [focusedZoneId, setFocusedZoneId] = useState<string | null>(null);
 
-  // Live ticking clock for control room
+  // Live ticking clock for control room (IST - Indian Standard Time 12-hour AM/PM)
   const [currentTime, setCurrentTime] = useState<string>('');
 
   useEffect(() => {
@@ -37,12 +37,14 @@ export const App: React.FC = () => {
 
     const updateClock = () => {
       const now = new Date();
-      setCurrentTime(
-        now.toTimeString().split(' ')[0] +
-          ' UTC' +
-          (now.getTimezoneOffset() > 0 ? '-' : '+') +
-          Math.abs(now.getTimezoneOffset() / 60)
-      );
+      const formattedIST = now.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      }).toUpperCase();
+      setCurrentTime(`${formattedIST} IST`);
     };
 
     updateClock();
@@ -293,9 +295,9 @@ export const App: React.FC = () => {
             </span>
           </div>
 
-          {/* Clock */}
-          <div className="font-mono" style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>
-            {currentTime || '00:00:00 UTC'}
+          {/* Indian Standard Time Clock (12-hour AM/PM) */}
+          <div className="font-mono" style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+            {currentTime || '12:00:00 AM IST'}
           </div>
         </div>
       </header>
