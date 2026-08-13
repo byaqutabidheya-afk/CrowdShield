@@ -14,6 +14,9 @@ import type {
   IncidentReport,
   InterventionCreate,
   InterventionRecord,
+  StartProcessingRequest,
+  StartProcessingResponse,
+  ProcessingStatusResponse,
 } from '../types/api';
 
 /**
@@ -27,9 +30,8 @@ const BASE_URL = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000
  */
 export const apiClient = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // No default Content-Type — let each request set its own.
+  // FormData requests need the browser to set multipart/form-data with boundary automatically.
 });
 
 /**
@@ -149,6 +151,54 @@ export const postIntervention = async (
   data: InterventionCreate
 ): Promise<InterventionRecord> => {
   const response = await apiClient.post<InterventionRecord>('/interventions', data);
+  return response.data;
+};
+
+/**
+ * Start backend live video processing loop.
+ * POST /processing/start
+ */
+export const startVideoProcessing = async (
+  data: StartProcessingRequest
+): Promise<StartProcessingResponse> => {
+  const response = await apiClient.post<StartProcessingResponse>('/processing/start', data);
+  return response.data;
+};
+
+/**
+ * Upload local video file to backend and launch Python CV Pipeline processing loop.
+ * POST /processing/upload
+ */
+export const uploadVideoAndStartProcessing = async (
+  file: File,
+  venueId: string = 'cam_01'
+): Promise<StartProcessingResponse> => {
+  const formData = new FormData();
+  formData.append('file', file, file.name);
+  formData.append('venue_id', venueId);
+
+  // Do NOT set Content-Type manually — the browser must set it automatically
+  // so the multipart boundary is included (e.g. multipart/form-data; boundary=----xyz).
+  // Setting it manually omits the boundary and the server cannot parse the request.
+  const response = await apiClient.post<StartProcessingResponse>('/processing/upload', formData);
+  return response.data;
+};
+
+/**
+ * Stop backend live video processing loop.
+ * POST /processing/stop
+ */
+export const stopVideoProcessing = async (): Promise<{ status: string; session_id?: string }> => {
+  const response = await apiClient.post('/processing/stop');
+  return response.data;
+};
+
+/**
+ * Fetch live video processing status.
+ * GET /processing/status
+ */
+export const getVideoProcessingStatus = async (): Promise<ProcessingStatusResponse> => {
+  const response = await apiClient.get<ProcessingStatusResponse>('/processing/status');
   return response.data;
 };
 

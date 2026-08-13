@@ -148,6 +148,29 @@ export interface InterventionRecord {
   timestamp?: string;
 }
 
+export interface StartProcessingRequest {
+  video_source: string;
+  venue_id?: string;
+  sample_every_n_frames?: number;
+  zones_config?: Record<string, any>[];
+}
+
+export interface StartProcessingResponse {
+  status: string;
+  session_id?: string;
+  venue_id?: string;
+}
+
+export interface ProcessingStatusResponse {
+  is_active: boolean;
+  session_id?: string;
+  frames_processed?: number;
+  elapsed_seconds?: number;
+  max_risk_score_seen?: number;
+  active_alert_count?: number;
+  active_alerts?: Array<{ zone_id: string; risk_level: string }>;
+}
+
 /* ==========================================================================
    WebSocket Live Streaming Frame Types
    ========================================================================== */

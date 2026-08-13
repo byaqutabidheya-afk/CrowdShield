@@ -158,6 +158,8 @@ class EventOrchestrator:
                 if not isinstance(cv_frame, dict):
                     continue
 
+                self.frames_processed += 1
+
                 # c) Process frame via RiskEngine using venue-specific tuning parameters
                 risk_output = self.risk_engine.process_frame(
                     cv_frame,
@@ -185,6 +187,7 @@ class EventOrchestrator:
                     "timestamp": frame_timestamp,
                     "cv_data": cv_frame,
                     "risk_data": risk_data,
+                    "frames_processed": self.frames_processed,
                 }
 
                 # e) Apply weather risk multiplier to outdoor zones
@@ -214,6 +217,12 @@ class EventOrchestrator:
                                 risk_zone["risk_level"] = "high"
                             elif adjusted_score >= 0.3:
                                 risk_zone["risk_level"] = "moderate"
+
+                # Track max risk score seen
+                for rz in risk_data.get("zones", []):
+                    score = float(rz.get("risk_score", 0.0))
+                    if score > self.max_risk_score_seen:
+                        self.max_risk_score_seen = score
 
                 # f) Asynchronously insert crowd metrics records into Supabase
                 cv_zones_map = {
@@ -269,123 +278,49 @@ class EventOrchestrator:
                             neighbor_zones,
                         )
 
+                        recommendations = rec_output.get("recommendations", [])
                         alert_record = {
-                            "zone_id": z_id,
-                            "triggered_at": frame_timestamp,
-                            "peak_risk_score": float(risk_zone.get("risk_score", 0.0)),
-                            "risk_level_at_trigger": curr_level,
-                            "recommendations": rec_output.get("recommendations", []),
-                            "status": "active",
-                        }
-
-                        inserted_alert = await asyncio.to_thread(
-                            supabase_client.insert_risk_alert, alert_record
-                        )
-                        alert_id = (
-                            inserted_alert.get("id")
-                            if inserted_alert
-                            else f"alert_{z_id}_{int(datetime.now().timestamp())}"
-                        )
-                        self.active_alerts[z_id] = alert_id
-
-                        alert_broadcast_obj = {
-                            "id": alert_id,
                             "zone_id": z_id,
                             "triggered_at": frame_timestamp,
                             "risk_level": curr_level,
                             "peak_risk_score": float(risk_zone.get("risk_score", 0.0)),
-                            "recommendations": rec_output.get("recommendations", []),
+                            "recommendations": recommendations,
                         }
-                        new_alerts_this_frame.append(alert_broadcast_obj)
 
-                        # Trigger FCM Push Notification Hook
-                        await self._trigger_push_notification_hook(alert_broadcast_obj)
-
-                    # Check transition back DOWN to low or moderate state
-                    elif (
-                        curr_level in ("low", "moderate")
-                        and z_id in self.active_alerts
-                    ):
-                        alert_id = self.active_alerts.pop(z_id)
-                        logger.info(
-                            f"Zone '{z_id}' normalized to '{curr_level}'. "
-                            f"Resolving alert '{alert_id}' and generating incident summary."
+                        # Insert alert record into Supabase
+                        alert_id = await asyncio.to_thread(
+                            supabase_client.insert_alert, alert_record
                         )
+                        if alert_id:
+                            alert_record["id"] = alert_id
+                            self.active_alerts[z_id] = alert_id
 
-                        await asyncio.to_thread(supabase_client.resolve_risk_alert, alert_id)
+                        new_alerts_this_frame.append(alert_record)
 
-                        # Generate post-incident summary from historical trends
-                        recent_trends = await asyncio.to_thread(
-                            supabase_client.get_trend_data, z_id
-                        )
-                        summary_output = await asyncio.to_thread(
-                            self.genai.summary_generator.generate_summary,
-                            z_id,
-                            recent_trends,
-                            "resolved",
-                        )
+                        # Trigger FCM push notification hook for mobile devices
+                        await self._trigger_push_notification_hook(alert_record)
 
-                        incident_report = {
-                            "source": "ai_generated",
-                            "zone_id": z_id,
-                            "submitted_at": datetime.now(timezone.utc).isoformat(),
-                            "notes": summary_output.get(
-                                "narrative_summary",
-                                f"AI Post-Incident summary for zone {z_id}",
-                            ),
-                            "ai_summary": summary_output,
-                        }
-                        await asyncio.to_thread(
-                            supabase_client.insert_incident_report, incident_report
-                        )
-
+                    # Update tracked risk level for transition detection
                     self.previous_zone_risk_levels[z_id] = curr_level
 
                 if new_alerts_this_frame:
+                    combined_payload["type"] = "alert"
+                    combined_payload["alert"] = new_alerts_this_frame[0]
                     combined_payload["new_alerts"] = new_alerts_this_frame
+                else:
+                    combined_payload["type"] = "frame_update"
 
-                # Track processing stats for video_control router and presenter dashboard
-                self.frames_processed += 1
-                for rz in risk_data.get("zones", []):
-                    score = float(rz.get("risk_score", 0.0))
-                    if score > self.max_risk_score_seen:
-                        self.max_risk_score_seen = score
-
-                # h) Broadcast combined payload over WebSockets
+                # Broadcast combined frame over WebSocket
                 await websocket_manager.broadcast(combined_payload)
 
-                # i) Smooth realtime simulation pace
+                # Maintain target streaming frame rate
                 await asyncio.sleep(sleep_interval)
 
-        except Exception as e:
-            logger.error(f"Error during live processing orchestrator loop: {e}", exc_info=True)
+        except asyncio.CancelledError:
+            logger.info("Processing loop task was cancelled.")
             raise
+        except Exception as e:
+            logger.error(f"Unexpected error in live orchestrator loop: {e}", exc_info=True)
         finally:
             self.is_processing = False
-            logger.info(f"Live processing loop stopped. Total frames processed: {self.frames_processed}.")
-
-    async def run_pre_event_simulation(
-        self,
-        zones: List[Any],
-        entry_zone_ids: List[str],
-        expected_attendance: int,
-        arrival_duration_minutes: int = 30,
-        num_steps: int = 20,
-    ) -> Dict[str, Any]:
-        """
-        Runs an offline pre-event crowd buildup simulation wrapping RiskEngine's PreEventSimulator.
-        """
-        logger.info(
-            f"Running pre-event simulation for {expected_attendance} attendees across {len(zones)} zones."
-        )
-        normalized_zones = _normalize_zones(zones)
-
-        simulation_result = await asyncio.to_thread(
-            self.risk_engine.pre_event_simulator.run_simulation,
-            zones=normalized_zones,
-            expected_attendance=expected_attendance,
-            entry_zone_ids=entry_zone_ids,
-            arrival_duration_minutes=arrival_duration_minutes,
-            num_steps=num_steps,
-        )
-        return simulation_result
+            logger.info("Live orchestrator processing loop stopped.")

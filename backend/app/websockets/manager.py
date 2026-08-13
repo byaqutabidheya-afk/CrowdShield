@@ -4,11 +4,33 @@ WebSocket Connection Manager for CrowdShield Backend.
 Tracks active WebSocket connections and handles json broadcasting to all connected clients.
 """
 
+import json
 import logging
 from typing import Any, Dict, List
 from fastapi import WebSocket
 
 logger = logging.getLogger(__name__)
+
+
+class _SafeJSONEncoder(json.JSONEncoder):
+    """
+    JSON encoder that handles numpy scalar types and other non-standard Python
+    objects that the default encoder rejects.  Falls back to str() for anything
+    else so the broadcast never raises and never silently drops the connection.
+    """
+
+    def default(self, obj: Any) -> Any:
+        # Handle numpy scalars without importing numpy at module level (optional dep)
+        type_name = type(obj).__name__
+        module = getattr(type(obj), "__module__", "")
+        if module.startswith("numpy"):
+            if hasattr(obj, "item"):
+                return obj.item()  # converts np.int64, np.float64, np.bool_, etc. to Python native
+        return str(obj)
+
+
+def _safe_dumps(message: Dict[str, Any]) -> str:
+    return json.dumps(message, cls=_SafeJSONEncoder)
 
 
 class ConnectionManager:
@@ -42,15 +64,21 @@ class ConnectionManager:
     async def broadcast(self, message: Dict[str, Any]) -> None:
         """
         JSON-serializes and broadcasts a message to all active WebSocket connections.
-        Silently drops any connections that error during delivery.
+        Uses a numpy-safe encoder so unserializable types never silently drop connections.
         """
         if not self.active_connections:
+            return
+
+        try:
+            text = _safe_dumps(message)
+        except Exception as e:
+            logger.error(f"Failed to serialize broadcast message to JSON: {e}")
             return
 
         disconnected_sockets: List[WebSocket] = []
         for connection in list(self.active_connections):
             try:
-                await connection.send_json(message)
+                await connection.send_text(text)
             except Exception as e:
                 logger.warning(f"Failed to send WebSocket message: {e}. Dropping connection.")
                 disconnected_sockets.append(connection)

@@ -10,6 +10,7 @@ import AIInterventionPanel from './components/AIInterventionPanel';
 import ResourceAllocationPanel from './components/ResourceAllocationPanel';
 import IncidentReportsPanel from './components/IncidentReportsPanel';
 import ExternalTriggersPanel from './components/ExternalTriggersPanel';
+import VideoSourceWidget from './components/VideoSourceWidget';
 
 export const App: React.FC = () => {
   // Activate live WebSocket stream
@@ -152,8 +153,13 @@ export const App: React.FC = () => {
           </span>
         </div>
 
-        {/* Live Viewport Mode Switcher & Telemetry Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+        {/* Video Source Control & Viewport Mode Switcher & Telemetry Pills */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Video Source Selector & Preview Widget */}
+          <VideoSourceWidget />
+
+          <div style={{ height: '26px', width: '1px', backgroundColor: 'var(--border-panel)' }} />
+
           {/* Viewport Mode Switcher Pill */}
           <div
             style={{
