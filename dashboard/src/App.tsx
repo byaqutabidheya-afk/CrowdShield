@@ -4,6 +4,7 @@ import { useLiveWebSocket } from './hooks/useLiveWebSocket';
 
 // Component Imports
 import LiveVenueMap from './components/LiveVenueMap';
+import DigitalTwin3D from './components/DigitalTwin3D';
 import AnalyticsPanel from './components/AnalyticsPanel';
 import AIInterventionPanel from './components/AIInterventionPanel';
 import ResourceAllocationPanel from './components/ResourceAllocationPanel';
@@ -20,6 +21,9 @@ export const App: React.FC = () => {
   const incidentReports = useLiveDataStore((state) => state.incidentReports);
   const resourceAllocationSuggestions = useLiveDataStore((state) => state.resourceAllocationSuggestions);
   const fetchIncidents = useLiveDataStore((state) => state.fetchIncidents);
+
+  // Map View Mode state: '2d' (Leaflet Venue Map) vs '3d' (Interactive 3D Digital Twin)
+  const [activeMapTab, setActiveMapTab] = useState<'2d' | '3d'>('2d');
 
   // Focused / Selected Zone state for live map panning & highlighting
   const [focusedZoneId, setFocusedZoneId] = useState<string | null>(null);
@@ -146,8 +150,66 @@ export const App: React.FC = () => {
           </span>
         </div>
 
-        {/* Live Telemetry Pills & Clock */}
+        {/* Live Viewport Mode Switcher & Telemetry Pills */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          {/* Viewport Mode Switcher Pill */}
+          <div
+            style={{
+              display: 'flex',
+              backgroundColor: '#050811',
+              padding: '0.2rem',
+              borderRadius: '6px',
+              border: '1px solid var(--border-panel)',
+              gap: '0.2rem',
+            }}
+          >
+            <button
+              onClick={() => setActiveMapTab('2d')}
+              style={{
+                backgroundColor: activeMapTab === '2d' ? 'rgba(6, 182, 212, 0.2)' : 'transparent',
+                color: activeMapTab === '2d' ? 'var(--color-accent-cyan)' : 'var(--color-text-dim)',
+                border: activeMapTab === '2d' ? '1px solid var(--color-accent-cyan)' : '1px solid transparent',
+                borderRadius: '4px',
+                padding: '0.25rem 0.65rem',
+                fontSize: '0.725rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.15s ease',
+              }}
+              className="font-mono"
+            >
+              <span>🗺️</span>
+              <span>2D Live Map</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMapTab('3d')}
+              style={{
+                backgroundColor: activeMapTab === '3d' ? 'rgba(6, 182, 212, 0.2)' : 'transparent',
+                color: activeMapTab === '3d' ? 'var(--color-accent-cyan)' : 'var(--color-text-dim)',
+                border: activeMapTab === '3d' ? '1px solid var(--color-accent-cyan)' : '1px solid transparent',
+                borderRadius: '4px',
+                padding: '0.25rem 0.65rem',
+                fontSize: '0.725rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.15s ease',
+              }}
+              className="font-mono"
+            >
+              <span>🎮</span>
+              <span>3D Digital Twin</span>
+            </button>
+          </div>
+
+          <div style={{ height: '26px', width: '1px', backgroundColor: 'var(--border-panel)' }} />
+
           {/* Telemetry metrics */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.8rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
@@ -245,32 +307,73 @@ export const App: React.FC = () => {
           padding: '0.85rem',
           display: 'grid',
           gridTemplateColumns: 'repeat(12, 1fr)',
-          gridTemplateRows: 'minmax(460px, 1.2fr) minmax(380px, 1fr)',
+          gridTemplateRows: 'minmax(480px, 1.2fr) minmax(380px, 1fr)',
           gap: '0.85rem',
           overflow: 'hidden',
         }}
       >
-        {/* UPPER ROW - PANEL 1: Live Venue Map (Span 8) */}
+        {/* UPPER ROW - PANEL 1: Primary Venue Viewport (2D Map / 3D Digital Twin) (Span 8) */}
         <section className="control-card" style={{ gridColumn: 'span 8', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
-              <span style={{ color: 'var(--color-accent-cyan)' }}>📍</span>
-              Live Venue Overwatch & Density Map
+              <span style={{ color: 'var(--color-accent-cyan)' }}>
+                {activeMapTab === '2d' ? '📍' : '🎮'}
+              </span>
+              {activeMapTab === '2d' ? 'Live Venue Overwatch & Density Map (2D)' : '3D Venue Digital Twin & Crowd Simulator'}
             </div>
-            <div className="font-mono" style={{ display: 'flex', gap: '0.6rem', fontSize: '0.7rem' }}>
+
+            <div className="font-mono" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.7rem' }}>
               {focusedZoneId && (
                 <span style={{ color: 'var(--color-accent-blue)', fontWeight: 700 }}>
                   FOCUSED: [{focusedZoneId}]
                 </span>
               )}
-              <span style={{ color: 'var(--color-text-dim)' }}>Engine: Leaflet 2D</span>
+
+              {/* Viewport Toggle Switcher */}
+              <div style={{ display: 'flex', backgroundColor: '#050811', padding: '0.12rem', borderRadius: '6px', border: '1px solid var(--border-panel)' }}>
+                <button
+                  onClick={() => setActiveMapTab('2d')}
+                  style={{
+                    backgroundColor: activeMapTab === '2d' ? '#1e293b' : 'transparent',
+                    color: activeMapTab === '2d' ? 'var(--color-accent-cyan)' : 'var(--color-text-dim)',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '0.2rem 0.5rem',
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  🗺️ 2D Map
+                </button>
+                <button
+                  onClick={() => setActiveMapTab('3d')}
+                  style={{
+                    backgroundColor: activeMapTab === '3d' ? '#1e293b' : 'transparent',
+                    color: activeMapTab === '3d' ? 'var(--color-accent-cyan)' : 'var(--color-text-dim)',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '0.2rem 0.5rem',
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  🎮 3D Digital Twin
+                </button>
+              </div>
             </div>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: 0 }}>
-            <LiveVenueMap
-              selectedZoneId={focusedZoneId}
-              isLiveFeedReady={connectionStatus === 'connected'}
-            />
+
+          <div style={{ flex: 1, minHeight: 0, padding: 0, position: 'relative' }}>
+            {activeMapTab === '2d' ? (
+              <LiveVenueMap
+                selectedZoneId={focusedZoneId}
+                isLiveFeedReady={connectionStatus === 'connected'}
+              />
+            ) : (
+              <DigitalTwin3D />
+            )}
           </div>
         </section>
 
