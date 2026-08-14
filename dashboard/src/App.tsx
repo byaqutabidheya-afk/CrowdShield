@@ -57,6 +57,96 @@ export const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [fetchIncidents]);
 
+  useEffect(() => {
+    const scrollContainer = document.getElementById('crowdshield-scroll-container');
+    const revealTargets = scrollContainer?.querySelectorAll<HTMLElement>('.scroll-reveal');
+
+    if (!scrollContainer || !revealTargets?.length) return;
+
+    const restartFocus = (target: HTMLElement, direction: 'up' | 'down') => {
+      target.classList.remove('is-visible');
+      target.classList.toggle('scroll-enter-up', direction === 'up');
+      void target.offsetWidth;
+      target.classList.add('is-visible');
+    };
+
+    let frameId = 0;
+    let idleTimer = 0;
+    const getScrollPosition = () => scrollContainer.scrollTop || window.scrollY;
+    let previousScrollTop = getScrollPosition();
+    let lastDirection: 'up' | 'down' | null = null;
+    const focusedWhileScrollingUp = new Set<HTMLElement>();
+    const focusedWhileScrollingDown = new Set<HTMLElement>();
+
+    const revealVisiblePanels = () => {
+      frameId = 0;
+      const viewportBottom = window.innerHeight * 0.94;
+      const currentScrollTop = getScrollPosition();
+      const direction: 'up' | 'down' = currentScrollTop < previousScrollTop ? 'up' : 'down';
+      previousScrollTop = currentScrollTop;
+      const focusedPanels = direction === 'up' ? focusedWhileScrollingUp : focusedWhileScrollingDown;
+
+      // When the direction changes, treat panels already on screen as the current
+      // section. Only panels entering after this point should animate.
+      if (lastDirection !== direction) {
+        revealTargets.forEach((target) => {
+          const bounds = target.getBoundingClientRect();
+          if (bounds.top < viewportBottom && bounds.bottom > 0) focusedPanels.add(target);
+        });
+        lastDirection = direction;
+      }
+
+      revealTargets.forEach((target) => {
+        const bounds = target.getBoundingClientRect();
+        const isInViewport = bounds.top < viewportBottom && bounds.bottom > 0;
+        if (isInViewport) {
+          if (!focusedPanels.has(target)) {
+            restartFocus(target, direction);
+            focusedPanels.add(target);
+          }
+        } else {
+          target.classList.remove('is-visible');
+          focusedWhileScrollingUp.delete(target);
+          focusedWhileScrollingDown.delete(target);
+        }
+      });
+    };
+
+    const handleScroll = () => {
+      if (!frameId) frameId = window.requestAnimationFrame(revealVisiblePanels);
+      window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => {
+        const direction = lastDirection ?? 'down';
+        const visiblePanels = Array.from(revealTargets)
+          .filter((target) => {
+            const bounds = target.getBoundingClientRect();
+            return bounds.top < window.innerHeight * 0.94 && bounds.bottom > 0;
+          })
+          .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+
+        visiblePanels.forEach((target, index) => {
+          target.style.setProperty('--scroll-focus-delay', `${index * 110}ms`);
+          restartFocus(target, direction);
+        });
+      }, 140);
+    };
+
+    revealVisiblePanels();
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleScroll);
+      if (frameId) window.cancelAnimationFrame(frameId);
+      window.clearTimeout(idleTimer);
+    };
+  }, []);
+
   // Shared zone navigation callback handler for ExternalTriggersPanel voice command & IncidentReportsPanel map link
   const handleNavigateToZone = useCallback((zoneId: string) => {
     console.log(`[App] Shared Navigation Triggered: Panning map to zone '${zoneId}'`);
@@ -97,7 +187,10 @@ export const App: React.FC = () => {
   const maxDensity = latestFrame?.cv_data?.frame_totals?.max_zone_density ?? 0;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-dark)' }}>
+    <div
+      className={`crowdshield-dashboard-shell${showSplash ? '' : ' is-revealed'}`}
+      style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-dark)' }}
+    >
       {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
       {/* Top Navigation Bar */}
       <header
@@ -315,7 +408,8 @@ export const App: React.FC = () => {
       </header>
 
       {/* Main Control Room Layout Grid */}
-      <main
+        <main
+          id="crowdshield-scroll-container"
         style={{
           flex: 1,
           minHeight: 0,
@@ -330,7 +424,7 @@ export const App: React.FC = () => {
         {/* UPPER ROW - PANEL 1: Primary Venue Viewport & Video Feed (Span 9) */}
         <div style={{ gridColumn: 'span 9', display: 'flex', flexDirection: 'column', gap: '0.85rem', height: '100%', minHeight: 0 }}>
           {/* Top: Venue Map (2/3 of space) */}
-          <section className="control-card" style={{ flex: '1 1 auto', minHeight: '480px', display: 'flex', flexDirection: 'column' }}>
+          <section className="control-card scroll-reveal" style={{ flex: '1 1 auto', minHeight: '480px', display: 'flex', flexDirection: 'column' }}>
             <div className="control-card-header">
               <div className="control-card-title">
                 <span style={{ color: 'var(--color-accent-blue)' }}>{activeMapTab === '2d' ? '🗺️' : '🏙️'}</span>
@@ -383,13 +477,13 @@ export const App: React.FC = () => {
           </section>
 
           {/* Bottom: Video Play Window (1/3 of space) */}
-          <section className="control-card" style={{ flex: '0 0 430px', minHeight: '430px' }}>
+          <section className="control-card scroll-reveal scroll-reveal-delay-1" style={{ flex: '0 0 430px', minHeight: '430px' }}>
             <VideoSourceWidget />
           </section>
         </div>
 
         {/* UPPER ROW - PANEL 2: AI Interventions & Control Panel (Span 3) */}
-        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
+        <section className="control-card scroll-reveal scroll-reveal-delay-1" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>⚡</span>
@@ -405,7 +499,7 @@ export const App: React.FC = () => {
         </section>
 
         {/* LOWER ROW - PANEL 3: Data Analytics & Predictive Trends (Span 3) */}
-        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
+        <section className="control-card scroll-reveal" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>📊</span>
@@ -421,7 +515,7 @@ export const App: React.FC = () => {
         </section>
 
         {/* LOWER ROW - PANEL 4: Resource Allocation (Span 3) */}
-        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
+        <section className="control-card scroll-reveal scroll-reveal-delay-1" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🛡️</span>
@@ -437,7 +531,7 @@ export const App: React.FC = () => {
         </section>
 
         {/* LOWER ROW - PANEL 5: Incident Reports (Span 3) */}
-        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
+        <section className="control-card scroll-reveal scroll-reveal-delay-2" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🚨</span>
@@ -453,12 +547,12 @@ export const App: React.FC = () => {
         </section>
 
         {/* LOWER ROW - PANEL 6: Announcements (Span 3) */}
-        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
+        <section className="control-card scroll-reveal scroll-reveal-delay-3" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <AnnouncementsPanel />
         </section>
 
         {/* SEPARATE ROW - EXTERNAL TRIGGERS & VOICE CONTROLS */}
-        <section className="control-card" style={{ gridColumn: '1 / -1', minHeight: '560px' }}>
+        <section className="control-card scroll-reveal" style={{ gridColumn: '1 / -1', minHeight: '560px' }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🎙️</span>

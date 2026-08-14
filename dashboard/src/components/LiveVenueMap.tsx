@@ -352,8 +352,8 @@ function createPlaceholderFloorPlanSvg(width: number, height: number): string {
       ${gridLines.join('')}
       <rect x="24" y="24" width="${width - 48}" height="${height - 48}" rx="12" ry="12" fill="none" stroke="rgba(248, 250, 252, 0.4)" stroke-width="3" stroke-dasharray="14 10" />
       <rect x="${Math.round(width * 0.18)}" y="${Math.round(height * 0.16)}" width="${Math.round(width * 0.64)}" height="${Math.round(height * 0.62)}" rx="20" ry="20" fill="rgba(139, 92, 246, 0.05)" stroke="rgba(167, 139, 250, 0.5)" stroke-width="2" />
-      <text x="50%" y="48%" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle">Venue Floor Plan Placeholder</text>
-      <text x="50%" y="53%" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="16" text-anchor="middle">Replace this SVG with the real venue floor plan image for the demo</text>
+      <text x="50%" y="48%" fill="#e2e8f0" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle">Venue Floor Plan Placeholder</text>
+      <text x="50%" y="53%" fill="#94a3b8" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="16" text-anchor="middle">Replace this SVG with the real venue floor plan image for the demo</text>
     </svg>
   `)}`;
 }

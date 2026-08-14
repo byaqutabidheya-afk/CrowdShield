@@ -5,7 +5,7 @@ interface SplashScreenProps {
   durationMs?: number;
 }
 
-const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, durationMs = 2400 }) => {
+const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, durationMs = 2500 }) => {
   useEffect(() => {
     const timer = window.setTimeout(onComplete, durationMs);
     return () => window.clearTimeout(timer);

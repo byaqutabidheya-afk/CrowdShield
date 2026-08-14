@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
   --bg-dark: #050811;
@@ -18,8 +18,8 @@
   --color-status-connecting: #f59e0b;
   --color-status-disconnected: #f43f5e;
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 * {
@@ -38,7 +38,35 @@
   overflow: hidden;
   background: radial-gradient(circle at 50% 45%, #241044 0%, #100a20 42%, #05030b 100%);
   color: #f8fafc;
-  animation: crowdshield-splash-exit 700ms ease 1.75s forwards;
+  isolation: isolate;
+  animation: crowdshield-splash-exit 850ms cubic-bezier(0.65, 0, 0.35, 1) 1.75s forwards;
+}
+
+.crowdshield-splash::before,
+.crowdshield-splash::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.crowdshield-splash::before {
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(221, 214, 254, 0.18), transparent 24%);
+  opacity: 0;
+  animation: crowdshield-splash-flare 850ms ease 1.72s forwards;
+}
+
+.crowdshield-splash::after {
+  top: -15%;
+  bottom: -15%;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(221, 214, 254, 0.9), transparent);
+  box-shadow: 0 0 28px 10px rgba(167, 139, 250, 0.2);
+  opacity: 0;
+  transform: scaleY(0.25);
+  animation: crowdshield-splash-scan 850ms cubic-bezier(0.65, 0, 0.35, 1) 1.72s forwards;
 }
 
 .crowdshield-splash-grid {
@@ -95,7 +123,39 @@
 
 @keyframes crowdshield-splash-enter { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes crowdshield-splash-progress { from { transform: translateX(-120%); } to { transform: translateX(260%); } }
-@keyframes crowdshield-splash-exit { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+@keyframes crowdshield-splash-exit {
+  0% { opacity: 1; transform: scale(1); filter: blur(0); }
+  45% { opacity: 1; transform: scale(1.012); filter: blur(0); }
+  100% { opacity: 0; transform: scale(1.045); filter: blur(7px); visibility: hidden; pointer-events: none; }
+}
+@keyframes crowdshield-splash-flare { 0% { opacity: 0; transform: scale(0.5); } 28% { opacity: 1; } 100% { opacity: 0; transform: scale(2.2); } }
+@keyframes crowdshield-splash-scan { 0% { opacity: 0; transform: translateX(-32vw) scaleY(0.25); } 28% { opacity: 1; } 100% { opacity: 0; transform: translateX(32vw) scaleY(1); } }
+
+.crowdshield-dashboard-shell {
+  opacity: 1;
+}
+
+.crowdshield-dashboard-shell.is-revealed {
+  animation: crowdshield-dashboard-reveal 1050ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes crowdshield-dashboard-reveal {
+  0% { opacity: 0.01; transform: translateY(10px) scale(0.992); filter: blur(5px); }
+  55% { opacity: 1; transform: translateY(-2px) scale(1.002); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crowdshield-splash,
+  .crowdshield-splash::before,
+  .crowdshield-splash::after,
+  .crowdshield-splash-content,
+  .crowdshield-splash-loading span,
+  .crowdshield-dashboard-shell.is-revealed {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+}
 
 body {
   background: linear-gradient(135deg, #05030b 0%, #120b24 100%);
@@ -104,7 +164,26 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1, 'liga' 1;
   position: relative;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.015em;
 }
 
 body::before {
@@ -255,6 +334,77 @@ button:active {
   overflow: hidden;
   transition: all 0.3s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Panels reveal gently as they enter the scrollable control-room viewport. */
+.scroll-reveal {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  position: relative;
+}
+
+.scroll-reveal.is-visible {
+  animation: crowdshield-scroll-focus 900ms ease-out var(--scroll-focus-delay, 0ms) both;
+}
+
+.scroll-reveal::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: -35%;
+  width: 28%;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(221, 214, 254, 0.95), transparent);
+  box-shadow: 0 0 16px 2px rgba(167, 139, 250, 0.34);
+}
+
+.scroll-reveal.is-visible::after {
+  animation: crowdshield-scroll-scan 900ms cubic-bezier(0.2, 0.65, 0.25, 1) both;
+}
+
+.scroll-reveal.scroll-enter-up.is-visible::after {
+  animation-name: crowdshield-scroll-scan-reverse;
+}
+
+.scroll-reveal-delay-1.is-visible::after { animation-delay: 80ms; }
+.scroll-reveal-delay-2.is-visible::after { animation-delay: 150ms; }
+.scroll-reveal-delay-3.is-visible::after { animation-delay: 220ms; }
+
+@keyframes crowdshield-scroll-focus {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
+  35% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 26px rgba(167, 139, 250, 0.16); }
+}
+
+@keyframes crowdshield-scroll-scan {
+  0% { left: -35%; opacity: 0; }
+  15% { opacity: 1; }
+  82% { opacity: 0.7; }
+  100% { left: 108%; opacity: 0; }
+}
+@keyframes crowdshield-scroll-scan-reverse {
+  0% { left: 108%; opacity: 0; }
+  15% { opacity: 1; }
+  82% { opacity: 0.7; }
+  100% { left: -35%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: none;
+    transition: none;
+  }
+
+  .scroll-reveal.is-visible::after {
+    animation: none;
+  }
 }
 
 .control-card:hover {
