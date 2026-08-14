@@ -15,6 +15,23 @@ import WeatherWidget from './components/WeatherWidget';
 import { AnnouncementsPanel } from './components/AnnouncementsPanel';
 import SplashScreen from './components/SplashScreen';
 
+type DashboardIconName = 'map' | 'ai' | 'analytics' | 'resources' | 'incident' | 'triggers';
+
+const DashboardIcon: React.FC<{ name: DashboardIconName }> = ({ name }) => {
+  const common = { width: 17, height: 17, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true };
+
+  const paths: Record<DashboardIconName, React.ReactNode> = {
+    map: <><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20V6.5Z" /><path d="M9 4v13.5M15 6.5V20" /><circle cx="12" cy="11" r="1.7" /></>,
+    ai: <><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" /><path d="m12 7 1.4 3.6L17 12l-3.6 1.4L12 17l-1.4-3.6L7 12l3.6-1.4L12 7Z" /></>,
+    analytics: <><path d="M4 19V5M4 19h17" /><path d="m7 15 3-4 3 2 5-6" /><circle cx="7" cy="15" r="1" /><circle cx="10" cy="11" r="1" /><circle cx="13" cy="13" r="1" /><circle cx="18" cy="7" r="1" /></>,
+    resources: <><path d="m12 3 7 3.5v6.8c0 3.5-2.8 6.4-7 7.7-4.2-1.3-7-4.2-7-7.7V6.5L12 3Z" /><path d="m8.5 12 2.2 2.2 4.8-4.8" /></>,
+    incident: <><path d="M12 3 21 19H3L12 3Z" /><path d="M12 9v4M12 16h.01" /></>,
+    triggers: <><path d="M4 12h3l2-5 3 10 2-5h6" /><circle cx="4" cy="12" r="1" /><circle cx="20" cy="12" r="1" /></>,
+  };
+
+  return <svg {...common}>{paths[name]}</svg>;
+};
+
 export const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
   // Activate live WebSocket stream
@@ -427,7 +444,7 @@ export const App: React.FC = () => {
           <section className="control-card scroll-reveal" style={{ flex: '1 1 auto', minHeight: '480px', display: 'flex', flexDirection: 'column' }}>
             <div className="control-card-header">
               <div className="control-card-title">
-                <span style={{ color: 'var(--color-accent-blue)' }}>{activeMapTab === '2d' ? '🗺️' : '🏙️'}</span>
+                <span className="dashboard-section-icon"><DashboardIcon name="map" /></span>
                 <span className="gradient-text">{activeMapTab === '2d' ? 'Live Venue Overwatch & Density Map' : 'Digital Twin Environment'}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
@@ -486,7 +503,7 @@ export const App: React.FC = () => {
         <section className="control-card scroll-reveal scroll-reveal-delay-1" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
-              <span style={{ color: 'var(--color-accent-cyan)' }}>⚡</span>
+              <span className="dashboard-section-icon"><DashboardIcon name="ai" /></span>
               <span className="gradient-text">AI Interventions & Actions</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--color-accent-blue)' }}>
@@ -502,7 +519,7 @@ export const App: React.FC = () => {
         <section className="control-card scroll-reveal" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
-              <span style={{ color: 'var(--color-accent-cyan)' }}>📊</span>
+              <span className="dashboard-section-icon"><DashboardIcon name="analytics" /></span>
               <span className="gradient-text">Density & Risk Time-Series Analytics</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)' }}>
@@ -518,7 +535,7 @@ export const App: React.FC = () => {
         <section className="control-card scroll-reveal scroll-reveal-delay-1" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
-              <span style={{ color: 'var(--color-accent-cyan)' }}>🛡️</span>
+              <span className="dashboard-section-icon"><DashboardIcon name="resources" /></span>
               <span className="gradient-text">Resource Deployments</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.7rem', color: '#f59e0b' }}>
@@ -534,7 +551,7 @@ export const App: React.FC = () => {
         <section className="control-card scroll-reveal scroll-reveal-delay-2" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
-              <span style={{ color: 'var(--color-accent-cyan)' }}>🚨</span>
+              <span className="dashboard-section-icon"><DashboardIcon name="incident" /></span>
               <span className="gradient-text">Incident Reports</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)' }}>
@@ -555,7 +572,7 @@ export const App: React.FC = () => {
         <section className="control-card scroll-reveal" style={{ gridColumn: '1 / -1', minHeight: '560px' }}>
           <div className="control-card-header">
             <div className="control-card-title">
-              <span style={{ color: 'var(--color-accent-cyan)' }}>🎙️</span>
+              <span className="dashboard-section-icon"><DashboardIcon name="triggers" /></span>
               <span className="gradient-text">Triggers</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.68rem', color: 'var(--color-accent-cyan)' }}>
