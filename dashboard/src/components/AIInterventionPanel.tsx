@@ -25,7 +25,8 @@ const getAudioUrl = (audioPath?: string | null): string | null => {
     return audioPath;
   }
   const backendBase = (import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
-  return `${backendBase}/${audioPath.replace(/^\//, '')}`;
+  const cleanPath = audioPath.replace(/\\/g, '/').replace(/^\//, '');
+  return `${backendBase}/${cleanPath}`;
 };
 
 export const AIInterventionPanel: React.FC = () => {

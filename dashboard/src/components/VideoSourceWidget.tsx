@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import ReactDOM from 'react-dom';
 import { startVideoProcessing, uploadVideoAndStartProcessing, stopVideoProcessing, getVideoProcessingStatus } from '../api/client';
 import { useLiveDataStore } from '../store/liveDataStore';
 import type { WebSocketFrameMessage } from '../types/api';
@@ -262,9 +261,6 @@ function generateLiveTelemetryFrame(sourceName: string, mode: VideoSourceMode, s
 }
 
 export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceChange }) => {
-  // Modal visibility
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
   // Video Mode: 'camera' | 'sample' | 'uploaded'
   const [mode, setMode] = useState<VideoSourceMode>('sample');
   const [sourceName, setSourceName] = useState<string>('crowd_sample_01.mp4');
@@ -466,7 +462,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
         modalVideoRef.current.play().catch(() => {});
       }
     }
-  }, [mode, activeStream, isModalOpen]);
+  }, [mode, activeStream]);
 
   // Handle selecting preset sample video
   const handleSelectSample = (sampleId: string) => {
@@ -649,518 +645,298 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     : Math.round((videoProgress.percent / 100) * estimatedTotalFrames);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-      {/* Small Compact Preview Window Widget */}
-      <div
-        onClick={() => setIsModalOpen(true)}
-        title="Click to change video source or view CV pipeline processing status"
-        style={{
-          position: 'relative',
-          width: '145px',
-          height: '48px',
-          backgroundColor: '#050811',
-          border: `1px solid ${mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)'}`,
-          borderRadius: '6px',
-          overflow: 'hidden',
-          cursor: 'pointer',
-          boxShadow: `0 0 10px ${mode === 'camera' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(6, 182, 212, 0.2)'}`,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        {/* Render Video or Synthetic Canvas */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-          {mode === 'camera' ? (
-            <video
-              ref={previewVideoRef}
-              autoPlay
-              muted
-              playsInline
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : uploadedVideoUrl ? (
-            <video
-              src={uploadedVideoUrl}
-              autoPlay
-              muted
-              loop
-              playsInline
-              onTimeUpdate={handleTimeUpdate}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : (
-            <canvas ref={canvasRef} width={200} height={110} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+      {/* Header */}
+      <div className="control-card-header">
+        <div className="control-card-title">
+          <span style={{ color: 'var(--color-accent-cyan)' }}>📹</span>
+          Video Input Source & CV Pipeline
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {backendMessage && (
+            <span style={{ fontSize: '0.65rem', color: 'var(--color-accent-blue)' }} className="font-mono">
+              {backendMessage}
+            </span>
           )}
-        </div>
-
-        {/* Source Indicator Badge Overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 2,
-            backgroundColor: 'rgba(5, 8, 17, 0.55)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '0.2rem 0.35rem',
-            pointerEvents: 'none',
-          }}
-          className="font-mono"
-        >
-          {/* Top Row: Live Camera vs Sample Video Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span
-              style={{
-                fontSize: '0.55rem',
-                fontWeight: 800,
-                padding: '0.05rem 0.3rem',
-                borderRadius: '3px',
-                backgroundColor: mode === 'camera' ? 'rgba(16, 185, 129, 0.9)' : 'rgba(6, 182, 212, 0.9)',
-                color: '#ffffff',
-                letterSpacing: '0.05em',
-              }}
-            >
-              {mode === 'camera' ? '🟢 LIVE CAMERA' : '📁 SAMPLE VIDEO'}
-            </span>
-
-            <span style={{ fontSize: '0.5rem', color: '#10b981', fontWeight: 700 }}>
-              {mode === 'camera' ? `${formatMMSS(liveElapsedSeconds)}` : `${videoProgress.percent}%`}
-            </span>
-          </div>
-
-          {/* Bottom Row: Filename / Device Name */}
-          <div
+          <span
             style={{
-              fontSize: '0.58rem',
-              color: '#f8fafc',
-              fontWeight: 600,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: '135px',
+              fontSize: '0.65rem',
+              fontWeight: 800,
+              padding: '0.15rem 0.5rem',
+              borderRadius: '4px',
+              backgroundColor: mode === 'camera' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(6, 182, 212, 0.2)',
+              color: mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)',
+              border: `1px solid ${mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)'}`,
             }}
+            className="font-mono"
           >
-            {sourceName}
-          </div>
-        </div>
-
-        {/* Bottom Progress Bar Overlay (Driven by CV Pipeline Frames Processed) */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '3px',
-            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            zIndex: 3,
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: mode === 'camera' ? '100%' : `${videoProgress.percent}%`,
-              backgroundColor: mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)',
-              boxShadow: `0 0 6px ${mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)'}`,
-              transition: 'width 0.2s linear',
-            }}
-          />
+            {mode === 'camera' ? '🟢 LIVE CAMERA' : '📁 SAMPLE VIDEO'} — {sourceName}
+          </span>
         </div>
       </div>
 
-      {/* Trigger Button */}
-      <button
-        onClick={() => setIsModalOpen(true)}
-        style={{
-          backgroundColor: '#0d1322',
-          border: '1px solid var(--border-panel-bright)',
-          color: '#f8fafc',
-          fontSize: '0.725rem',
-          fontWeight: 700,
-          padding: '0.35rem 0.75rem',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.4rem',
-          transition: 'all 0.15s ease',
-        }}
-        className="font-mono"
-      >
-        <span>📹</span>
-        <span>Video Source</span>
-      </button>
-
-      {/* Video Source Control Modal rendered via React Portal attached to document.body */}
-      {isModalOpen &&
-        ReactDOM.createPortal(
+      {/* Body */}
+      <div style={{ flex: 1, minHeight: 0, padding: '0.85rem', display: 'flex', gap: '1rem', overflow: 'hidden' }}>
+        {/* LEFT SIDE: Enlarged Video Player */}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          {/* Video Container */}
           <div
-            onClick={() => setIsModalOpen(false)}
             style={{
-              position: 'fixed',
-              inset: 0,
-              backgroundColor: 'rgba(5, 8, 17, 0.88)',
-              backdropFilter: 'blur(8px)',
-              zIndex: 999999,
+              flex: 1,
+              minHeight: 0,
+              backgroundColor: '#050811',
+              borderRadius: '8px',
+              border: '1px solid var(--border-panel)',
+              overflow: 'hidden',
+              position: 'relative',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '1.5rem',
             }}
           >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                backgroundColor: '#0d1322',
-                border: '1px solid var(--border-panel-bright)',
-                borderRadius: '12px',
-                width: '100%',
-                maxWidth: '560px',
-                maxHeight: '90vh',
-                overflow: 'hidden',
-                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85)',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              {/* Modal Header */}
+            {mode === 'camera' ? (
+              <video ref={modalVideoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            ) : uploadedVideoUrl ? (
+              <video
+                src={uploadedVideoUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                onTimeUpdate={handleTimeUpdate}
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            ) : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <canvas ref={canvasRef} width={400} height={220} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
+            )}
+          </div>
+
+          {/* Real CV Pipeline Frame Processing Progress Bar */}
+          <div
+            style={{
+              backgroundColor: '#050811',
+              border: '1px solid var(--border-panel)',
+              borderRadius: '6px',
+              padding: '0.65rem 0.85rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.4rem',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.725rem' }} className="font-mono">
+              <span style={{ color: 'var(--color-text-dim)', fontWeight: 600 }}>
+                {mode === 'camera' ? 'LIVE CV PIPELINE STREAM' : 'CV PIPELINE VIDEO PROGRESS'}
+              </span>
+              <span style={{ fontWeight: 700, color: mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)' }}>
+                {mode === 'camera'
+                  ? `LIVE • ${processedFramesDisplay.toLocaleString()} FRAMES PROCESSED (${formatMMSS(liveElapsedSeconds)})`
+                  : `${videoProgress.percent}% • ${processedFramesDisplay.toLocaleString()} / ${estimatedTotalFrames.toLocaleString()} FRAMES (${formatMMSS(videoProgress.currentTime)} / ${formatMMSS(videoProgress.duration)})`}
+              </span>
+            </div>
+
+            {/* Outer Progress Bar Track */}
+            <div style={{ height: '8px', backgroundColor: '#131b2e', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--border-panel)' }}>
               <div
                 style={{
-                  backgroundColor: '#131b2e',
-                  padding: '0.85rem 1.25rem',
-                  borderBottom: '1px solid var(--border-panel)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  height: '100%',
+                  width: mode === 'camera' ? '100%' : `${videoProgress.percent}%`,
+                  background: mode === 'camera' ? 'linear-gradient(90deg, #059669, #10b981)' : 'linear-gradient(90deg, #0284c7, #06b6d4)',
+                  borderRadius: '4px',
+                  boxShadow: `0 0 10px ${mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)'}`,
+                  transition: 'width 0.25s ease-out',
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT SIDE: Video Source Controls */}
+        <div style={{ width: '280px', display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.2rem' }}>
+          {/* Feed to Backend Processing Action Bar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button
+              onClick={handleFeedToBackend}
+              style={{
+                backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                border: '1px solid var(--color-accent-cyan)',
+                color: 'var(--color-accent-cyan)',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                padding: '0.65rem 0.85rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                width: '100%',
+              }}
+            >
+              Feed Video to AI Backend
+            </button>
+
+            {isProcessingBackend && (
+              <button
+                onClick={handleStopBackend}
+                style={{
+                  backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                  border: '1px solid #ef4444',
+                  color: '#ef4444',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.5rem 0.85rem',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  width: '100%',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc' }} className="font-mono">
-                  <span style={{ color: 'var(--color-accent-cyan)' }}>📹</span> Video Input Source & CV Pipeline Controls
-                </div>
+                Stop Processing
+              </button>
+            )}
+          </div>
+
+          <div style={{ height: '1px', backgroundColor: 'var(--border-panel)' }} />
+
+          {/* Option 2: Preset Sample Crowd Videos */}
+          <div
+            style={{
+              backgroundColor: 'rgba(5, 8, 17, 0.6)',
+              border: `1px solid ${mode === 'sample' ? 'var(--color-accent-cyan)' : 'var(--border-panel)'}`,
+              borderRadius: '8px',
+              padding: '0.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+            }}
+          >
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent-cyan)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span>🎞️</span> Sample Footage
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              {PRESET_SAMPLE_VIDEOS.map((sample) => (
                 <button
-                  onClick={() => setIsModalOpen(false)}
-                  style={{ background: 'none', border: 'none', color: 'var(--color-text-dim)', fontSize: '1.1rem', cursor: 'pointer' }}
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Modal Body */}
-              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', flex: 1 }}>
-                {/* Active Preview & Source Badge */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase' }} className="font-mono">
-                      Current Video Preview & CV Processing:
-                    </span>
-                    {/* Source Indicator Badge */}
-                    <span
-                      style={{
-                        fontSize: '0.65rem',
-                        fontWeight: 800,
-                        padding: '0.15rem 0.5rem',
-                        borderRadius: '4px',
-                        backgroundColor: mode === 'camera' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(6, 182, 212, 0.2)',
-                        color: mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)',
-                        border: `1px solid ${mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)'}`,
-                      }}
-                      className="font-mono"
-                    >
-                      {mode === 'camera' ? '🟢 LIVE CAMERA' : '📁 SAMPLE VIDEO'} — {sourceName}
-                    </span>
-                  </div>
-
-                  {/* Video Container */}
-                  <div
-                    style={{
-                      height: uploadedVideoUrl || mode === 'camera' ? '120px' : '0px',
-                      display: uploadedVideoUrl || mode === 'camera' ? 'flex' : 'none',
-                      backgroundColor: '#050811',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-panel)',
-                      overflow: 'hidden',
-                      position: 'relative',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {mode === 'camera' ? (
-                      <video ref={modalVideoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : uploadedVideoUrl ? (
-                      <video
-                        src={uploadedVideoUrl}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        onTimeUpdate={handleTimeUpdate}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <div style={{ textAlign: 'center', padding: '1rem' }}>
-                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📹</div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                          Active video feed: <strong style={{ color: '#f8fafc' }}>{sourceName}</strong>
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Real CV Pipeline Frame Processing Progress Bar */}
-                  <div
-                    style={{
-                      backgroundColor: '#050811',
-                      border: '1px solid var(--border-panel)',
-                      borderRadius: '6px',
-                      padding: '0.65rem 0.85rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.4rem',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.725rem' }} className="font-mono">
-                      <span style={{ color: 'var(--color-text-dim)', fontWeight: 600 }}>
-                        {mode === 'camera' ? 'LIVE CV PIPELINE STREAM' : 'CV PIPELINE VIDEO PROGRESS'}
-                      </span>
-                      <span style={{ fontWeight: 700, color: mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)' }}>
-                        {mode === 'camera'
-                          ? `LIVE • ${processedFramesDisplay.toLocaleString()} FRAMES PROCESSED (${formatMMSS(liveElapsedSeconds)})`
-                          : `${videoProgress.percent}% • ${processedFramesDisplay.toLocaleString()} / ${estimatedTotalFrames.toLocaleString()} FRAMES (${formatMMSS(videoProgress.currentTime)} / ${formatMMSS(videoProgress.duration)})`}
-                      </span>
-                    </div>
-
-                    {/* Outer Progress Bar Track */}
-                    <div style={{ height: '8px', backgroundColor: '#131b2e', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--border-panel)' }}>
-                      <div
-                        style={{
-                          height: '100%',
-                          width: mode === 'camera' ? '100%' : `${videoProgress.percent}%`,
-                          background: mode === 'camera' ? 'linear-gradient(90deg, #059669, #10b981)' : 'linear-gradient(90deg, #0284c7, #06b6d4)',
-                          borderRadius: '4px',
-                          boxShadow: `0 0 10px ${mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)'}`,
-                          transition: 'width 0.25s ease-out',
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Source Option Tabs / Options */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {/* Option 1: Live Webcam / Connected Camera */}
-                  <div
-                    style={{
-                      backgroundColor: 'rgba(5, 8, 17, 0.6)',
-                      border: `1px solid ${mode === 'camera' ? '#10b981' : 'var(--border-panel)'}`,
-                      borderRadius: '8px',
-                      padding: '0.85rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span>📷</span> Connected Camera / Laptop Webcam
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <select
-                        value={selectedDeviceId}
-                        onChange={(e) => setSelectedDeviceId(e.target.value)}
-                        style={{
-                          flex: 1,
-                          backgroundColor: '#090d16',
-                          color: '#f8fafc',
-                          border: '1px solid var(--border-panel)',
-                          borderRadius: '4px',
-                          padding: '0.35rem 0.6rem',
-                          fontSize: '0.75rem',
-                          fontFamily: 'var(--font-mono)',
-                          outline: 'none',
-                        }}
-                      >
-                        {cameraDevices.length > 0 ? (
-                          cameraDevices.map((d, i) => (
-                            <option key={d.deviceId || i} value={d.deviceId}>
-                              {d.label || `Camera ${i + 1}`}
-                            </option>
-                          ))
-                        ) : (
-                          <option value="">Default Laptop Camera</option>
-                        )}
-                      </select>
-
-                      <button
-                        onClick={() => startCameraStream(selectedDeviceId)}
-                        style={{
-                          backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                          border: '1px solid #10b981',
-                          color: '#10b981',
-                          fontSize: '0.725rem',
-                          fontWeight: 700,
-                          padding: '0.35rem 0.75rem',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        Switch to Live Camera
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Option 2: Preset Sample Crowd Videos */}
-                  <div
-                    style={{
-                      backgroundColor: 'rgba(5, 8, 17, 0.6)',
-                      border: `1px solid ${mode === 'sample' ? 'var(--color-accent-cyan)' : 'var(--border-panel)'}`,
-                      borderRadius: '8px',
-                      padding: '0.85rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-accent-cyan)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span>🎞️</span> Select Sample Crowd Footage
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      {PRESET_SAMPLE_VIDEOS.map((sample) => (
-                        <button
-                          key={sample.id}
-                          onClick={() => handleSelectSample(sample.id)}
-                          style={{
-                            backgroundColor: sourceName === sample.id ? 'rgba(6, 182, 212, 0.15)' : '#090d16',
-                            border: `1px solid ${sourceName === sample.id ? 'var(--color-accent-cyan)' : 'var(--border-panel)'}`,
-                            color: '#f8fafc',
-                            fontSize: '0.725rem',
-                            padding: '0.4rem 0.65rem',
-                            borderRadius: '4px',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                          }}
-                        >
-                          <span>{sample.label}</span>
-                          {sourceName === sample.id && (
-                            <span style={{ fontSize: '0.65rem', color: 'var(--color-accent-cyan)', fontWeight: 700 }} className="font-mono">
-                              SELECTED
-                            </span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Option 3: Upload Custom Video File */}
-                  <div
-                    style={{
-                      backgroundColor: 'rgba(5, 8, 17, 0.6)',
-                      border: `1px solid ${mode === 'uploaded' ? 'var(--color-accent-blue)' : 'var(--border-panel)'}`,
-                      borderRadius: '8px',
-                      padding: '0.85rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.4rem',
-                    }}
-                  >
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-accent-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span>📁</span> Upload Custom Local Video File
-                    </div>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleFileUpload}
-                      style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--color-text-muted)',
-                        backgroundColor: '#090d16',
-                        padding: '0.35rem',
-                        borderRadius: '4px',
-                        border: '1px solid var(--border-panel)',
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Feed to Backend Processing Action Bar */}
-                <div
+                  key={sample.id}
+                  onClick={() => handleSelectSample(sample.id)}
                   style={{
-                    paddingTop: '0.75rem',
-                    borderTop: '1px solid var(--border-panel)',
+                    backgroundColor: sourceName === sample.id ? 'rgba(6, 182, 212, 0.15)' : '#090d16',
+                    border: `1px solid ${sourceName === sample.id ? 'var(--color-accent-cyan)' : 'var(--border-panel)'}`,
+                    color: '#f8fafc',
+                    fontSize: '0.7rem',
+                    padding: '0.35rem 0.5rem',
+                    borderRadius: '4px',
+                    textAlign: 'left',
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    gap: '0.5rem',
                   }}
                 >
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      onClick={handleFeedToBackend}
-                      style={{
-                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
-                        border: '1px solid var(--color-accent-cyan)',
-                        color: 'var(--color-accent-cyan)',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        padding: '0.45rem 0.85rem',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Feed Video to CrowdShield Backend
-                    </button>
-
-                    {isProcessingBackend && (
-                      <button
-                        onClick={handleStopBackend}
-                        style={{
-                          backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                          border: '1px solid #ef4444',
-                          color: '#ef4444',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          padding: '0.45rem 0.85rem',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Stop Processing Loop
-                      </button>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    style={{
-                      backgroundColor: '#1e293b',
-                      border: '1px solid var(--border-panel)',
-                      color: '#f8fafc',
-                      fontSize: '0.75rem',
-                      padding: '0.45rem 0.85rem',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Done
-                  </button>
-                </div>
-
-                {backendMessage && (
-                  <div style={{ fontSize: '0.725rem', color: 'var(--color-accent-blue)', marginTop: '0.2rem' }} className="font-mono">
-                    {backendMessage}
-                  </div>
-                )}
-              </div>
+                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '170px' }}>{sample.label}</span>
+                  {sourceName === sample.id && (
+                    <span style={{ fontSize: '0.6rem', color: 'var(--color-accent-cyan)', fontWeight: 700 }} className="font-mono">
+                      ✓
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
-          </div>,
-          document.body
-        )}
+          </div>
+
+          {/* Option 1: Live Webcam / Connected Camera */}
+          <div
+            style={{
+              backgroundColor: 'rgba(5, 8, 17, 0.6)',
+              border: `1px solid ${mode === 'camera' ? '#10b981' : 'var(--border-panel)'}`,
+              borderRadius: '8px',
+              padding: '0.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+            }}
+          >
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span>📷</span> Live Camera
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <select
+                value={selectedDeviceId}
+                onChange={(e) => setSelectedDeviceId(e.target.value)}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#090d16',
+                  color: '#f8fafc',
+                  border: '1px solid var(--border-panel)',
+                  borderRadius: '4px',
+                  padding: '0.35rem',
+                  fontSize: '0.7rem',
+                  fontFamily: 'var(--font-mono)',
+                  outline: 'none',
+                }}
+              >
+                {cameraDevices.length > 0 ? (
+                  cameraDevices.map((d, i) => (
+                    <option key={d.deviceId || i} value={d.deviceId}>
+                      {d.label || `Camera ${i + 1}`}
+                    </option>
+                  ))
+                ) : (
+                  <option value="">Default Camera</option>
+                )}
+              </select>
+
+              <button
+                onClick={() => startCameraStream(selectedDeviceId)}
+                style={{
+                  backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                  border: '1px solid #10b981',
+                  color: '#10b981',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  padding: '0.35rem',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+              >
+                Switch to Camera
+              </button>
+            </div>
+          </div>
+
+          {/* Option 3: Upload Custom Video File */}
+          <div
+            style={{
+              backgroundColor: 'rgba(5, 8, 17, 0.6)',
+              border: `1px solid ${mode === 'uploaded' ? 'var(--color-accent-blue)' : 'var(--border-panel)'}`,
+              borderRadius: '8px',
+              padding: '0.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.4rem',
+            }}
+          >
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span>📁</span> Custom Video
+            </div>
+            <input
+              type="file"
+              accept="video/*"
+              onChange={handleFileUpload}
+              style={{
+                fontSize: '0.7rem',
+                color: 'var(--color-text-muted)',
+                backgroundColor: '#090d16',
+                padding: '0.35rem',
+                borderRadius: '4px',
+                border: '1px solid var(--border-panel)',
+                width: '100%',
+              }}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

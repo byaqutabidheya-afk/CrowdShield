@@ -12,6 +12,7 @@ import IncidentReportsPanel from './components/IncidentReportsPanel';
 import ExternalTriggersPanel from './components/ExternalTriggersPanel';
 import VideoSourceWidget from './components/VideoSourceWidget';
 import WeatherWidget from './components/WeatherWidget';
+import { AnnouncementsPanel } from './components/AnnouncementsPanel';
 
 export const App: React.FC = () => {
   // Activate live WebSocket stream
@@ -158,9 +159,6 @@ export const App: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {/* Weather Display */}
           <WeatherWidget />
-
-          {/* Video Source Selector & Preview Widget */}
-          <VideoSourceWidget />
 
           <div style={{ height: '26px', width: '1px', backgroundColor: 'var(--border-panel)' }} />
 
@@ -324,70 +322,66 @@ export const App: React.FC = () => {
           gap: '0.85rem',
         }}
       >
-        {/* UPPER ROW - PANEL 1: Primary Venue Viewport (2D Map / 3D Digital Twin) (Span 8) */}
-        <section className="control-card" style={{ gridColumn: 'span 8', height: '100%', minHeight: 0 }}>
-          <div className="control-card-header">
-            <div className="control-card-title">
-              <span style={{ color: 'var(--color-accent-cyan)' }}>
-                {activeMapTab === '2d' ? '📍' : '🎮'}
-              </span>
-              {activeMapTab === '2d' ? 'Live Venue Overwatch & Density Map (2D)' : '3D Venue Digital Twin & Crowd Simulator'}
-            </div>
-
-            <div className="font-mono" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.7rem' }}>
-              {focusedZoneId && (
-                <span style={{ color: 'var(--color-accent-blue)', fontWeight: 700 }}>
-                  FOCUSED: [{focusedZoneId}]
-                </span>
-              )}
-
-              {/* Viewport Toggle Switcher */}
-              <div style={{ display: 'flex', backgroundColor: '#050811', padding: '0.12rem', borderRadius: '6px', border: '1px solid var(--border-panel)' }}>
+        {/* UPPER ROW - PANEL 1: Primary Venue Viewport & Video Feed (Span 8) */}
+        <div style={{ gridColumn: 'span 8', display: 'flex', flexDirection: 'column', gap: '0.85rem', height: '100%', minHeight: 0 }}>
+          {/* Top: Venue Map (2/3 of space) */}
+          <section className="control-card" style={{ flex: 2, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div className="control-card-header">
+              <div className="control-card-title">
+                <span style={{ color: 'var(--color-accent-blue)' }}>{activeMapTab === '2d' ? '🗺️' : '🏙️'}</span>
+                {activeMapTab === '2d' ? 'Live Venue Overwatch & Density Map' : 'Digital Twin Environment'}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                 <button
                   onClick={() => setActiveMapTab('2d')}
+                  className="font-mono"
                   style={{
-                    backgroundColor: activeMapTab === '2d' ? '#1e293b' : 'transparent',
-                    color: activeMapTab === '2d' ? 'var(--color-accent-cyan)' : 'var(--color-text-dim)',
-                    border: 'none',
+                    backgroundColor: activeMapTab === '2d' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                    border: `1px solid ${activeMapTab === '2d' ? 'var(--color-accent-blue)' : 'transparent'}`,
+                    color: activeMapTab === '2d' ? 'var(--color-accent-blue)' : 'var(--color-text-muted)',
+                    fontSize: '0.65rem',
+                    padding: '0.15rem 0.5rem',
                     borderRadius: '4px',
-                    padding: '0.2rem 0.5rem',
-                    fontSize: '0.68rem',
-                    fontWeight: 700,
                     cursor: 'pointer',
                   }}
                 >
-                  🗺️ 2D Map
+                  2D MAP
                 </button>
                 <button
                   onClick={() => setActiveMapTab('3d')}
+                  className="font-mono"
                   style={{
-                    backgroundColor: activeMapTab === '3d' ? '#1e293b' : 'transparent',
-                    color: activeMapTab === '3d' ? 'var(--color-accent-cyan)' : 'var(--color-text-dim)',
-                    border: 'none',
+                    backgroundColor: activeMapTab === '3d' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                    border: `1px solid ${activeMapTab === '3d' ? 'var(--color-accent-blue)' : 'transparent'}`,
+                    color: activeMapTab === '3d' ? 'var(--color-accent-blue)' : 'var(--color-text-muted)',
+                    fontSize: '0.65rem',
+                    padding: '0.15rem 0.5rem',
                     borderRadius: '4px',
-                    padding: '0.2rem 0.5rem',
-                    fontSize: '0.68rem',
-                    fontWeight: 700,
                     cursor: 'pointer',
                   }}
                 >
-                  🎮 3D Digital Twin
+                  3D TWIN
                 </button>
               </div>
             </div>
-          </div>
 
-          <div style={{ flex: 1, minHeight: 0, padding: 0, position: 'relative' }}>
-            {activeMapTab === '2d' ? (
-              <LiveVenueMap
-                selectedZoneId={focusedZoneId}
-                isLiveFeedReady={connectionStatus === 'connected'}
-              />
-            ) : (
-              <DigitalTwin3D />
-            )}
-          </div>
-        </section>
+            <div style={{ flex: 1, minHeight: 0, padding: 0, position: 'relative' }}>
+              {activeMapTab === '2d' ? (
+                <LiveVenueMap
+                  selectedZoneId={focusedZoneId}
+                  isLiveFeedReady={connectionStatus === 'connected'}
+                />
+              ) : (
+                <DigitalTwin3D />
+              )}
+            </div>
+          </section>
+
+          {/* Bottom: Video Play Window (1/3 of space) */}
+          <section className="control-card" style={{ flex: 1, minHeight: 0 }}>
+            <VideoSourceWidget />
+          </section>
+        </div>
 
         {/* UPPER ROW - PANEL 2: AI Interventions & Control Panel (Span 4) */}
         <section className="control-card" style={{ gridColumn: 'span 4', height: '100%', minHeight: 0 }}>
@@ -405,8 +399,8 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* LOWER ROW - PANEL 3: Analytics & Trend Charts (Span 4) */}
-        <section className="control-card" style={{ gridColumn: 'span 4', height: '100%', minHeight: 0 }}>
+        {/* LOWER ROW - PANEL 3: Data Analytics & Predictive Trends (Span 3) */}
+        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>📊</span>
@@ -437,8 +431,8 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* LOWER ROW - PANEL 5: Incident Reports (Span 3) */}
-        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
+        {/* LOWER ROW - PANEL 5: Incident Reports (Span 2) */}
+        <section className="control-card" style={{ gridColumn: 'span 2', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🚨</span>
@@ -453,12 +447,17 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* LOWER ROW - PANEL 6: External Triggers & Voice Controls (Span 2) */}
+        {/* LOWER ROW - PANEL 6: Announcements (Span 2) */}
+        <section className="control-card" style={{ gridColumn: 'span 2', height: '100%', minHeight: 0 }}>
+          <AnnouncementsPanel />
+        </section>
+
+        {/* LOWER ROW - PANEL 7: External Triggers & Voice Controls (Span 2) */}
         <section className="control-card" style={{ gridColumn: 'span 2', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
-              <span style={{ color: 'var(--color-accent-cyan)' }}>📢</span>
-              Triggers & Voice
+              <span style={{ color: 'var(--color-accent-cyan)' }}>🎙️</span>
+              Triggers
             </div>
             <span className="font-mono" style={{ fontSize: '0.68rem', color: 'var(--color-accent-cyan)' }}>
               STT / WEBHOOK
