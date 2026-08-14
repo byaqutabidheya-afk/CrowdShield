@@ -89,13 +89,13 @@ class CrowdTracker:
     # shows a sustained high-magnitude, high-variance surge pattern).
     # Raw-space thresholds (pixels per frame before OpticalFlowAnalyzer normalisation).
     FLOW_BOTTLENECK_MIN_ROLLING_RAW: float = (
-        0.40  # rolling avg raw speed that signals prior surge activity
+        0.10  # rolling avg raw speed that signals prior surge activity
     )
     FLOW_BOTTLENECK_MIN_CURRENT_RAW: float = (
-        0.30  # current raw speed must also be high (active surge)
+        0.05  # current raw speed must also be high (active surge)
     )
     FLOW_BOTTLENECK_MIN_VARIANCE: float = (
-        12.0  # spatial variance must be elevated (chaotic compression)
+        2.0  # spatial variance must be elevated (chaotic compression)
     )
     FLOW_BOTTLENECK_PERSISTENCE: int = (
         5  # consecutive qualifying samples before triggering
@@ -130,20 +130,6 @@ class CrowdTracker:
         self._frame_counter = 0
 
     def track_frame(self, frame: np.ndarray) -> list[dict[str, Any]]:
-        # Check for NVIDIA GPU availability
-        import torch
-
-        has_cuda = torch.cuda.is_available()
-
-        results = self.model.track(
-            frame,
-            persist=True,
-            tracker="bytetrack.yaml",
-            verbose=False,
-            imgsz=640,
-            quantize="fp16" if has_cuda else None,
-            device=0 if has_cuda else "cpu",
-        )
         """Track detections in a frame and return persistent track IDs."""
 
         if frame is None:
@@ -152,6 +138,7 @@ class CrowdTracker:
         if not self.frame_history:
             self._reset_anomaly_state()
 
+        import torch
         cuda_available = torch.cuda.is_available()
 
         results = self.model.track(
@@ -159,8 +146,10 @@ class CrowdTracker:
             persist=True,
             tracker="bytetrack.yaml",
             verbose=False,
-            imgsz=640,
-            quantize="fp16" if has_cuda else "fp32",
+            imgsz=1280,
+            conf=0.10,
+            classes=[0],
+            quantize="fp16" if cuda_available else "fp32",
             device=0 if cuda_available else "cpu",
         )
 

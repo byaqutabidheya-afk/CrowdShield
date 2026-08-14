@@ -225,15 +225,15 @@ class CVPipeline:
                 if not ok:
                     break
 
-                frame = cv2.resize(frame, (640, 360))
-
                 frame_height, frame_width = frame.shape[:2]
                 tracked_detections = self.tracker.track_frame(frame)
                 zone_assignments = self.detector.assign_to_zones(
                     tracked_detections, self.zones, frame_width, frame_height
                 )
 
-                current_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                flow_frame = cv2.resize(frame, (640, 360))
+                flow_height, flow_width = flow_frame.shape[:2]
+                current_gray = cv2.cvtColor(flow_frame, cv2.COLOR_BGR2GRAY)
                 if (
                     previous_gray is not None
                     and current_gray.shape == previous_gray.shape
@@ -252,7 +252,7 @@ class CVPipeline:
                 if flow_field is not None:
                     for zone in self.zones:
                         raw_stats_frame = self.optical_flow.compute_zone_raw_flow(
-                            flow_field, zone, frame_width, frame_height
+                            flow_field, zone, flow_width, flow_height
                         )
                         self._zone_raw_flow_history[zone.zone_id].append(
                             float(raw_stats_frame["raw_avg_speed"])
@@ -272,10 +272,10 @@ class CVPipeline:
 
                         if flow_field is not None:
                             flow_stats = self.optical_flow.compute_zone_flow(
-                                flow_field, zone, frame_width, frame_height
+                                flow_field, zone, flow_width, flow_height
                             )
                             raw_flow_stats = self.optical_flow.compute_zone_raw_flow(
-                                flow_field, zone, frame_width, frame_height
+                                flow_field, zone, flow_width, flow_height
                             )
                         else:
                             flow_stats = {

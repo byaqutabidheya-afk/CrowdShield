@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
+import React, { CSSProperties, useEffect, useMemo, useState, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet.heat';
 import { ImageOverlay, MapContainer, Polygon, Popup, Tooltip, useMap } from 'react-leaflet';
@@ -154,35 +154,43 @@ function HeatmapLayer({
   isActive: boolean;
 }) {
   const map = useMap();
+  const layerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!isActive || points.length === 0) {
+    if (!isActive) {
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
       return;
     }
 
-    const heatLayerFactory = (L as typeof L & {
-      heatLayer: (latlngs: Array<[number, number, number] | L.LatLng>, options?: Record<string, unknown>) => L.Layer;
-    }).heatLayer;
-
-    const layer = heatLayerFactory(points, {
-      radius: 42,
-      blur: 32,
-      maxZoom: 2,
-      minOpacity: 0.2,
-      gradient: {
-        0.2: '#22c55e',
-        0.45: '#eab308',
-        0.7: '#f97316',
-        1.0: '#ef4444',
-      },
-    });
-
-    layer.addTo(map);
-
-    return () => {
-      map.removeLayer(layer);
-    };
+    if (!layerRef.current) {
+      const heatLayerFactory = (L as any).heatLayer;
+      layerRef.current = heatLayerFactory(points, {
+        radius: 80,
+        blur: 25,
+        minOpacity: 0.25,
+        gradient: {
+          0.3: '#22c55e',
+          0.6: '#eab308',
+          0.85: '#f97316',
+          1.0: '#ef4444',
+        },
+      });
+      layerRef.current.addTo(map);
+    } else {
+      layerRef.current.setLatLngs(points);
+    }
   }, [isActive, map, points]);
+
+  useEffect(() => {
+    return () => {
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+      }
+    };
+  }, [map]);
 
   return null;
 }
@@ -372,7 +380,7 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
   const [zoneConfigs, setZoneConfigs] = useState<ZoneConfig[]>([]);
   const latestFrame = useLiveDataStore((state) => state.latestFrame);
   const [viewMode, setViewMode] = useState<MapViewMode>('zones');
-  const [heatWeightMode, setHeatWeightMode] = useState<HeatWeightMode>('density');
+  const [heatWeightMode, setHeatWeightMode] = useState<HeatWeightMode>('risk');
 
   const liveRiskZones = latestFrame?.risk_data?.zones ?? EMPTY_RISK_ZONES;
   const liveCvZones = latestFrame?.cv_data?.zones ?? EMPTY_CV_ZONES;
@@ -428,7 +436,8 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
       const densityScore = Math.max(0, cvZone?.density_score ?? 0);
       const riskScore = Math.max(0, riskZone?.risk_score ?? 0);
       const weightBase = heatWeightMode === 'density' ? densityScore : riskScore;
-      const normalizedWeight = Math.min(1, weightBase / (heatWeightMode === 'density' ? 5 : 100));
+      // Scale by 0.75 so that a critical risk score (0.75) maps perfectly to 1.0 intensity
+      const normalizedWeight = Math.min(1, Math.max(0, weightBase / 0.75));
 
       return [[centroid[0], centroid[1], normalizedWeight]];
     });

@@ -30,7 +30,7 @@ def debug_video(video_path: str, video_label: str) -> None:
     print(f"DEBUGGING: {video_label} ({video_path})")
     print(f"{'='*80}")
 
-    zones = generate_grid_zones(3, 3)
+    zones = generate_grid_zones(2, 2)
     detector = CrowdDetector()
     tracker = CrowdTracker()
     optical_flow = OpticalFlowAnalyzer()
