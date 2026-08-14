@@ -354,6 +354,8 @@ class CrowdTracker:
         return len(persistent_tracklets) >= self.REVERSE_MIN_TRACKLETS
 
     def _detect_erratic_movement(self, tracks_in_zone: list[dict[str, Any]]) -> bool:
+        fast_headings = []
+        
         for track in tracks_in_zone:
             track_id = track.get("track_id")
             if track_id is None:
@@ -363,33 +365,46 @@ class CrowdTracker:
             if len(history) < 6:
                 continue
 
+            # 1. Individual zigzag logic
             smoothed_history = _smoothed_positions(history, window_size=3)
-            if len(smoothed_history) < 4:
-                continue
+            if len(smoothed_history) >= 4:
+                headings: list[float] = []
+                for previous, current in zip(
+                    smoothed_history, smoothed_history[1:], strict=False
+                ):
+                    dx = current[0] - previous[0]
+                    dy = current[1] - previous[1]
+                    if dx != 0.0 or dy != 0.0:
+                        headings.append(_vector_heading_degrees(dx, dy))
 
-            headings: list[float] = []
-            for previous, current in zip(
-                smoothed_history, smoothed_history[1:], strict=False
-            ):
-                dx = current[0] - previous[0]
-                dy = current[1] - previous[1]
-                if dx == 0.0 and dy == 0.0:
-                    continue
-                headings.append(_vector_heading_degrees(dx, dy))
+                if len(headings) >= 4:
+                    total_large_changes = 0
+                    for first_heading, second_heading in zip(
+                        headings, headings[1:], strict=False
+                    ):
+                        if _angle_difference_degrees(first_heading, second_heading) > 90.0:
+                            total_large_changes += 1
+                            if total_large_changes >= 3:
+                                return True
+            
+            # 2. Collect fast moving tracks for group scattering logic
+            start_pos = history[0]
+            end_pos = history[-1]
+            dist = math.hypot(end_pos[0] - start_pos[0], end_pos[1] - start_pos[1])
+            if dist > 25.0:
+                fast_headings.append(_vector_heading_degrees(end_pos[0] - start_pos[0], end_pos[1] - start_pos[1]))
 
-            if len(headings) < 4:
-                continue
-
-            consecutive_large_changes = 0
-            for first_heading, second_heading in zip(
-                headings, headings[1:], strict=False
-            ):
-                if _angle_difference_degrees(first_heading, second_heading) > 120.0:
-                    consecutive_large_changes += 1
-                    if consecutive_large_changes >= 4:
-                        return True
-                else:
-                    consecutive_large_changes = 0
+        # 3. Group scattering / panic dispersion logic
+        if len(fast_headings) >= 2:
+            max_diff = 0.0
+            for i in range(len(fast_headings)):
+                for j in range(i + 1, len(fast_headings)):
+                    diff = _angle_difference_degrees(fast_headings[i], fast_headings[j])
+                    if diff > max_diff:
+                        max_diff = diff
+            
+            if max_diff > 45.0:
+                return True
 
         return False
 

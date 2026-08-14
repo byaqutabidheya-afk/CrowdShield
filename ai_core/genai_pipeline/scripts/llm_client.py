@@ -80,7 +80,7 @@ else:
 # ---------------------------------------------------------------------------
 DEFAULT_MODEL: str = "gemini-3.6-flash"  # current recommended fast model
 MAX_JSON_RETRIES: int = 2  # extra attempts after the first JSON failure
-MAX_RATE_LIMIT_ATTEMPTS: int = 6  # total attempts before giving up on 429/503
+MAX_RATE_LIMIT_ATTEMPTS: int = 1  # total attempts before giving up on 429/503
 BACKOFF_BASE_SECONDS: float = 2.0  # exponential back-off base (2 -> 4 -> 8 s)
 
 # HTTP status codes we treat as rate-limit / transient errors

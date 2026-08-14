@@ -208,6 +208,11 @@ class RiskScorer:
         if bottleneck_score > 0.0:
             risk_score = max(risk_score, 0.75)
 
+        # High override: if erratic movement is detected, flag as high risk
+        # regardless of crowd density.
+        if "erratic_movement" in anomaly_flags:
+            risk_score = max(risk_score, 0.60)
+
         return {
             "risk_score": risk_score,
             "risk_level": self._risk_level(risk_score),

@@ -48,9 +48,9 @@ async def _stop_current_task() -> None:
         logger.info(f"Cancelling active processing task for session '{_current_session_id}'.")
         _current_processing_task.cancel()
         try:
-            await _current_processing_task
-        except (asyncio.CancelledError, Exception):
-            pass  # Expected — task was cancelled
+            await asyncio.wait_for(_current_processing_task, timeout=1.0)
+        except (asyncio.CancelledError, asyncio.TimeoutError, Exception):
+            pass  # Expected — task was cancelled or timed out
         _current_processing_task = None
 
     # Reset orchestrator state so counters and alert history are fresh for next session
