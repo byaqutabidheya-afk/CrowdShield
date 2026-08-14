@@ -243,7 +243,7 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
   const unrestColor = unrestScore > 0.6 ? '#ef4444' : unrestScore > 0.3 ? '#f97316' : '#10b981';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', gap: '0.85rem', overflowY: 'auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '0.85rem', overflowY: 'auto' }}>
       {/* SECTION 1: Voice Control & Assistant Trigger */}
       <div
         style={{

@@ -94,7 +94,7 @@ export const App: React.FC = () => {
   const maxDensity = latestFrame?.cv_data?.frame_totals?.max_zone_density ?? 0;
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-dark)', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-dark)' }}>
       {/* Top Navigation Bar */}
       <header
         style={{
@@ -322,7 +322,6 @@ export const App: React.FC = () => {
           gridTemplateColumns: 'repeat(12, 1fr)',
           gridTemplateRows: 'minmax(480px, 1.2fr) minmax(380px, 1fr)',
           gap: '0.85rem',
-          overflow: 'hidden',
         }}
       >
         {/* UPPER ROW - PANEL 1: Primary Venue Viewport (2D Map / 3D Digital Twin) (Span 8) */}
@@ -401,7 +400,7 @@ export const App: React.FC = () => {
               {activeAlerts.length} ALERTS
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflowY: 'auto' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <AIInterventionPanel />
           </div>
         </section>
@@ -417,7 +416,7 @@ export const App: React.FC = () => {
               Recharts Engine
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflowY: 'auto' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <AnalyticsPanel />
           </div>
         </section>
@@ -433,7 +432,7 @@ export const App: React.FC = () => {
               {resourceAllocationSuggestions.length} SUGGESTIONS
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflowY: 'auto' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <ResourceAllocationPanel />
           </div>
         </section>
@@ -449,7 +448,7 @@ export const App: React.FC = () => {
               {incidentReports.length} REPORTS
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflowY: 'auto' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <IncidentReportsPanel onNavigateToZone={handleNavigateToZone} />
           </div>
         </section>
@@ -465,7 +464,7 @@ export const App: React.FC = () => {
               STT / WEBHOOK
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflowY: 'auto' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <ExternalTriggersPanel onNavigateToZone={handleNavigateToZone} />
           </div>
         </section>

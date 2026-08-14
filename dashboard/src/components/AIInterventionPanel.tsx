@@ -167,7 +167,7 @@ export const AIInterventionPanel: React.FC = () => {
 
   // 2. Active Alert Cards Feed
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', overflowY: 'auto', maxHeight: '100%', paddingRight: '0.25rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', overflowY: 'auto', flex: 1, minHeight: 0, paddingRight: '0.25rem' }}>
       {activeAlerts.map((alert: AlertData, alertIndex: number) => {
         const zoneId = alert.zone_id || 'Global';
         const riskLevel = alert.risk_level || 'high';
@@ -242,7 +242,7 @@ export const AIInterventionPanel: React.FC = () => {
             </div>
 
             {/* Alert Body & AI Recommendations */}
-            <div style={{ padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.85rem' }}>
               {recommendations.length === 0 ? (
                 <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
                   Analyzing optimal mitigation vectors for {zoneId}...

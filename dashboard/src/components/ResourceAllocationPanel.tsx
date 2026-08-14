@@ -150,7 +150,8 @@ export const ResourceAllocationPanel: React.FC = () => {
         flexDirection: 'column',
         gap: '0.65rem',
         overflowY: 'auto',
-        maxHeight: '100%',
+        flex: 1,
+        minHeight: 0,
         paddingRight: '0.2rem',
       }}
     >

@@ -156,7 +156,7 @@ export const AnalyticsPanel: React.FC = () => {
   const currentRiskLabel = getRiskLevelLabel(currentRiskScore);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', gap: '0.75rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '0.75rem' }}>
       {/* Selector & Telemetry Summary Header */}
       <div
         style={{

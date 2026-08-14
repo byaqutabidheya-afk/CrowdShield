@@ -71,7 +71,7 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
   }, [incidentReports, filter]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', gap: '0.65rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '0.65rem' }}>
       {/* Header Controls: Source Filter Toggle & Manual Refresh Button */}
       <div
         style={{
@@ -211,7 +211,7 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
           </p>
         </div>
       ) : (
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.65rem', paddingRight: '0.2rem' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.65rem', paddingRight: '0.2rem' }}>
           {filteredReports.map((report: IncidentReport) => {
             const isAI = report.source === 'ai_generated';
             const aiSummary = report.ai_summary;
