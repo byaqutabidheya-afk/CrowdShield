@@ -275,11 +275,9 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Video Progress State (Percentage, Current Time, Duration)
-  const [videoProgress, setVideoProgress] = useState<{ percent: number; currentTime: number; duration: number }>({
-    percent: 0,
-    currentTime: 0,
-    duration: 0,
-  });
+  const [videoProgress, setVideoProgress] = useState<{ percent: number; currentTime: number; duration: number }>({ percent: 0, currentTime: 0, duration: 0 });
+  // Tracks whether the video has already reached 100 % so we can keep the bar full on loops
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   // Real Python CV Pipeline Frames Processed Counter
   const [cvFramesProcessed, setCvFramesProcessed] = useState<number>(0);
@@ -383,11 +381,11 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       // Estimate video progress if HTML video duration not loaded yet
       if (mode !== 'camera' && (!videoProgress.duration || videoProgress.duration === 0)) {
         const simPercent = (stepIndexRef.current * 3) % 100;
-        setVideoProgress({
-          percent: simPercent,
+        setVideoProgress((prev) => ({
+          percent: hasCompleted ? 100 : simPercent,
           currentTime: Math.floor(stepIndexRef.current * 1.5),
           duration: 60,
-        });
+        }));
       }
     };
 
@@ -396,18 +394,22 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
 
     const interval = setInterval(dispatchTelemetryTick, 1500);
     return () => clearInterval(interval);
-  }, [sourceName, mode, connectionStatus, processWebSocketMessage, videoProgress.duration]);
+  }, [sourceName, mode, connectionStatus, processWebSocketMessage, videoProgress.duration, hasCompleted]);
 
   // Handle video element time update to compute exact CV processing progress
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
     if (video.duration && !isNaN(video.duration) && video.duration > 0) {
       const pct = Math.min(100, Math.max(0, (video.currentTime / video.duration) * 100));
-      setVideoProgress({
-        percent: Math.round(pct),
-        currentTime: Math.round(video.currentTime),
-        duration: Math.round(video.duration),
-      });
+        const newPercent = Math.round(pct);
+        setVideoProgress((prev) => ({
+          percent: hasCompleted ? 100 : newPercent,
+          currentTime: Math.round(video.currentTime),
+          duration: Math.round(video.duration),
+        }));
+        if (!hasCompleted && newPercent >= 99) {
+          setHasCompleted(true);
+        }
     }
   };
 
@@ -490,9 +492,10 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     setSourceName(sampleId);
     setSelectedFile(null);
     onSourceChange?.('sample', sampleId);
-    setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
-    setCvFramesProcessed(0);
-    stepIndexRef.current = 1;
+      setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
+      setHasCompleted(false);
+      setCvFramesProcessed(0);
+      stepIndexRef.current = 1;
 
     if (previewVideoRef.current) {
       previewVideoRef.current.srcObject = null;
@@ -523,15 +526,16 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     setMode('uploaded');
     setSourceName(file.name);
     onSourceChange?.('uploaded', file.name);
-    setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
-    // Autoplay the uploaded video after setting URL
-    setTimeout(() => {
-      if (uploadedVideoRef.current) {
-        uploadedVideoRef.current.play().catch(() => {});
-      }
-    }, 0);
-    setCvFramesProcessed(0);
-    stepIndexRef.current = 1;
+      setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
+      setHasCompleted(false);
+      // Autoplay the uploaded video after setting URL
+      setTimeout(() => {
+        if (uploadedVideoRef.current) {
+          uploadedVideoRef.current.play().catch(() => {});
+        }
+      }, 0);
+      setCvFramesProcessed(0);
+      stepIndexRef.current = 1;
 
     if (previewVideoRef.current) {
       previewVideoRef.current.srcObject = null;
