@@ -3,8 +3,6 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -298,7 +296,13 @@ export const AnalyticsPanel: React.FC = () => {
             </div>
             <div style={{ flex: 1, minHeight: '130px' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={combinedChartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <AreaChart data={combinedChartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={currentRiskColor} stopOpacity={0.6} />
+                      <stop offset="95%" stopColor={currentRiskColor} stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
                   <XAxis dataKey="formattedTime" stroke="#64748b" fontSize={9} tickLine={false} axisLine={{ stroke: '#1e293b' }} />
                   <YAxis stroke="#64748b" fontSize={9} tickLine={false} axisLine={{ stroke: '#1e293b' }} domain={[0, 1.0]} />
@@ -318,15 +322,16 @@ export const AnalyticsPanel: React.FC = () => {
                       position: 'insideTopRight',
                     }}
                   />
-                  <Line
+                  <Area
                     type="monotone"
                     dataKey="risk_score"
                     stroke={currentRiskColor}
                     strokeWidth={2}
-                    dot={false}
+                    fillOpacity={1}
+                    fill="url(#riskGradient)"
                     isAnimationActive={false}
                   />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>

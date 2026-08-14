@@ -98,10 +98,11 @@ export const App: React.FC = () => {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-dark)' }}>
       {/* Top Navigation Bar */}
       <header
+        className="glass-panel"
         style={{
           height: '60px',
-          backgroundColor: '#090d16',
-          borderBottom: '1px solid var(--border-panel)',
+          margin: '1.25rem',
+          borderRadius: '16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -315,11 +316,11 @@ export const App: React.FC = () => {
         style={{
           flex: 1,
           minHeight: 0,
-          padding: '0.85rem',
+          padding: '0 1.25rem 1.25rem 1.25rem',
           display: 'grid',
           gridTemplateColumns: 'repeat(12, 1fr)',
           gridTemplateRows: 'minmax(480px, 1.2fr) minmax(380px, 1fr)',
-          gap: '0.85rem',
+          gap: '20px',
         }}
       >
         {/* UPPER ROW - PANEL 1: Primary Venue Viewport & Video Feed (Span 8) */}
@@ -329,7 +330,7 @@ export const App: React.FC = () => {
             <div className="control-card-header">
               <div className="control-card-title">
                 <span style={{ color: 'var(--color-accent-blue)' }}>{activeMapTab === '2d' ? '🗺️' : '🏙️'}</span>
-                {activeMapTab === '2d' ? 'Live Venue Overwatch & Density Map' : 'Digital Twin Environment'}
+                <span className="gradient-text">{activeMapTab === '2d' ? 'Live Venue Overwatch & Density Map' : 'Digital Twin Environment'}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                 <button
@@ -388,13 +389,13 @@ export const App: React.FC = () => {
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>⚡</span>
-              AI Interventions & Actions
+              <span className="gradient-text">AI Interventions & Actions</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--color-accent-blue)' }}>
               {activeAlerts.length} ALERTS
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <AIInterventionPanel />
           </div>
         </section>
@@ -404,13 +405,13 @@ export const App: React.FC = () => {
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>📊</span>
-              Density & Risk Time-Series Analytics
+              <span className="gradient-text">Density & Risk Time-Series Analytics</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)' }}>
               Recharts Engine
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <AnalyticsPanel />
           </div>
         </section>
@@ -420,13 +421,13 @@ export const App: React.FC = () => {
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🛡️</span>
-              Resource Deployments
+              <span className="gradient-text">Resource Deployments</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.7rem', color: '#f59e0b' }}>
               {resourceAllocationSuggestions.length} SUGGESTIONS
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <ResourceAllocationPanel />
           </div>
         </section>
@@ -436,13 +437,13 @@ export const App: React.FC = () => {
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🚨</span>
-              Incident Reports
+              <span className="gradient-text">Incident Reports</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)' }}>
               {incidentReports.length} REPORTS
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <IncidentReportsPanel onNavigateToZone={handleNavigateToZone} />
           </div>
         </section>
@@ -457,13 +458,13 @@ export const App: React.FC = () => {
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🎙️</span>
-              Triggers
+              <span className="gradient-text">Triggers</span>
             </div>
             <span className="font-mono" style={{ fontSize: '0.68rem', color: 'var(--color-accent-cyan)' }}>
               STT / WEBHOOK
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '0.75rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <ExternalTriggersPanel onNavigateToZone={handleNavigateToZone} />
           </div>
         </section>

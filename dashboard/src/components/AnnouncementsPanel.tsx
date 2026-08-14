@@ -47,7 +47,7 @@ export const AnnouncementsPanel: React.FC = () => {
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, minHeight: 0, padding: '0.85rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, padding: '0.85rem', overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
           Create and broadcast safety announcements in multiple languages across all venue zones.
         </p>
@@ -58,6 +58,10 @@ export const AnnouncementsPanel: React.FC = () => {
           placeholder="Enter safety message in English (e.g., Please remain calm and proceed to Exit B...)"
           style={{
             width: '100%',
+            maxWidth: '100%',
+            minWidth: 0,
+            boxSizing: 'border-box',
+            display: 'block',
             height: '80px',
             backgroundColor: '#050811',
             border: '1px solid var(--border-panel)',

@@ -1,7 +1,7 @@
-import React, { CSSProperties, useEffect, useMemo, useState, useRef } from 'react';
+import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet.heat';
-import { ImageOverlay, MapContainer, Polygon, Popup, Tooltip, useMap } from 'react-leaflet';
+import { Circle, ImageOverlay, MapContainer, Polygon, Popup, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getZones } from '../api/client';
 import { useLiveDataStore } from '../store/liveDataStore';
@@ -153,46 +153,36 @@ function HeatmapLayer({
   points: Array<[number, number, number]>;
   isActive: boolean;
 }) {
-  const map = useMap();
-  const layerRef = useRef<any>(null);
+  if (!isActive) return null;
 
-  useEffect(() => {
-    if (!isActive) {
-      if (layerRef.current) {
-        map.removeLayer(layerRef.current);
-        layerRef.current = null;
-      }
-      return;
-    }
+  return (
+    <>
+      {points.map(([latitude, longitude, weight], index) => {
+        const color =
+          weight >= 0.75 ? '#ef4444' : weight >= 0.55 ? '#f97316' : weight >= 0.3 ? '#eab308' : '#22c55e';
 
-    if (!layerRef.current) {
-      const heatLayerFactory = (L as any).heatLayer;
-      layerRef.current = heatLayerFactory(points, {
-        radius: 80,
-        blur: 25,
-        minOpacity: 0.25,
-        gradient: {
-          0.3: '#22c55e',
-          0.6: '#eab308',
-          0.85: '#f97316',
-          1.0: '#ef4444',
-        },
-      });
-      layerRef.current.addTo(map);
-    } else {
-      layerRef.current.setLatLngs(points);
-    }
-  }, [isActive, map, points]);
-
-  useEffect(() => {
-    return () => {
-      if (layerRef.current) {
-        map.removeLayer(layerRef.current);
-      }
-    };
-  }, [map]);
-
-  return null;
+        return [
+          { radius: 360, opacity: 0.07 },
+          { radius: 260, opacity: 0.13 },
+          { radius: 170, opacity: 0.24 },
+        ].map(({ radius, opacity }, haloIndex) => (
+          <Circle
+            key={`${latitude}-${longitude}-${index}-${haloIndex}`}
+            center={[latitude, longitude]}
+            radius={radius}
+            pathOptions={{
+              className: 'risk-heat-circle',
+              color,
+              weight: 0,
+              opacity: 0,
+              fillColor: color,
+              fillOpacity: opacity,
+            }}
+          />
+        ));
+      })}
+    </>
+  );
 }
 
 function ZoneDetailsContent({
@@ -437,7 +427,9 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
       const riskScore = Math.max(0, riskZone?.risk_score ?? 0);
       const weightBase = heatWeightMode === 'density' ? densityScore : riskScore;
       // Scale by 0.75 so that a critical risk score (0.75) maps perfectly to 1.0 intensity
-      const normalizedWeight = Math.min(1, Math.max(0, weightBase / 0.75));
+      // Risk scores already use the same 0-1 scale as the zone colors:
+      // low < .30, moderate < .55, high < .75, critical >= .75.
+      const normalizedWeight = clamp01(weightBase);
 
       return [[centroid[0], centroid[1], normalizedWeight]];
     });

@@ -215,9 +215,11 @@ export const AIInterventionPanel: React.FC = () => {
                     letterSpacing: '0.05em',
                     padding: '0.15rem 0.5rem',
                     borderRadius: '4px',
-                    backgroundColor: `${riskColor}22`,
+                    backgroundColor: 'transparent',
+                    background: `linear-gradient(90deg, ${riskColor}33 0%, transparent 100%)`,
                     color: riskColor,
-                    border: `1px solid ${riskColor}`,
+                    border: 'none',
+                    borderLeft: `2px solid ${riskColor}`,
                     textTransform: 'uppercase',
                   }}
                 >

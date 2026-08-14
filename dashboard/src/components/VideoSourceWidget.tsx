@@ -10,13 +10,13 @@ export interface VideoSourceWidgetProps {
 }
 
 const PRESET_SAMPLE_VIDEOS = [
-  { id: 'surge.mp4',            label: 'Crowd Surge / Stampede Risk',        path: 'ai_core/cv_pipeline/sample_videos/surge.mp4' },
-  { id: 'baseline.mp4',         label: 'Baseline Normal Crowd Flow',          path: 'ai_core/cv_pipeline/sample_videos/baseline.mp4' },
-  { id: 'static_crowd.mp4',     label: 'Static High-Density Crowd',           path: 'ai_core/cv_pipeline/sample_videos/static_crowd.mp4' },
-  { id: 'directional_flow.mp4', label: 'Directional Flow / Corridor',         path: 'ai_core/cv_pipeline/sample_videos/directional_flow.mp4' },
-  { id: 'anomaly.mp4',          label: 'Anomaly Detection Sample',            path: 'ai_core/cv_pipeline/sample_videos/anomaly.mp4' },
-  { id: 'sparse_walking.mp4',   label: 'Sparse Walking / Low Density',        path: 'ai_core/cv_pipeline/sample_videos/sparse_walking.mp4' },
-  { id: 'empty_room.mp4',       label: 'Empty Room (Zero Crowd Baseline)',     path: 'ai_core/cv_pipeline/sample_videos/empty_room.mp4' },
+  { id: 'surge.mp4',            label: 'Crowd Surge / Stampede Risk',        path: 'surge.mp4' },
+  { id: 'baseline.mp4',         label: 'Baseline Normal Crowd Flow',          path: 'baseline.mp4' },
+  { id: 'static_crowd.mp4',     label: 'Static High-Density Crowd',           path: 'static_crowd.mp4' },
+  { id: 'directional_flow.mp4', label: 'Directional Flow / Corridor',         path: 'directional_flow.mp4' },
+  { id: 'anomaly.mp4',          label: 'Anomaly Detection Sample',            path: 'anomaly.mp4' },
+  { id: 'sparse_walking.mp4',   label: 'Sparse Walking / Low Density',        path: 'sparse_walking.mp4' },
+  { id: 'empty_room.mp4',       label: 'Empty Room (Zero Crowd Baseline)',     path: 'empty_room.mp4' },
 ];
 
 /**
