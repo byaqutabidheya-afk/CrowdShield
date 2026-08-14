@@ -270,7 +270,7 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
             onClick={handleVoiceButtonClick}
             disabled={isVoiceProcessing}
             style={{
-              backgroundColor: isRecording ? '#ef4444' : 'rgba(6, 182, 212, 0.15)',
+              backgroundColor: isRecording ? '#ef4444' : 'rgba(139, 92, 246, 0.15)',
               border: `1px solid ${isRecording ? '#ef4444' : 'var(--color-accent-cyan)'}`,
               color: isRecording ? '#ffffff' : 'var(--color-accent-cyan)',
               fontSize: '0.75rem',
@@ -298,7 +298,7 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
           <div
             style={{
               backgroundColor: '#090d16',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
+              border: '1px solid rgba(167, 139, 250, 0.3)',
               borderRadius: '6px',
               padding: '0.6rem',
               fontSize: '0.75rem',
@@ -630,7 +630,7 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
             onClick={handleAnnouncementPush}
             disabled={isAnnouncementLoading || !announcementMessage.trim()}
             style={{
-              backgroundColor: 'rgba(6, 182, 212, 0.15)',
+              backgroundColor: 'rgba(139, 92, 246, 0.15)',
               border: '1px solid var(--color-accent-cyan)',
               color: 'var(--color-accent-cyan)',
               fontSize: '0.75rem',

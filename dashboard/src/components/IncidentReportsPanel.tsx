@@ -233,8 +233,8 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(56, 189, 248, 0.12)',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
+              backgroundColor: 'rgba(167, 139, 250, 0.12)',
+              border: '1px solid rgba(167, 139, 250, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -271,7 +271,7 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
                 key={report.id}
                 style={{
                   backgroundColor: 'rgba(13, 19, 34, 0.85)',
-                  border: `1px solid ${isAI ? 'rgba(192, 132, 252, 0.3)' : 'rgba(56, 189, 248, 0.25)'}`,
+                  border: `1px solid ${isAI ? 'rgba(192, 132, 252, 0.3)' : 'rgba(167, 139, 250, 0.25)'}`,
                   borderRadius: '6px',
                   padding: '0.75rem',
                   display: 'flex',
@@ -289,7 +289,7 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
                         fontWeight: 700,
                         padding: '0.15rem 0.45rem',
                         borderRadius: '4px',
-                        backgroundColor: isAI ? 'rgba(192, 132, 252, 0.12)' : 'rgba(56, 189, 248, 0.12)',
+                        backgroundColor: isAI ? 'rgba(192, 132, 252, 0.12)' : 'rgba(167, 139, 250, 0.12)',
                         color: isAI ? '#c084fc' : 'var(--color-accent-blue)',
                         border: `1px solid ${isAI ? '#c084fc' : 'var(--color-accent-blue)'}`,
                         display: 'flex',

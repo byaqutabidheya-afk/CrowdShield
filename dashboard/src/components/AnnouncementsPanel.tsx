@@ -78,7 +78,7 @@ export const AnnouncementsPanel: React.FC = () => {
           onClick={handleBroadcast}
           disabled={loading || !baseMessage.trim()}
           style={{
-            backgroundColor: 'rgba(6, 182, 212, 0.15)',
+            backgroundColor: 'rgba(139, 92, 246, 0.15)',
             border: '1px solid var(--color-accent-cyan)',
             color: 'var(--color-accent-cyan)',
             fontSize: '0.75rem',

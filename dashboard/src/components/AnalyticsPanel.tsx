@@ -259,8 +259,8 @@ export const AnalyticsPanel: React.FC = () => {
                 <AreaChart data={combinedChartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                   <defs>
                     <linearGradient id="densityGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.6} />
-                      <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.6} />
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
@@ -273,7 +273,7 @@ export const AnalyticsPanel: React.FC = () => {
                   <Area
                     type="monotone"
                     dataKey="density_score"
-                    stroke="#06b6d4"
+                    stroke="#8b5cf6"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#densityGradient)"

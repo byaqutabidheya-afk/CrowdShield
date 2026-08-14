@@ -288,7 +288,7 @@ export const AIInterventionPanel: React.FC = () => {
                               borderRadius: '3px',
                               border: '1px solid var(--color-accent-cyan)',
                               color: 'var(--color-accent-cyan)',
-                              backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                              backgroundColor: 'rgba(139, 92, 246, 0.1)',
                               textTransform: 'uppercase',
                             }}
                           >
@@ -326,7 +326,7 @@ export const AIInterventionPanel: React.FC = () => {
                             onClick={() => handleBroadcast(recKey, zoneId, rec.action || rec.reasoning)}
                             disabled={bState?.loading}
                             style={{
-                              backgroundColor: 'rgba(6, 182, 212, 0.15)',
+                              backgroundColor: 'rgba(139, 92, 246, 0.15)',
                               border: '1px solid var(--color-accent-cyan)',
                               color: 'var(--color-accent-cyan)',
                               fontSize: '0.75rem',

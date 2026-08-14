@@ -13,8 +13,10 @@ import ExternalTriggersPanel from './components/ExternalTriggersPanel';
 import VideoSourceWidget from './components/VideoSourceWidget';
 import WeatherWidget from './components/WeatherWidget';
 import { AnnouncementsPanel } from './components/AnnouncementsPanel';
+import SplashScreen from './components/SplashScreen';
 
 export const App: React.FC = () => {
+  const [showSplash, setShowSplash] = useState(true);
   // Activate live WebSocket stream
   const { connectionStatus, reconnect } = useLiveWebSocket();
 
@@ -96,6 +98,7 @@ export const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-dark)' }}>
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
       {/* Top Navigation Bar */}
       <header
         className="glass-panel"
@@ -122,7 +125,7 @@ export const App: React.FC = () => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                fill="rgba(6, 182, 212, 0.15)"
+                fill="rgba(139, 92, 246, 0.15)"
               />
               <circle cx="12" cy="11" r="3" fill="var(--color-accent-cyan)" />
             </svg>
@@ -146,8 +149,8 @@ export const App: React.FC = () => {
               letterSpacing: '0.08em',
               padding: '0.15rem 0.5rem',
               borderRadius: '4px',
-              backgroundColor: 'rgba(56, 189, 248, 0.1)',
-              border: '1px solid rgba(56, 189, 248, 0.25)',
+              backgroundColor: 'rgba(167, 139, 250, 0.1)',
+              border: '1px solid rgba(167, 139, 250, 0.25)',
               color: 'var(--color-accent-blue)',
               textTransform: 'uppercase',
             }}
@@ -177,7 +180,7 @@ export const App: React.FC = () => {
             <button
               onClick={() => setActiveMapTab('2d')}
               style={{
-                backgroundColor: activeMapTab === '2d' ? 'rgba(6, 182, 212, 0.2)' : 'transparent',
+                backgroundColor: activeMapTab === '2d' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
                 color: activeMapTab === '2d' ? 'var(--color-accent-cyan)' : 'var(--color-text-dim)',
                 border: activeMapTab === '2d' ? '1px solid var(--color-accent-cyan)' : '1px solid transparent',
                 borderRadius: '4px',
@@ -199,7 +202,7 @@ export const App: React.FC = () => {
             <button
               onClick={() => setActiveMapTab('3d')}
               style={{
-                backgroundColor: activeMapTab === '3d' ? 'rgba(6, 182, 212, 0.2)' : 'transparent',
+                backgroundColor: activeMapTab === '3d' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
                 color: activeMapTab === '3d' ? 'var(--color-accent-cyan)' : 'var(--color-text-dim)',
                 border: activeMapTab === '3d' ? '1px solid var(--color-accent-cyan)' : '1px solid transparent',
                 borderRadius: '4px',
@@ -338,7 +341,7 @@ export const App: React.FC = () => {
                   onClick={() => setActiveMapTab('2d')}
                   className="font-mono"
                   style={{
-                    backgroundColor: activeMapTab === '2d' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                    backgroundColor: activeMapTab === '2d' ? 'rgba(167, 139, 250, 0.15)' : 'transparent',
                     border: `1px solid ${activeMapTab === '2d' ? 'var(--color-accent-blue)' : 'transparent'}`,
                     color: activeMapTab === '2d' ? 'var(--color-accent-blue)' : 'var(--color-text-muted)',
                     fontSize: '0.65rem',
@@ -353,7 +356,7 @@ export const App: React.FC = () => {
                   onClick={() => setActiveMapTab('3d')}
                   className="font-mono"
                   style={{
-                    backgroundColor: activeMapTab === '3d' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                    backgroundColor: activeMapTab === '3d' ? 'rgba(167, 139, 250, 0.15)' : 'transparent',
                     border: `1px solid ${activeMapTab === '3d' ? 'var(--color-accent-blue)' : 'transparent'}`,
                     color: activeMapTab === '3d' ? 'var(--color-accent-blue)' : 'var(--color-text-muted)',
                     fontSize: '0.65rem',

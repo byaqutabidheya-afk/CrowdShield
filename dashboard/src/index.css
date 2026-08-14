@@ -5,15 +5,15 @@
   --bg-panel: #0d1322;
   --bg-panel-header: #131b2e;
   --bg-panel-hover: #172138;
-  --border-panel: rgba(56, 189, 248, 0.15);
-  --border-panel-bright: rgba(56, 189, 248, 0.35);
+  --border-panel: rgba(167, 139, 250, 0.15);
+  --border-panel-bright: rgba(167, 139, 250, 0.35);
 
   --color-text-main: #f8fafc;
   --color-text-muted: #94a3b8;
   --color-text-dim: #64748b;
 
-  --color-accent-cyan: #06b6d4;
-  --color-accent-blue: #38bdf8;
+  --color-accent-cyan: #8b5cf6;
+  --color-accent-blue: #a78bfa;
   --color-status-connected: #10b981;
   --color-status-connecting: #f59e0b;
   --color-status-disconnected: #f43f5e;
@@ -28,8 +28,77 @@
   padding: 0;
 }
 
+.crowdshield-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #241044 0%, #100a20 42%, #05030b 100%);
+  color: #f8fafc;
+  animation: crowdshield-splash-exit 700ms ease 1.75s forwards;
+}
+
+.crowdshield-splash-grid {
+  position: absolute;
+  inset: -40%;
+  opacity: 0.22;
+  transform: perspective(500px) rotateX(62deg) translateY(18%);
+  background-image: linear-gradient(rgba(167, 139, 250, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(167, 139, 250, 0.2) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to top, black, transparent 72%);
+}
+
+.crowdshield-splash-glow {
+  position: absolute;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.22;
+}
+
+.crowdshield-splash-glow-left { left: -16rem; top: 12%; background: #7c3aed; }
+.crowdshield-splash-glow-right { right: -16rem; bottom: 4%; background: #c084fc; }
+
+.crowdshield-splash-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: crowdshield-splash-enter 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.crowdshield-splash-kicker {
+  margin-bottom: 1.5rem;
+  color: #c4b5fd;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+}
+
+.crowdshield-splash-logo-mark { display: flex; align-items: flex-end; gap: 0.28rem; height: 3.4rem; margin-bottom: 1.25rem; }
+.crowdshield-splash-logo-mark span { display: block; width: 0.55rem; border-radius: 999px 999px 0 0; background: linear-gradient(180deg, #e9d5ff, #8b5cf6); box-shadow: 0 0 20px rgba(167, 139, 250, 0.55); }
+.crowdshield-splash-logo-mark span:nth-child(1) { height: 1.65rem; }
+.crowdshield-splash-logo-mark span:nth-child(2) { height: 2.5rem; }
+.crowdshield-splash-logo-mark span:nth-child(3) { height: 3.4rem; }
+.crowdshield-splash h1 { margin: 0; font-size: clamp(2.4rem, 7vw, 5.8rem); font-weight: 700; letter-spacing: 0.16em; line-height: 1; text-shadow: 0 0 34px rgba(167, 139, 250, 0.32); }
+.crowdshield-splash-motto { margin: 1.2rem 0 0; color: #ddd6fe; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(0.92rem, 2vw, 1.3rem); font-style: italic; letter-spacing: 0.2em; }
+.crowdshield-splash-divider { width: 7rem; height: 1px; margin: 2rem 0 1.1rem; background: linear-gradient(90deg, transparent, #a78bfa, transparent); }
+.crowdshield-splash-team { margin: 0; color: #a78bfa; font-family: var(--font-mono); font-size: 0.76rem; font-weight: 700; letter-spacing: 0.3em; }
+.crowdshield-splash-loading { width: 8rem; height: 2px; margin-top: 2.3rem; overflow: hidden; border-radius: 999px; background: rgba(167, 139, 250, 0.2); }
+.crowdshield-splash-loading span { display: block; width: 45%; height: 100%; border-radius: inherit; background: #c4b5fd; box-shadow: 0 0 12px #a78bfa; animation: crowdshield-splash-progress 1.7s ease-in-out infinite; }
+
+@keyframes crowdshield-splash-enter { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes crowdshield-splash-progress { from { transform: translateX(-120%); } to { transform: translateX(260%); } }
+@keyframes crowdshield-splash-exit { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+
 body {
-  background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+  background: linear-gradient(135deg, #05030b 0%, #120b24 100%);
   color: var(--color-text-main);
   font-family: var(--font-sans);
   min-height: 100vh;
@@ -45,8 +114,8 @@ body::before {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.05) 0%, transparent 40%),
-              radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.03) 0%, transparent 30%);
+  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.07) 0%, transparent 40%),
+              radial-gradient(circle at 80% 20%, rgba(167, 139, 250, 0.03) 0%, transparent 30%);
   z-index: -1;
   pointer-events: none;
 }
@@ -64,7 +133,7 @@ body::before {
   background: var(--bg-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #2e1b4f;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -149,7 +218,7 @@ body::before {
 }
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 8px 24px rgba(167, 139, 250, 0.15);
 }
 .hover-lift:active {
   transform: scale(0.98);
@@ -160,7 +229,7 @@ button {
 }
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 4px 16px rgba(167, 139, 250, 0.2);
   filter: brightness(1.1);
 }
 button:active {
@@ -190,7 +259,7 @@ button:active {
 
 .control-card:hover {
   border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(56, 189, 248, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(167, 139, 250, 0.1);
 }
 
 .control-card-header {
@@ -258,7 +327,7 @@ button:active {
 .leaflet-popup.live-venue-popup .leaflet-popup-content-wrapper {
   background: rgba(9, 16, 29, 0.96);
   color: #e2e8f0;
-  border: 1px solid rgba(56, 189, 248, 0.28);
+  border: 1px solid rgba(167, 139, 250, 0.28);
   border-radius: 8px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(15, 23, 42, 0.6);
 }
@@ -279,7 +348,7 @@ button:active {
 
 .leaflet-popup.live-venue-popup .leaflet-popup-tip {
   background: rgba(9, 16, 29, 0.96);
-  border: 1px solid rgba(56, 189, 248, 0.22);
+  border: 1px solid rgba(167, 139, 250, 0.22);
 }
 
 .leaflet-popup.live-venue-popup .leaflet-popup-close-button {

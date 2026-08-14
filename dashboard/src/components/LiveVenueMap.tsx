@@ -67,7 +67,7 @@ const BADGE_STYLE: React.CSSProperties = {
 
 const MAP_CONTROL_BUTTON_STYLE: React.CSSProperties = {
   width: '100%',
-  border: '1px solid rgba(56, 189, 248, 0.18)',
+  border: '1px solid rgba(167, 139, 250, 0.18)',
   borderRadius: '8px',
   background: 'rgba(15, 23, 42, 0.72)',
   color: '#e2e8f0',
@@ -280,7 +280,7 @@ function LiveVenueMapControls({
         width: '184px',
         padding: '0.7rem',
         borderRadius: '12px',
-        border: '1px solid rgba(56, 189, 248, 0.22)',
+        border: '1px solid rgba(167, 139, 250, 0.22)',
         background: 'rgba(9, 16, 29, 0.92)',
         boxShadow: '0 10px 24px rgba(0, 0, 0, 0.28)',
       }}
@@ -326,13 +326,13 @@ function createPlaceholderFloorPlanSvg(width: number, height: number): string {
   for (let x = 0; x <= width; x += minorStep) {
     const isMajor = x % majorStep === 0;
     gridLines.push(
-      `<line x1="${x}" y1="0" x2="${x}" y2="${height}" stroke="${isMajor ? 'rgba(56, 189, 248, 0.22)' : 'rgba(148, 163, 184, 0.14)'}" stroke-width="${isMajor ? 2 : 1}" />`
+      `<line x1="${x}" y1="0" x2="${x}" y2="${height}" stroke="${isMajor ? 'rgba(167, 139, 250, 0.22)' : 'rgba(148, 163, 184, 0.14)'}" stroke-width="${isMajor ? 2 : 1}" />`
     );
   }
   for (let y = 0; y <= height; y += minorStep) {
     const isMajor = y % majorStep === 0;
     gridLines.push(
-      `<line x1="0" y1="${y}" x2="${width}" y2="${y}" stroke="${isMajor ? 'rgba(56, 189, 248, 0.22)' : 'rgba(148, 163, 184, 0.14)'}" stroke-width="${isMajor ? 2 : 1}" />`
+      `<line x1="0" y1="${y}" x2="${width}" y2="${y}" stroke="${isMajor ? 'rgba(167, 139, 250, 0.22)' : 'rgba(148, 163, 184, 0.14)'}" stroke-width="${isMajor ? 2 : 1}" />`
     );
   }
 
@@ -351,7 +351,7 @@ function createPlaceholderFloorPlanSvg(width: number, height: number): string {
       <rect width="100%" height="100%" fill="url(#dots)" opacity="0.8" />
       ${gridLines.join('')}
       <rect x="24" y="24" width="${width - 48}" height="${height - 48}" rx="12" ry="12" fill="none" stroke="rgba(248, 250, 252, 0.4)" stroke-width="3" stroke-dasharray="14 10" />
-      <rect x="${Math.round(width * 0.18)}" y="${Math.round(height * 0.16)}" width="${Math.round(width * 0.64)}" height="${Math.round(height * 0.62)}" rx="20" ry="20" fill="rgba(6, 182, 212, 0.05)" stroke="rgba(56, 189, 248, 0.5)" stroke-width="2" />
+      <rect x="${Math.round(width * 0.18)}" y="${Math.round(height * 0.16)}" width="${Math.round(width * 0.64)}" height="${Math.round(height * 0.62)}" rx="20" ry="20" fill="rgba(139, 92, 246, 0.05)" stroke="rgba(167, 139, 250, 0.5)" stroke-width="2" />
       <text x="50%" y="48%" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle">Venue Floor Plan Placeholder</text>
       <text x="50%" y="53%" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="16" text-anchor="middle">Replace this SVG with the real venue floor plan image for the demo</text>
     </svg>
@@ -487,10 +487,10 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
                 interactive
                 pathOptions={{
                   className: 'live-venue-zone',
-                  color: isTarget ? '#38bdf8' : riskStyle.stroke,
+                  color: isTarget ? '#a78bfa' : riskStyle.stroke,
                   weight: isTarget ? 4 : 2,
                   opacity: 0.95,
-                  fillColor: isTarget ? '#06b6d4' : riskStyle.fill,
+                  fillColor: isTarget ? '#8b5cf6' : riskStyle.fill,
                   fillOpacity: isTarget ? 0.5 : 0.28,
                 }}
                 positions={normalizedBoundsToSimpleCrsPolygon(zoneConfig.bounds_normalized, {
@@ -553,7 +553,7 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
             style={{
               padding: '0.6rem 1.25rem',
               borderRadius: '999px',
-              border: '1px solid rgba(56, 189, 248, 0.28)',
+              border: '1px solid rgba(167, 139, 250, 0.28)',
               background: 'rgba(13, 19, 34, 0.85)',
               color: '#e2e8f0',
               fontFamily: 'var(--font-mono)',
@@ -575,7 +575,7 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
           zIndex: 450,
           padding: '0.65rem 0.75rem',
           borderRadius: '10px',
-          border: '1px solid rgba(56, 189, 248, 0.22)',
+          border: '1px solid rgba(167, 139, 250, 0.22)',
           background: 'rgba(9, 16, 29, 0.88)',
           boxShadow: '0 10px 24px rgba(0, 0, 0, 0.28)',
           pointerEvents: 'none',

@@ -611,7 +611,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       y: Math.random() * 110,
       vx: (Math.random() - 0.5) * 0.9,
       vy: (Math.random() - 0.5) * 0.9,
-      color: Math.random() > 0.7 ? '#ef4444' : Math.random() > 0.4 ? '#f97316' : '#06b6d4',
+      color: Math.random() > 0.7 ? '#ef4444' : Math.random() > 0.4 ? '#f97316' : '#8b5cf6',
     }));
 
     const renderFrame = () => {
@@ -619,7 +619,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       ctx.fillRect(0, 0, 200, 110);
 
       // Grid overlay
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.strokeStyle = 'rgba(167, 139, 250, 0.12)';
       ctx.lineWidth = 1;
       for (let x = 0; x < 200; x += 20) {
         ctx.beginPath();
@@ -648,7 +648,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       });
 
       // Overlay bounding box simulation
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.6)';
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.6)';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(35, 20, 130, 70);
 
@@ -690,7 +690,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
               fontWeight: 800,
               padding: '0.15rem 0.5rem',
               borderRadius: '4px',
-              backgroundColor: mode === 'camera' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(6, 182, 212, 0.2)',
+              backgroundColor: mode === 'camera' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(139, 92, 246, 0.2)',
               color: mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)',
               border: `1px solid ${mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)'}`,
             }}
@@ -779,7 +779,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
                 style={{
                   height: '100%',
                   width: mode === 'camera' ? '100%' : `${videoProgress.percent}%`,
-                  background: mode === 'camera' ? 'linear-gradient(90deg, #059669, #10b981)' : 'linear-gradient(90deg, #0284c7, #06b6d4)',
+                  background: mode === 'camera' ? 'linear-gradient(90deg, #059669, #10b981)' : 'linear-gradient(90deg, #7c3aed, #8b5cf6)',
                   borderRadius: '4px',
                   boxShadow: `0 0 10px ${mode === 'camera' ? '#10b981' : 'var(--color-accent-cyan)'}`,
                   transition: 'width 0.25s ease-out',
@@ -796,7 +796,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
             <button
               onClick={handleFeedToBackend}
               style={{
-                backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                backgroundColor: 'rgba(139, 92, 246, 0.2)',
                 border: '1px solid var(--color-accent-cyan)',
                 color: 'var(--color-accent-cyan)',
                 fontSize: '0.75rem',
@@ -856,7 +856,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
                   key={sample.id}
                   onClick={() => handleSelectSample(sample.id)}
                   style={{
-                    backgroundColor: sourceName === sample.id ? 'rgba(6, 182, 212, 0.15)' : '#090d16',
+                    backgroundColor: sourceName === sample.id ? 'rgba(139, 92, 246, 0.15)' : '#090d16',
                     border: `1px solid ${sourceName === sample.id ? 'var(--color-accent-cyan)' : 'var(--border-panel)'}`,
                     color: '#f8fafc',
                     fontSize: '0.7rem',

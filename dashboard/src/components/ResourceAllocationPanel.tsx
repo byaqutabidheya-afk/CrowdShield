@@ -51,7 +51,7 @@ const getSuggestionMeta = (suggestionType: string = '') => {
       return {
         icon: '👮‍♂️',
         label: 'Security Personnel Deployment',
-        badgeBg: 'rgba(6, 182, 212, 0.1)',
+        badgeBg: 'rgba(139, 92, 246, 0.1)',
         badgeColor: 'var(--color-accent-cyan)',
       };
     case 'medical_tent':
@@ -111,8 +111,8 @@ export const ResourceAllocationPanel: React.FC = () => {
             width: '44px',
             height: '44px',
             borderRadius: '50%',
-            backgroundColor: 'rgba(56, 189, 248, 0.15)',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
+            backgroundColor: 'rgba(167, 139, 250, 0.15)',
+            border: '1px solid rgba(167, 139, 250, 0.3)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

@@ -262,7 +262,7 @@ function SimulationControls({
         width: '250px',
         padding: '0.8rem',
         borderRadius: '12px',
-        border: isSimulationMode ? '1px solid rgba(139, 92, 246, 0.45)' : '1px solid rgba(56, 189, 248, 0.22)',
+        border: isSimulationMode ? '1px solid rgba(139, 92, 246, 0.45)' : '1px solid rgba(167, 139, 250, 0.22)',
         background: 'rgba(9, 16, 29, 0.94)',
         boxShadow: isSimulationMode ? '0 0 0 1px rgba(59, 130, 246, 0.22), 0 14px 34px rgba(0, 0, 0, 0.42)' : '0 14px 34px rgba(0, 0, 0, 0.34)',
       }}
@@ -285,7 +285,7 @@ function SimulationControls({
         onClick={onToggleSimulationMode}
         style={{
           width: '100%',
-          border: '1px solid rgba(56, 189, 248, 0.18)',
+          border: '1px solid rgba(167, 139, 250, 0.18)',
           borderRadius: '8px',
           background: isSimulationMode ? 'linear-gradient(135deg, rgba(91, 33, 182, 0.92), rgba(37, 99, 235, 0.88))' : 'rgba(15, 23, 42, 0.72)',
           color: '#e2e8f0',
@@ -308,7 +308,7 @@ function SimulationControls({
               disabled={!livePredictionAvailable}
               style={{
                 width: '100%',
-                border: '1px solid rgba(56, 189, 248, 0.18)',
+                border: '1px solid rgba(167, 139, 250, 0.18)',
                 borderRadius: '8px',
                 background: simulationSource === 'prediction' ? 'rgba(37, 99, 235, 0.82)' : 'rgba(15, 23, 42, 0.72)',
                 color: '#e2e8f0',
@@ -327,7 +327,7 @@ function SimulationControls({
               style={{
                 padding: '0.6rem',
                 borderRadius: '10px',
-                border: '1px solid rgba(56, 189, 248, 0.14)',
+                border: '1px solid rgba(167, 139, 250, 0.14)',
                 background: simulationSource === 'pre-event' ? 'rgba(91, 33, 182, 0.18)' : 'rgba(15, 23, 42, 0.46)',
               }}
             >
@@ -337,7 +337,7 @@ function SimulationControls({
                 style={{
                   width: '100%',
                   marginBottom: '0.55rem',
-                  border: '1px solid rgba(56, 189, 248, 0.18)',
+                  border: '1px solid rgba(167, 139, 250, 0.18)',
                   borderRadius: '8px',
                   background: simulationSource === 'pre-event' ? 'linear-gradient(135deg, rgba(91, 33, 182, 0.92), rgba(59, 130, 246, 0.9))' : 'rgba(15, 23, 42, 0.72)',
                   color: '#e2e8f0',
@@ -409,7 +409,7 @@ function SimulationControls({
                     disabled={isSubmittingPreEvent}
                     style={{
                       width: '100%',
-                      border: '1px solid rgba(56, 189, 248, 0.18)',
+                      border: '1px solid rgba(167, 139, 250, 0.18)',
                       borderRadius: '8px',
                       background: 'rgba(59, 130, 246, 0.82)',
                       color: '#e2e8f0',
