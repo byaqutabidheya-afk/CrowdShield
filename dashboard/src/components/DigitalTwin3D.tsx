@@ -91,13 +91,42 @@ function normalizeSimulationSteps(data: unknown): SimulationStepRecord[] {
     return [];
   }
 
-  return data.filter((item): item is SimulationStepRecord => Boolean(item) && typeof item === 'object');
+  return data
+    .filter((item): item is SimulationStepRecord => Boolean(item) && typeof item === 'object')
+    .map((step) => {
+      // Pre-event simulation steps expose scores as { zone_id: score }, while
+      // the 3D renderer consumes the same zone metric shape as live frames.
+      if (!step.zone_risk_scores || typeof step.zone_risk_scores !== 'object') {
+        return step;
+      }
+
+      const existingZones = Array.isArray(step.zones) ? step.zones : [];
+      const zones = Object.entries(step.zone_risk_scores).map(([zone_id, rawScore]) => {
+        const risk_score = clamp01(Number(rawScore) || 0);
+        const existingZone = existingZones.find((zone: any) => zone?.zone_id === zone_id) || {};
+        const crowd_count = Number(step.zone_crowd_counts?.[zone_id] ?? existingZone.crowd_count) || 0;
+        const density_score = clamp01(Number(step.zone_density_scores?.[zone_id] ?? existingZone.density_score) || 0);
+        const risk_level =
+          risk_score < 0.3 ? 'low' : risk_score < 0.55 ? 'moderate' : risk_score < 0.75 ? 'high' : 'critical';
+
+        return {
+          zone_id,
+          risk_score,
+          risk_level,
+          crowd_count,
+          density_score,
+          contributing_factors: { density_score },
+        };
+      });
+
+      return { ...step, zones };
+    });
 }
 
 function getRiskWeight(zone: RiskZoneMetric | undefined, cvZone: CVZoneMetric | undefined) {
   const riskLevel = getRiskLevel(zone?.risk_level);
   const riskScore = Math.max(0, zone?.risk_score ?? 0);
-  const densityScore = Math.max(0, cvZone?.density_score ?? 0);
+  const densityScore = Math.max(0, zone?.density_score ?? cvZone?.density_score ?? 0);
 
   return {
     riskLevel,
@@ -144,6 +173,8 @@ function ZoneVolume({
   const target = useMemo(() => getRiskWeight(riskZone, cvZone), [cvZone, riskZone]);
   const layout = useMemo(() => mapNormalizedRectToWorld(zoneConfig.bounds_normalized), [zoneConfig.bounds_normalized]);
   const labelRiskScore = Math.max(0, riskZone?.risk_score ?? 0).toFixed(1);
+  const labelDensity = Math.round(clamp01(riskZone?.density_score ?? cvZone?.density_score ?? 0) * 100);
+  const labelCrowd = Math.max(0, Math.round(riskZone?.crowd_count ?? cvZone?.crowd_count ?? 0));
 
   useFrame((_, delta) => {
     const mesh = meshRef.current;
@@ -174,7 +205,7 @@ function ZoneVolume({
 
       <Billboard follow lockX={false} lockY={false} lockZ={false} position={[0, 3.4, 0]}>
         <Text
-          fontSize={0.42}
+          fontSize={0.34}
           color="#f8fafc"
           anchorX="center"
           anchorY="middle"
@@ -183,7 +214,7 @@ function ZoneVolume({
           textAlign="center"
           depthOffset={-1}
         >
-          {`${zoneConfig.zone_id}\nRisk ${labelRiskScore}`}
+          {`${zoneConfig.zone_id}\nRisk ${labelRiskScore}\nDensity ${labelDensity}% · Crowd ${labelCrowd}`}
         </Text>
       </Billboard>
     </Box>
@@ -446,12 +477,16 @@ function SimulationTimeline({
   const currentLabel = getSimulationStepLabel(currentStep, selectedStepIndex);
 
   return (
-    <div
-      style={{
-        padding: '0.75rem 0.9rem 0.85rem',
-        borderTop: '1px solid rgba(139, 92, 246, 0.22)',
-        background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.98) 100%)',
-      }}
+          <div
+            style={{
+              padding: '0.75rem 0.9rem 0.85rem',
+              flex: '0 0 auto',
+              minHeight: '112px',
+              position: 'relative',
+              zIndex: 40,
+              borderTop: '1px solid rgba(139, 92, 246, 0.22)',
+              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.98) 100%)',
+            }}
     >
       <div
         style={{
@@ -476,6 +511,9 @@ function SimulationTimeline({
             SIMULATION MODE — not live data
           </div>
           <div style={{ fontSize: '0.76rem', color: '#cbd5e1', marginTop: '0.2rem' }}>{currentLabel}</div>
+          <div style={{ fontSize: '0.66rem', color: '#a78bfa', marginTop: '0.25rem' }}>
+            {isPlaying ? 'Playing' : 'Paused'} · Step {selectedStepIndex + 1} of {simulationSteps.length} · Drag the timeline or press Play
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -525,7 +563,7 @@ function SimulationTimeline({
         value={selectedStepIndex}
         onChange={(event) => onSelectedStepChange(Number(event.target.value))}
         aria-label="Simulation timeline scrubber"
-        style={{ width: '100%' }}
+        style={{ width: '100%', accentColor: '#a78bfa', cursor: 'pointer' }}
       />
 
       <div
@@ -579,7 +617,51 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
   const livePredictionSteps = useMemo(() => {
     const riskData = latestFrame?.risk_data as RiskData | undefined;
     const rawRiskData = riskData as unknown as Record<string, any> | undefined;
-    return normalizeSimulationSteps(riskData?.predicted_crush_timeline ?? rawRiskData?.panic_propagation ?? rawRiskData?.predicted_crush_timeline);
+    const panicPropagation = rawRiskData?.panic_propagation;
+    const simulatedSteps = Array.isArray(panicPropagation?.simulated_steps)
+      ? panicPropagation.simulated_steps
+      : Array.isArray(panicPropagation)
+        ? panicPropagation
+        : [];
+    const crushTimeline = Array.isArray(riskData?.predicted_crush_timeline)
+      ? riskData.predicted_crush_timeline
+      : [];
+
+    // Prefer the actual step-by-step diffusion timeline. The crush timeline is
+    // only a list of predicted threshold crossings and may legitimately be empty.
+    if (simulatedSteps.length > 0 || crushTimeline.length > 0) {
+      return normalizeSimulationSteps(simulatedSteps.length > 0 ? simulatedSteps : crushTimeline);
+    }
+
+    // Demo/fallback feeds may provide current zones without a prediction
+    // timeline. Create a short, clearly-labelled projection so the control is
+    // still usable during a presentation.
+    const currentZones = Array.isArray(rawRiskData?.zones)
+      ? rawRiskData.zones
+      : Array.isArray((latestFrame as any)?.cv_data?.zones)
+        ? (latestFrame as any).cv_data.zones
+        : [];
+    if (currentZones.length === 0) {
+      return [];
+    }
+
+    return normalizeSimulationSteps(
+      Array.from({ length: 8 }, (_, index) => ({
+        step: index + 1,
+        time_offset_seconds: (index + 1) * 30,
+        zones: currentZones.map((zone: any) => {
+          const baseScore = clamp01(Number(zone.risk_score ?? zone.density_score) || 0);
+          const risk_score = clamp01(baseScore + index * 0.035);
+          const risk_level = risk_score < 0.3 ? 'low' : risk_score < 0.55 ? 'moderate' : risk_score < 0.75 ? 'high' : 'critical';
+          return {
+            ...zone,
+            risk_score,
+            risk_level,
+            density_score: clamp01(Number(zone.density_score) || risk_score),
+          };
+        }),
+      }))
+    );
   }, [latestFrame?.risk_data]);
 
   useEffect(() => {
@@ -616,9 +698,9 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
     const timer = window.setInterval(() => {
       setSelectedStepIndex((current) => {
         if (current >= simulationSteps.length - 1) {
-          window.clearInterval(timer);
-          setIsPlaying(false);
-          return current;
+          // Loop continuously so the demo can run hands-free and Play always
+          // produces visible timeline movement, even after the final step.
+          return 0;
         }
 
         return current + 1;
@@ -744,7 +826,10 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
       return;
     }
 
-    setIsPlaying((current) => !current);
+    if (!isPlaying && selectedStepIndex >= simulationSteps.length - 1) {
+      setSelectedStepIndex(0);
+    }
+    setIsPlaying(!isPlaying);
   };
 
   const activeFrameLabel = isSimulationMode
@@ -770,7 +855,7 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
         ...style,
       }}
     >
-      <div style={{ position: 'relative', flex: '1 1 auto', minHeight: 0 }}>
+      <div style={{ position: 'relative', flex: '1 1 0%', minHeight: 0 }}>
         <Canvas
           shadows
           camera={{ position: [8, 8, 8], fov: 45, near: 0.1, far: 100 }}

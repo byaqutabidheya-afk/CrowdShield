@@ -174,6 +174,37 @@ def get_incident_reports(
         return []
 
 
+def get_incident_report(report_id: str) -> Optional[Dict[str, Any]]:
+    """Fetch one incident report by its database ID."""
+    client = get_supabase_client()
+    if not client:
+        return None
+    try:
+        response = client.table("incident_reports").select("*").eq("id", report_id).limit(1).execute()
+        return response.data[0] if response.data else None
+    except Exception as e:
+        logger.error(f"Error fetching incident report {report_id}: {e}")
+        return None
+
+
+def update_incident_ai_summary(report_id: str, ai_summary: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Persist an AI-generated summary on an incident report."""
+    client = get_supabase_client()
+    if not client:
+        return None
+    try:
+        response = (
+            client.table("incident_reports")
+            .update({"ai_summary": ai_summary})
+            .eq("id", report_id)
+            .execute()
+        )
+        return response.data[0] if response.data else None
+    except Exception as e:
+        logger.error(f"Error updating AI summary for incident {report_id}: {e}")
+        return None
+
+
 def insert_intervention(intervention: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Insert a recorded intervention into the `interventions` table.

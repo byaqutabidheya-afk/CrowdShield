@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLiveDataStore } from '../store/liveDataStore';
+import { postIncidentSummary, postIncidentSummaryPreview } from '../api/client';
 import type { IncidentReport } from '../types/api';
 
 interface IncidentReportsPanelProps {
@@ -7,6 +8,16 @@ interface IncidentReportsPanelProps {
 }
 
 type SourceFilter = 'all' | 'citizen' | 'ai_generated';
+type DisplayIncidentReport = IncidentReport & { is_mock?: boolean };
+
+const MOCK_CITIZEN_REPORT: DisplayIncidentReport = {
+  id: 'mock-citizen-demo-report',
+  source: 'citizen',
+  zone_id: 'zone_A1',
+  notes: '[MOCK] Crowd is bunching near the main entry gate. Please check the queue and redirect arrivals if needed.',
+  submitted_at: new Date().toISOString(),
+  is_mock: true,
+};
 
 // Relative time helper
 const getRelativeTime = (timestamp?: string): string => {
@@ -33,6 +44,9 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
 
   const [filter, setFilter] = useState<SourceFilter>('all');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [summarizingIncidentId, setSummarizingIncidentId] = useState<string | null>(null);
+  const [mockAiSummary, setMockAiSummary] = useState<Record<string, any> | null>(null);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
   const [expandedPhotoUrl, setExpandedPhotoUrl] = useState<string | null>(null);
 
   // Initial fetch and 30-second polling
@@ -53,9 +67,40 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
     setTimeout(() => setIsRefreshing(false), 400);
   };
 
+  const handleGenerateSummary = async (report: DisplayIncidentReport) => {
+    const incidentId = report.id;
+    setSummarizingIncidentId(incidentId);
+    setSummaryError(null);
+    try {
+      const updatedReport = report.is_mock
+        ? await postIncidentSummaryPreview({ zone_id: report.zone_id || undefined, notes: report.notes })
+        : await postIncidentSummary(incidentId);
+      if (report.is_mock) {
+        setMockAiSummary(updatedReport.ai_summary || null);
+        return;
+      }
+      useLiveDataStore.setState((state) => ({
+        incidentReports: state.incidentReports.map((report) =>
+          report.id === updatedReport.id ? { ...report, ...updatedReport } : report
+        ),
+      }));
+    } catch (error) {
+      console.error('Failed to generate incident AI summary:', error);
+      setSummaryError('AI summary failed. Check that the backend is running and try again.');
+    } finally {
+      setSummarizingIncidentId(null);
+    }
+  };
+
   // Filter and sort reports in reverse chronological order
   const filteredReports = useMemo(() => {
-    let list = [...incidentReports];
+    const hasRealCitizenReport = incidentReports.some(
+      (report) => report.source === 'citizen' && report.id !== MOCK_CITIZEN_REPORT.id
+    );
+    const reportsForDisplay: DisplayIncidentReport[] = hasRealCitizenReport
+      ? incidentReports
+      : [{ ...MOCK_CITIZEN_REPORT, ai_summary: mockAiSummary || undefined }, ...incidentReports];
+    let list = [...reportsForDisplay];
 
     if (filter === 'citizen') {
       list = list.filter((r) => r.source === 'citizen');
@@ -68,10 +113,15 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
       const timeB = new Date(b.submitted_at || 0).getTime();
       return timeB - timeA;
     });
-  }, [incidentReports, filter]);
+  }, [incidentReports, filter, mockAiSummary]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '0.65rem' }}>
+      {summaryError && (
+        <div style={{ padding: '0.45rem 0.6rem', borderRadius: '5px', border: '1px solid rgba(248, 113, 113, 0.4)', color: '#fecaca', background: 'rgba(127, 29, 29, 0.25)', fontSize: '0.7rem' }}>
+          {summaryError}
+        </div>
+      )}
       {/* Header Controls: Source Filter Toggle & Manual Refresh Button */}
       <div
         style={{
@@ -212,7 +262,7 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
         </div>
       ) : (
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.65rem', paddingRight: '0.2rem' }}>
-          {filteredReports.map((report: IncidentReport) => {
+          {filteredReports.map((report: DisplayIncidentReport) => {
             const isAI = report.source === 'ai_generated';
             const aiSummary = report.ai_summary;
 
@@ -270,8 +320,29 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
                   {report.notes}
                 </p>
 
+                {!isAI && !aiSummary && (
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateSummary(report)}
+                    disabled={summarizingIncidentId === report.id}
+                    style={{
+                      alignSelf: 'flex-start',
+                      border: '1px solid rgba(192, 132, 252, 0.45)',
+                      borderRadius: '5px',
+                      background: 'rgba(192, 132, 252, 0.1)',
+                      color: '#d8b4fe',
+                      padding: '0.35rem 0.55rem',
+                      fontSize: '0.65rem',
+                      fontFamily: 'var(--font-mono)',
+                      cursor: summarizingIncidentId === report.id ? 'wait' : 'pointer',
+                    }}
+                  >
+                    {summarizingIncidentId === report.id ? 'Generating Summary...' : 'Generate AI Summary'}
+                  </button>
+                )}
+
                 {/* Structured Mini-Report for AI-Generated Summaries */}
-                {isAI && aiSummary && (
+                {aiSummary && (
                   <div
                     style={{
                       backgroundColor: 'rgba(5, 8, 17, 0.7)',

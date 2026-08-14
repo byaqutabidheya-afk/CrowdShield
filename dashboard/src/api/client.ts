@@ -143,6 +143,20 @@ export const getIncidents = async (params?: {
   return response.data;
 };
 
+/** Generate and persist an AI post-incident summary for one report. */
+export const postIncidentSummary = async (incidentId: string): Promise<IncidentReport> => {
+  const response = await apiClient.post<IncidentReport>(`/incidents/${incidentId}/summary`);
+  return response.data;
+};
+
+/** Generate a non-persistent summary for a dashboard demo report. */
+export const postIncidentSummaryPreview = async (
+  data: { zone_id?: string; notes: string }
+): Promise<IncidentReport> => {
+  const response = await apiClient.post<IncidentReport>('/incidents/summary', data);
+  return response.data;
+};
+
 /**
  * Log a manual intervention action.
  * POST /interventions

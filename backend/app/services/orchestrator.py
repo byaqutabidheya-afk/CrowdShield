@@ -74,6 +74,69 @@ class EventOrchestrator:
             self._risk_engine = RiskEngine()
         return self._risk_engine
 
+    async def run_pre_event_simulation(
+        self,
+        zones: List[Any],
+        entry_zone_ids: List[str],
+        expected_attendance: int,
+        arrival_duration_minutes: int = 30,
+        num_steps: int = 20,
+    ) -> Dict[str, Any]:
+        """Run the offline arrival-buildup simulation for the dashboard.
+
+        The simulator is CPU-only and synchronous, so run it in a worker thread
+        to avoid blocking FastAPI's event loop while a larger venue is tested.
+        """
+        normalized_zones = _normalize_zones(zones)
+        if not normalized_zones:
+            raise ValueError("At least one valid zone is required.")
+
+        normalized_entry_zone_ids = [str(zone_id) for zone_id in entry_zone_ids if zone_id]
+        if not normalized_entry_zone_ids:
+            raise ValueError("At least one entry zone is required.")
+
+        # Import through RiskEngine so the API and CLI use the same adjacency and
+        # pre-event simulation implementations.
+        risk_engine = self.risk_engine
+        try:
+            from ai_core.risk_engine.scripts.zone_adjacency import compute_zone_adjacency_map
+        except ImportError:
+            from risk_engine.scripts.zone_adjacency import compute_zone_adjacency_map
+
+        adjacency_map = compute_zone_adjacency_map(normalized_zones)
+        steps = await asyncio.to_thread(
+            risk_engine.pre_event_simulator.simulate_arrival_buildup,
+            normalized_zones,
+            normalized_entry_zone_ids,
+            expected_attendance,
+            adjacency_map,
+            arrival_duration_minutes,
+            num_steps,
+        )
+        bottlenecks = risk_engine.pre_event_simulator.flag_bottleneck_risks(steps)
+
+        peak_density_zones: Dict[str, float] = {}
+        for step in steps:
+            for zone_id, score in step.get("zone_risk_scores", {}).items():
+                peak_density_zones[zone_id] = max(
+                    peak_density_zones.get(zone_id, 0.0), float(score)
+                )
+
+        return {
+            "total_attendance": expected_attendance,
+            "arrival_duration_minutes": arrival_duration_minutes,
+            "num_steps": num_steps,
+            "simulated_steps": steps,
+            # `steps` is kept as a frontend-friendly alias for this API result.
+            "steps": steps,
+            "peak_density_zones": peak_density_zones,
+            "bottlenecks_detected": bottlenecks,
+            "recommendations": [
+                f"Monitor {item['zone_id']} from simulation step {item['step']}"
+                for item in bottlenecks
+            ],
+        }
+
     async def _trigger_push_notification_hook(self, alert_data: Dict[str, Any]) -> None:
         """
         Triggers FCM push notifications to registered mobile devices when a new high/critical

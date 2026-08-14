@@ -168,5 +168,44 @@ body {
     fill 260ms ease,
     stroke-opacity 260ms ease,
     fill-opacity 260ms ease,
-    stroke-width 260ms ease;
+  stroke-width 260ms ease;
+}
+
+/* Dark dashboard theme for zone hover tooltips and click popups. */
+.leaflet-tooltip.live-venue-tooltip,
+.leaflet-popup.live-venue-popup .leaflet-popup-content-wrapper {
+  background: rgba(9, 16, 29, 0.96);
+  color: #e2e8f0;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(15, 23, 42, 0.6);
+}
+
+.leaflet-tooltip.live-venue-tooltip {
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-sans);
+}
+
+.leaflet-tooltip.live-venue-tooltip::before {
+  border-top-color: rgba(9, 16, 29, 0.96);
+}
+
+.leaflet-popup.live-venue-popup .leaflet-popup-content {
+  margin: 0;
+  min-width: 170px;
+}
+
+.leaflet-popup.live-venue-popup .leaflet-popup-tip {
+  background: rgba(9, 16, 29, 0.96);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+}
+
+.leaflet-popup.live-venue-popup .leaflet-popup-close-button {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  padding: 0.25rem 0.4rem 0 0;
+}
+
+.leaflet-popup.live-venue-popup .leaflet-popup-close-button:hover {
+  color: #f8fafc;
 }

@@ -177,6 +177,25 @@ class PreEventSimulator:
 
             diffusion_step["step"] = step_index
             diffusion_step["time_offset_seconds"] = step_index * seconds_per_step
+            # Preserve the arrival-buildup measurements alongside the diffused
+            # risk scores so consumers can explain what drives each step.
+            diffusion_step["zone_crowd_counts"] = {
+                zone_id: _safe_int(zone_data.get("crowd_count", 0), 0)
+                for zone_id, zone_data in zone_records.items()
+            }
+            diffusion_step["zone_density_scores"] = {
+                zone_id: _safe_float(zone_data.get("density_score", 0.0))
+                for zone_id, zone_data in zone_records.items()
+            }
+            diffusion_step["zones"] = [
+                {
+                    "zone_id": zone_id,
+                    "risk_score": _safe_float(diffusion_step["zone_risk_scores"].get(zone_id)),
+                    "crowd_count": diffusion_step["zone_crowd_counts"].get(zone_id, 0),
+                    "density_score": diffusion_step["zone_density_scores"].get(zone_id, 0.0),
+                }
+                for zone_id in zone_records
+            ]
             current_risk_scores = dict(diffusion_step["zone_risk_scores"])
             snapshots.append(diffusion_step)
 

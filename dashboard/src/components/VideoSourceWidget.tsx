@@ -381,7 +381,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       // Estimate video progress if HTML video duration not loaded yet
       if (mode !== 'camera' && (!videoProgress.duration || videoProgress.duration === 0)) {
         const simPercent = (stepIndexRef.current * 3) % 100;
-        setVideoProgress((prev) => ({
+        setVideoProgress(() => ({
           percent: hasCompleted ? 100 : simPercent,
           currentTime: Math.floor(stepIndexRef.current * 1.5),
           duration: 60,
@@ -402,7 +402,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     if (video.duration && !isNaN(video.duration) && video.duration > 0) {
       const pct = Math.min(100, Math.max(0, (video.currentTime / video.duration) * 100));
         const newPercent = Math.round(pct);
-        setVideoProgress((prev) => ({
+        setVideoProgress(() => ({
           percent: hasCompleted ? 100 : newPercent,
           currentTime: Math.round(video.currentTime),
           duration: Math.round(video.duration),
