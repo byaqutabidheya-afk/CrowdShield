@@ -296,6 +296,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   const isBackendActiveRef = useRef<boolean>(false);
 
   // Refs for video elements & canvas
+  const uploadedVideoRef = React.useRef<HTMLVideoElement | null>(null);
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);
   const modalVideoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -450,6 +451,21 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     }
   }, [activeStream, cameraDevices, selectedDeviceId, onSourceChange]);
 
+  // Clean up modal video stream when not in camera mode
+  useEffect(() => {
+    if (mode !== 'camera' && modalVideoRef.current) {
+      modalVideoRef.current.srcObject = null;
+    }
+  }, [mode]);
+
+  // Ensure uploaded video loads and plays when URL changes
+  useEffect(() => {
+    if (uploadedVideoUrl && uploadedVideoRef.current) {
+      uploadedVideoRef.current.load();
+      uploadedVideoRef.current.play().catch(() => {});
+    }
+  }, [uploadedVideoUrl]);
+
   // Attach stream to video elements whenever stream or modal state changes
   useEffect(() => {
     if (mode === 'camera' && activeStream) {
@@ -508,6 +524,12 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     setSourceName(file.name);
     onSourceChange?.('uploaded', file.name);
     setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
+    // Autoplay the uploaded video after setting URL
+    setTimeout(() => {
+      if (uploadedVideoRef.current) {
+        uploadedVideoRef.current.play().catch(() => {});
+      }
+    }, 0);
     setCvFramesProcessed(0);
     stepIndexRef.current = 1;
 
@@ -697,15 +719,18 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
             {mode === 'camera' ? (
               <video ref={modalVideoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : uploadedVideoUrl ? (
-              <video
-                src={uploadedVideoUrl}
-                autoPlay
-                muted
-                loop
-                playsInline
-                onTimeUpdate={handleTimeUpdate}
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
+                <video
+                  key={uploadedVideoUrl}
+                  ref={uploadedVideoRef}
+                  src={uploadedVideoUrl}
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  onTimeUpdate={handleTimeUpdate}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                />
             ) : (
               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <canvas ref={canvasRef} width={400} height={220} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
