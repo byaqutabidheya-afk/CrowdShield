@@ -708,7 +708,9 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
           {/* Video Container */}
           <div
             style={{
-              flex: 1,
+              width: '100%',
+              aspectRatio: '16 / 9',
+              flex: '0 0 auto',
               minHeight: 0,
               backgroundColor: '#050811',
               borderRadius: '8px',
@@ -721,7 +723,13 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
             }}
           >
             {mode === 'camera' ? (
-              <video ref={modalVideoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <video
+                ref={modalVideoRef}
+                autoPlay
+                muted
+                playsInline
+                style={{ display: 'block', width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', objectPosition: 'center' }}
+              />
             ) : uploadedVideoUrl ? (
                 <video
                   key={uploadedVideoUrl}
@@ -733,7 +741,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
                   loop
                   playsInline
                   onTimeUpdate={handleTimeUpdate}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  style={{ display: 'block', width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', objectPosition: 'center' }}
                 />
             ) : (
               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -782,7 +790,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
         </div>
 
         {/* RIGHT SIDE: Video Source Controls */}
-        <div style={{ width: '280px', display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.2rem' }}>
+        <div style={{ width: '260px', flex: '0 0 260px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '0.2rem' }}>
           {/* Feed to Backend Processing Action Bar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button

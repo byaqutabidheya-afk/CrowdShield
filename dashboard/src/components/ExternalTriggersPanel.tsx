@@ -243,9 +243,9 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
   const unrestColor = unrestScore > 0.6 ? '#ef4444' : unrestScore > 0.3 ? '#f97316' : '#10b981';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '0.85rem', overflowY: 'auto' }}>
+    <div className="external-triggers-grid" style={{ flex: 1, minHeight: 0, width: '100%' }}>
       {/* SECTION 1: Voice Control & Assistant Trigger */}
-      <div
+      <div className="trigger-subcontainer"
         style={{
           backgroundColor: 'rgba(5, 8, 17, 0.7)',
           border: '1px solid var(--border-panel)',
@@ -337,7 +337,7 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
       </div>
 
       {/* SECTION 2: Digital Signage Hardware Webhook Trigger */}
-      <div
+      <div className="trigger-subcontainer"
         style={{
           backgroundColor: 'rgba(5, 8, 17, 0.7)',
           border: '1px solid var(--border-panel)',
@@ -458,7 +458,7 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
       </div>
 
       {/* SECTION 3: Social Media Sentiment Monitor Mini-Widget */}
-      <div
+      <div className="trigger-subcontainer"
         style={{
           backgroundColor: 'rgba(5, 8, 17, 0.7)',
           border: '1px solid var(--border-panel)',
@@ -566,7 +566,7 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
       </div>
 
       {/* SECTION 4: Multilingual Public Address (PA) */}
-      <div
+      <div className="trigger-subcontainer"
         style={{
           backgroundColor: 'rgba(5, 8, 17, 0.7)',
           border: '1px solid var(--border-panel)',

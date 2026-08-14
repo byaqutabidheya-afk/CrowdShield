@@ -319,14 +319,15 @@ export const App: React.FC = () => {
           padding: '0 1.25rem 1.25rem 1.25rem',
           display: 'grid',
           gridTemplateColumns: 'repeat(12, 1fr)',
-          gridTemplateRows: 'minmax(480px, 1.2fr) minmax(380px, 1fr)',
+          gridTemplateRows: 'minmax(940px, 1.2fr) minmax(380px, 1fr) minmax(560px, auto)',
           gap: '20px',
+          overflowY: 'auto',
         }}
       >
-        {/* UPPER ROW - PANEL 1: Primary Venue Viewport & Video Feed (Span 8) */}
-        <div style={{ gridColumn: 'span 8', display: 'flex', flexDirection: 'column', gap: '0.85rem', height: '100%', minHeight: 0 }}>
+        {/* UPPER ROW - PANEL 1: Primary Venue Viewport & Video Feed (Span 9) */}
+        <div style={{ gridColumn: 'span 9', display: 'flex', flexDirection: 'column', gap: '0.85rem', height: '100%', minHeight: 0 }}>
           {/* Top: Venue Map (2/3 of space) */}
-          <section className="control-card" style={{ flex: 2, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <section className="control-card" style={{ flex: '1 1 auto', minHeight: '480px', display: 'flex', flexDirection: 'column' }}>
             <div className="control-card-header">
               <div className="control-card-title">
                 <span style={{ color: 'var(--color-accent-blue)' }}>{activeMapTab === '2d' ? '🗺️' : '🏙️'}</span>
@@ -379,13 +380,13 @@ export const App: React.FC = () => {
           </section>
 
           {/* Bottom: Video Play Window (1/3 of space) */}
-          <section className="control-card" style={{ flex: 1, minHeight: 0 }}>
+          <section className="control-card" style={{ flex: '0 0 430px', minHeight: '430px' }}>
             <VideoSourceWidget />
           </section>
         </div>
 
-        {/* UPPER ROW - PANEL 2: AI Interventions & Control Panel (Span 4) */}
-        <section className="control-card" style={{ gridColumn: 'span 4', height: '100%', minHeight: 0 }}>
+        {/* UPPER ROW - PANEL 2: AI Interventions & Control Panel (Span 3) */}
+        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>⚡</span>
@@ -395,7 +396,7 @@ export const App: React.FC = () => {
               {activeAlerts.length} ALERTS
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '1rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <AIInterventionPanel />
           </div>
         </section>
@@ -432,8 +433,8 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* LOWER ROW - PANEL 5: Incident Reports (Span 2) */}
-        <section className="control-card" style={{ gridColumn: 'span 2', height: '100%', minHeight: 0 }}>
+        {/* LOWER ROW - PANEL 5: Incident Reports (Span 3) */}
+        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🚨</span>
@@ -448,13 +449,13 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* LOWER ROW - PANEL 6: Announcements (Span 2) */}
-        <section className="control-card" style={{ gridColumn: 'span 2', height: '100%', minHeight: 0 }}>
+        {/* LOWER ROW - PANEL 6: Announcements (Span 3) */}
+        <section className="control-card" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
           <AnnouncementsPanel />
         </section>
 
-        {/* LOWER ROW - PANEL 7: External Triggers & Voice Controls (Span 2) */}
-        <section className="control-card" style={{ gridColumn: 'span 2', height: '100%', minHeight: 0 }}>
+        {/* SEPARATE ROW - EXTERNAL TRIGGERS & VOICE CONTROLS */}
+        <section className="control-card" style={{ gridColumn: '1 / -1', minHeight: '560px' }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span style={{ color: 'var(--color-accent-cyan)' }}>🎙️</span>
@@ -464,7 +465,7 @@ export const App: React.FC = () => {
               STT / WEBHOOK
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minHeight: 0, padding: '1.25rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <ExternalTriggersPanel onNavigateToZone={handleNavigateToZone} />
           </div>
         </section>
