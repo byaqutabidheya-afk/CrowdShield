@@ -398,6 +398,16 @@ class CrowdTracker:
                 history = list(history_deque)[-10:]
                 if len(history) < 6:
                     continue
+                
+                # Reject tracks that teleported (likely ID switch)
+                teleported = False
+                for k in range(1, len(history)):
+                    if math.hypot(history[k][0] - history[k-1][0], history[k][1] - history[k-1][1]) > 30.0:
+                        teleported = True
+                        break
+                if teleported:
+                    continue
+
                 start_pos = history[0]
                 end_pos = history[-1]
                 dist = math.hypot(end_pos[0] - start_pos[0], end_pos[1] - start_pos[1])
@@ -405,7 +415,7 @@ class CrowdTracker:
                     fast_headings.append(_vector_heading_degrees(end_pos[0] - start_pos[0], end_pos[1] - start_pos[1]))
 
         # 3. Group scattering / panic dispersion logic
-        if len(fast_headings) >= 2:
+        if len(fast_headings) >= 5:
             max_diff = 0.0
             for i in range(len(fast_headings)):
                 for j in range(i + 1, len(fast_headings)):
@@ -413,7 +423,7 @@ class CrowdTracker:
                     if diff > max_diff:
                         max_diff = diff
             
-            if max_diff > 45.0:
+            if max_diff > 90.0:
                 # Only flag this specific zone if it actually contains at least one fast-moving person
                 zone_has_fast_track = False
                 for track in tracks_in_zone:
@@ -421,6 +431,15 @@ class CrowdTracker:
                     if t_id and t_id in self.frame_history[-1]:
                         hist = list(self.track_history.get(int(t_id), deque()))[-10:]
                         if len(hist) >= 6:
+                            # Also check teleportation for the zone track
+                            teleported = False
+                            for k in range(1, len(hist)):
+                                if math.hypot(hist[k][0] - hist[k-1][0], hist[k][1] - hist[k-1][1]) > 30.0:
+                                    teleported = True
+                                    break
+                            if teleported:
+                                continue
+                                
                             dist = math.hypot(hist[-1][0] - hist[0][0], hist[-1][1] - hist[0][1])
                             if dist > 25.0:
                                 zone_has_fast_track = True
