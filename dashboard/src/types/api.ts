@@ -169,6 +169,17 @@ export interface ProcessingStatusResponse {
   max_risk_score_seen?: number;
   active_alert_count?: number;
   active_alerts?: Array<{ zone_id: string; risk_level: string }>;
+  weather_state?: {
+    weather_risk_multiplier: number;
+    is_adverse_weather: boolean;
+    details: {
+      main: string | null;
+      description: string | null;
+      temp_c: number | null;
+      humidity: number | null;
+      wind_speed: number | null;
+    };
+  };
 }
 
 /* ==========================================================================

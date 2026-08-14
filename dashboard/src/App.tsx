@@ -11,6 +11,7 @@ import ResourceAllocationPanel from './components/ResourceAllocationPanel';
 import IncidentReportsPanel from './components/IncidentReportsPanel';
 import ExternalTriggersPanel from './components/ExternalTriggersPanel';
 import VideoSourceWidget from './components/VideoSourceWidget';
+import WeatherWidget from './components/WeatherWidget';
 
 export const App: React.FC = () => {
   // Activate live WebSocket stream
@@ -155,6 +156,9 @@ export const App: React.FC = () => {
 
         {/* Video Source Control & Viewport Mode Switcher & Telemetry Pills */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Weather Display */}
+          <WeatherWidget />
+
           {/* Video Source Selector & Preview Widget */}
           <VideoSourceWidget />
 

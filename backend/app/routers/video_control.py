@@ -219,6 +219,7 @@ async def get_processing_status() -> Dict[str, Any]:
         for z_id in orchestrator.active_alerts.keys()
     ]
 
+    from app.services import weather_service
     return {
         "is_active": orchestrator.is_processing,
         "session_id": _current_session_id,
@@ -227,4 +228,5 @@ async def get_processing_status() -> Dict[str, Any]:
         "max_risk_score_seen": round(orchestrator.max_risk_score_seen, 3),
         "active_alert_count": len(orchestrator.active_alerts),
         "active_alerts": active_alerts_list,
+        "weather_state": weather_service.get_weather_state(),
     }

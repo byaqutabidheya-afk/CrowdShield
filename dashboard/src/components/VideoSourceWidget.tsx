@@ -357,6 +357,9 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
         if (typeof res.frames_processed === 'number' && res.frames_processed > 0) {
           setCvFramesProcessed(res.frames_processed);
         }
+        if (res.weather_state) {
+          useLiveDataStore.getState().setWeatherState(res.weather_state);
+        }
       } catch {
         // Backend offline or error
       }

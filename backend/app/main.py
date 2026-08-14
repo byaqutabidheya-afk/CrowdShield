@@ -118,6 +118,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.staticfiles import StaticFiles
+
+# Ensure audio directory exists before mounting (using absolute path relative to CWD to match where the pipeline creates them)
+audio_dir = os.path.join(os.getcwd(), "ai_core", "genai_pipeline", "audio_output")
+os.makedirs(audio_dir, exist_ok=True)
+
+app.mount("/ai_core/genai_pipeline/audio_output", StaticFiles(directory=audio_dir), name="audio_output")
+
 # Include all API & WebSocket Routers
 app.include_router(incidents.router)
 app.include_router(simulations.router)

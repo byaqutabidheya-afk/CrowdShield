@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { getZones, postSignageWebhook, getSentiment, postVoiceCommand } from '../api/client';
+import { getZones, postSignageWebhook, getSentiment, postVoiceCommand, postAnnouncement } from '../api/client';
 import type {
   ZoneConfig,
   SignageWebhookResponse,
@@ -11,6 +11,15 @@ interface ExternalTriggersPanelProps {
   onNavigateToZone?: (zoneId: string) => void;
 }
 
+const getAudioUrl = (audioPath?: string | null): string | null => {
+  if (!audioPath) return null;
+  if (audioPath.startsWith('http://') || audioPath.startsWith('https://')) {
+    return audioPath;
+  }
+  const backendBase = (import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
+  return `${backendBase}/${audioPath.replace(/^\//, '')}`;
+};
+
 export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ onNavigateToZone }) => {
   // Zone list for signage dropdown
   const [zones, setZones] = useState<ZoneConfig[]>([]);
@@ -19,6 +28,12 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
   const [isSignageLoading, setIsSignageLoading] = useState<boolean>(false);
   const [signageResponse, setSignageResponse] = useState<SignageWebhookResponse | null>(null);
   const [signageError, setSignageError] = useState<string | null>(null);
+
+  // Announcements state
+  const [announcementMessage, setAnnouncementMessage] = useState<string>('Please remain calm and follow staff instructions.');
+  const [isAnnouncementLoading, setIsAnnouncementLoading] = useState<boolean>(false);
+  const [announcementResponse, setAnnouncementResponse] = useState<any>(null);
+  const [announcementError, setAnnouncementError] = useState<string | null>(null);
 
   // Sentiment Monitor state
   const [sentimentData, setSentimentData] = useState<SentimentAnalysisResponse | null>(null);
@@ -82,9 +97,28 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
     setSignageError(null);
 
     try {
+      // 1. Translate the message using the existing announcement endpoint
+      const annRes = await postAnnouncement({
+        base_message_en: signageMessage.trim(),
+        target_languages: ['hi', 'ta', 'te', 'bn', 'mr'],
+        zone_id: selectedSignageZone,
+        post_to_social: false,
+      });
+
+      // 2. Format the translated string
+      let translatedMsg = signageMessage.trim();
+      if (annRes && annRes.translations) {
+        const parts = [`[EN] ${translatedMsg}`];
+        for (const [lang, detail] of Object.entries(annRes.translations)) {
+          parts.push(`[${lang.toUpperCase()}] ${detail.text}`);
+        }
+        translatedMsg = parts.join(' | ');
+      }
+
+      // 3. Push to signage
       const res = await postSignageWebhook({
         zone_id: selectedSignageZone,
-        message: signageMessage.trim(),
+        message: translatedMsg,
         direction_arrows: ['N', 'NE'],
       });
       setSignageResponse(res);
@@ -96,7 +130,30 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
     }
   };
 
-  // 4. Voice Assistant Recording Logic
+  // 4. Multilingual Public Address (PA) Handler
+  const handleAnnouncementPush = async () => {
+    if (!announcementMessage.trim()) return;
+
+    setIsAnnouncementLoading(true);
+    setAnnouncementError(null);
+
+    try {
+      const res = await postAnnouncement({
+        base_message_en: announcementMessage.trim(),
+        target_languages: ['hi', 'ta', 'te', 'bn', 'mr'],
+        zone_id: selectedSignageZone,
+        post_to_social: true,
+      });
+      setAnnouncementResponse(res);
+    } catch (err: any) {
+      console.error('[ExternalTriggersPanel] Announcement push error:', err);
+      setAnnouncementError(err?.response?.data?.detail || err?.message || 'Failed to dispatch announcement.');
+    } finally {
+      setIsAnnouncementLoading(false);
+    }
+  };
+
+  // 5. Voice Assistant Recording Logic
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
@@ -507,6 +564,142 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
           </div>
         )}
       </div>
+
+      {/* SECTION 4: Multilingual Public Address (PA) */}
+      <div
+        style={{
+          backgroundColor: 'rgba(5, 8, 17, 0.7)',
+          border: '1px solid var(--border-panel)',
+          borderRadius: '8px',
+          padding: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-accent-cyan)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span>📢</span> Multilingual Public Address (PA)
+          </div>
+          <span style={{ fontSize: '0.62rem', color: 'var(--color-text-dim)' }} className="font-mono">
+            (GenAI Translation + Edge-TTS)
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <select
+            value={selectedSignageZone}
+            onChange={(e) => setSelectedSignageZone(e.target.value)}
+            style={{
+              backgroundColor: '#090d16',
+              border: '1px solid var(--border-input)',
+              color: 'var(--color-text-main)',
+              borderRadius: '4px',
+              padding: '0.2rem 0.5rem',
+              fontSize: '0.75rem',
+            }}
+          >
+            {zones.map((z) => (
+              <option key={z.zone_id} value={z.zone_id}>
+                Zone {z.zone_id}
+              </option>
+            ))}
+            {zones.length === 0 && <option value="zone_A1">Zone A1</option>}
+          </select>
+
+          <input
+            type="text"
+            value={announcementMessage}
+            onChange={(e) => setAnnouncementMessage(e.target.value)}
+            placeholder="Type base English message..."
+            style={{
+              flex: 1,
+              backgroundColor: '#090d16',
+              border: '1px solid var(--border-input)',
+              color: 'var(--color-text-main)',
+              borderRadius: '4px',
+              padding: '0.4rem 0.6rem',
+              fontSize: '0.75rem',
+              fontFamily: 'var(--font-mono)',
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
+          <button
+            onClick={handleAnnouncementPush}
+            disabled={isAnnouncementLoading || !announcementMessage.trim()}
+            style={{
+              backgroundColor: 'rgba(6, 182, 212, 0.15)',
+              border: '1px solid var(--color-accent-cyan)',
+              color: 'var(--color-accent-cyan)',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              padding: '0.4rem 0.85rem',
+              borderRadius: '4px',
+              cursor: isAnnouncementLoading ? 'not-allowed' : 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {isAnnouncementLoading ? 'Synthesizing Audio...' : 'Broadcast Announcement'}
+          </button>
+        </div>
+
+        {/* Announcement Result: TTS Audio Players & Previews */}
+        {announcementResponse && (
+          <div
+            style={{
+              marginTop: '0.6rem',
+              padding: '0.6rem',
+              backgroundColor: '#090d16',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              borderRadius: '6px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+            }}
+          >
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#10b981' }} className="font-mono">
+              ✓ Announcement Synthesized & Dispatched
+            </div>
+
+            {/* TTS Audio Player per Language */}
+            {announcementResponse.translations && Object.keys(announcementResponse.translations).length > 0 && (
+              <div>
+                <div style={{ fontSize: '0.65rem', color: 'var(--color-text-dim)', marginBottom: '0.25rem' }} className="font-mono">
+                  TTS AUDIO BROADCAST PREVIEWS:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  {Object.entries(announcementResponse.translations).map(([lang, detail]: [string, any]) => {
+                    const playableUrl = getAudioUrl(detail.audio_path);
+                    return (
+                      <div key={lang} style={{ fontSize: '0.7rem', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                        <span style={{ color: 'var(--color-accent-blue)', fontWeight: 600 }} className="font-mono">
+                          [{lang.toUpperCase()}] "{detail.text}"
+                        </span>
+                        {playableUrl ? (
+                          <audio controls src={playableUrl} style={{ height: '28px', width: '100%' }} />
+                        ) : (
+                          <span style={{ fontSize: '0.65rem', color: 'var(--color-text-dim)' }}>
+                            (Audio file synthesized)
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {announcementError && (
+          <div style={{ fontSize: '0.7rem', color: '#ef4444' }}>
+            ⚠️ {announcementError}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 };

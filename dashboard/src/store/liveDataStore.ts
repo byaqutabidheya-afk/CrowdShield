@@ -27,6 +27,18 @@ export interface LiveDataState {
   setIncidentReports: (reports: IncidentReport[]) => void;
   dismissAlert: (alertIdOrZoneId: string) => void;
   clearAlerts: () => void;
+  weatherState?: {
+    weather_risk_multiplier: number;
+    is_adverse_weather: boolean;
+    details: {
+      main: string | null;
+      description: string | null;
+      temp_c: number | null;
+      humidity: number | null;
+      wind_speed: number | null;
+    };
+  };
+  setWeatherState: (weatherState: any) => void;
 }
 
 export const useLiveDataStore = create<LiveDataState>((set, get) => ({
@@ -37,6 +49,12 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
   resourceAllocationSuggestions: [],
   incidentReports: [],
   connectionStatus: 'connecting',
+  weatherState: undefined,
+
+  // Set weather state
+  setWeatherState: (weatherState: any) => {
+    set({ weatherState });
+  },
 
   // Set WebSocket connection status
   setConnectionStatus: (status: ConnectionStatus) => {
