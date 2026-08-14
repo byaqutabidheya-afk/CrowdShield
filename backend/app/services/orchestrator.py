@@ -294,7 +294,7 @@ class EventOrchestrator:
 
                         # Insert alert record into Supabase
                         alert_id = await asyncio.to_thread(
-                            supabase_client.insert_alert, alert_record
+                            supabase_client.insert_risk_alert, alert_record
                         )
                         if alert_id:
                             alert_record["id"] = alert_id

@@ -203,6 +203,11 @@ class RiskScorer:
             + weighted_anomaly
         )
 
+        # Critical override: if a bottleneck is detected, it is a high-risk situation
+        # regardless of YOLO density score (e.g., flow-only surge without detected persons).
+        if bottleneck_score > 0.0:
+            risk_score = max(risk_score, 0.75)
+
         return {
             "risk_score": risk_score,
             "risk_level": self._risk_level(risk_score),

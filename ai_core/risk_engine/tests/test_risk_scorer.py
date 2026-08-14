@@ -33,10 +33,10 @@ def test_compute_risk_score_applies_configured_weights() -> None:
         zone_frame_data, [zone_frame_data], {"zone_A1": []}
     )
 
-    expected_score = 0.35 * 0.6 + 0.25 * 0.2 + 0.20 * 0.75 + 0.15 * 1.0 + 0.05 * (2 / 3)
+    expected_score = max(0.35 * 0.6 + 0.25 * 0.2 + 0.20 * 0.75 + 0.15 * 1.0 + 0.05 * (2 / 3), 0.75)
 
     assert math.isclose(result["risk_score"], expected_score, rel_tol=1e-9)
-    assert result["risk_level"] == "high"
+    assert result["risk_level"] == "critical"
     assert result["contributing_factors"]["density_score"] == 0.6
     assert result["contributing_factors"]["density_rate_of_change"] == 0.2
     assert result["contributing_factors"]["flow_convergence_score"] == 0.75
