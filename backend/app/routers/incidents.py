@@ -55,6 +55,7 @@ async def create_incident_report(report: IncidentReportCreate) -> Dict[str, Any]
             "photo_url": report_dict.get("photo_url"),
             "notes": report_dict.get("notes"),
             "ai_summary": report_dict.get("ai_summary"),
+            "client_device_id": report_dict.get("client_device_id"),
         }
 
     return created_record
@@ -70,13 +71,14 @@ async def list_incident_reports(
     source: Optional[str] = Query(
         None, description="Filter by report source ('citizen' or 'ai_generated')"
     ),
+    client_device_id: Optional[str] = Query(None, description="Filter by client device ID"),
 ) -> List[Dict[str, Any]]:
     """
-    Lists recent incident reports with optional filtering by zone_id and/or source.
+    Lists recent incident reports with optional filtering by zone_id, source, and/or client_device_id.
     Backs the IncidentReportsPanel source-filter toggle in the dashboard.
     """
-    logger.info(f"Listing incident reports with zone_id='{zone_id}', source='{source}'.")
-    reports = supabase_client.get_incident_reports(zone_id=zone_id, source=source)
+    logger.info(f"Listing incident reports with zone_id='{zone_id}', source='{source}', client_device_id='{client_device_id}'.")
+    reports = supabase_client.get_incident_reports(zone_id=zone_id, source=source, client_device_id=client_device_id)
     return reports
 
 

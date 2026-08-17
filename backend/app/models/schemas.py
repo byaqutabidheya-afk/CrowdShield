@@ -139,6 +139,7 @@ class IncidentReportBase(BaseModel):
     photo_url: Optional[str] = None
     notes: str
     ai_summary: Optional[Dict[str, Any]] = None
+    client_device_id: Optional[str] = None
 
 
 class IncidentReportCreate(IncidentReportBase):

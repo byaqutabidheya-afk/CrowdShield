@@ -151,10 +151,10 @@ def insert_incident_report(report: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 
 def get_incident_reports(
-    zone_id: Optional[str] = None, source: Optional[str] = None
+    zone_id: Optional[str] = None, source: Optional[str] = None, client_device_id: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
-    Query incident reports, optionally filtered by zone_id and/or source.
+    Query incident reports, optionally filtered by zone_id, source, and/or client_device_id.
     """
     client = get_supabase_client()
     if not client:
@@ -167,6 +167,8 @@ def get_incident_reports(
             query = query.eq("zone_id", zone_id)
         if source:
             query = query.eq("source", source)
+        if client_device_id:
+            query = query.eq("client_device_id", client_device_id)
         response = query.order("submitted_at", desc=True).execute()
         return response.data or []
     except Exception as e:

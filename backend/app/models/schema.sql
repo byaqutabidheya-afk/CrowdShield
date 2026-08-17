@@ -72,7 +72,8 @@ CREATE TABLE IF NOT EXISTS incident_reports (
     gps_coordinates jsonb,
     photo_url text,
     notes text NOT NULL,
-    ai_summary jsonb
+    ai_summary jsonb,
+    client_device_id text
 );
 
 -- 6. interventions

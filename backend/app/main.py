@@ -105,12 +105,20 @@ app = FastAPI(
 allowed_origins_env = os.getenv("CORS_ORIGINS", "")
 allowed_origins = [
     "http://localhost:5173",   # Vite dev dashboard
+    "http://localhost:5174",   # Citizen PWA dev
     "http://localhost:3000",   # Next/React dashboard
     "http://localhost:8081",   # Expo React Native
     "http://localhost:19006",  # Expo Web
     "http://127.0.0.1:5173",
     "http://127.0.0.1:3000",
 ]
+
+citizen_pwa_origin_env = os.getenv("CITIZEN_PWA_ORIGIN", "")
+if citizen_pwa_origin_env:
+    for origin in citizen_pwa_origin_env.split(","):
+        o = origin.strip()
+        if o and o not in allowed_origins:
+            allowed_origins.append(o)
 
 if allowed_origins_env:
     for origin in allowed_origins_env.split(","):
