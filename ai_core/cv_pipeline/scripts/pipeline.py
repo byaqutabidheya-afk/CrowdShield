@@ -149,7 +149,10 @@ def _count_opposing_vectors(
 
     dot_product = fx * corridor_vec[0] + fy * corridor_vec[1]
     corridor_mag = math.hypot(corridor_vec[0], corridor_vec[1])
-    cos_theta = dot_product / (magnitudes * corridor_mag)
+    denominator = magnitudes * corridor_mag
+    valid_mask = denominator > 1e-6
+    cos_theta = np.zeros_like(dot_product)
+    cos_theta[valid_mask] = dot_product[valid_mask] / denominator[valid_mask]
     opposing = int(np.sum((magnitudes >= MIN_VELOCITY) & (cos_theta < COSINE_THRESHOLD)))
 
     return opposing

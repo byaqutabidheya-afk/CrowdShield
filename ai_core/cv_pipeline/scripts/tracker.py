@@ -70,7 +70,7 @@ class CrowdTracker:
     """ByteTrack-backed tracker with rolling motion history and anomaly flags."""
 
     min_directional_speed: float = 0.15
-    min_bottleneck_density: float = 0.12
+    min_bottleneck_density: float = 0.10
     min_bottleneck_crowd_count: int = 3
 
     MIN_REVERSE_VELOCITY: float = 0.8
@@ -82,24 +82,18 @@ class CrowdTracker:
     BOTTLENECK_STALL_SPEED: float = 0.01
     BOTTLENECK_PREVIOUS_SPEED: float = 0.02
     BOTTLENECK_FLOW_CONTRAST: float = 0.01
-    BOTTLENECK_SPEED_DROP_RATIO: float = 0.45
-    BOTTLENECK_MIN_ROLLING_SPEED: float = 0.04
+    BOTTLENECK_SPEED_DROP_RATIO: float = 0.40
+    BOTTLENECK_MIN_ROLLING_SPEED: float = 0.03
 
-    # Flow-only bottleneck path (fires when YOLO detects no persons but optical flow
-    # shows a sustained high-magnitude, high-variance surge pattern).
-    # Raw-space thresholds (pixels per frame before OpticalFlowAnalyzer normalisation).
-    FLOW_BOTTLENECK_MIN_ROLLING_RAW: float = (
-        0.10  # rolling avg raw speed that signals prior surge activity
-    )
-    FLOW_BOTTLENECK_MIN_CURRENT_RAW: float = (
-        0.05  # current raw speed must also be high (active surge)
-    )
-    FLOW_BOTTLENECK_MIN_VARIANCE: float = (
-        2.0  # spatial variance must be elevated (chaotic compression)
-    )
-    FLOW_BOTTLENECK_PERSISTENCE: int = (
-        5  # consecutive qualifying samples before triggering
-    )
+    # Zigzag sub-pixel jitter filter thresholds
+    MIN_ZIGZAG_SEGMENT_SPEED: float = 1.0
+    MIN_ZIGZAG_TRACK_DIST: float = 5.0
+
+    # Flow-only bottleneck path fallback thresholds
+    FLOW_BOTTLENECK_MIN_ROLLING_RAW: float = 1.50
+    FLOW_BOTTLENECK_MIN_CURRENT_RAW: float = 0.80
+    FLOW_BOTTLENECK_MIN_VARIANCE: float = 4.0
+    FLOW_BOTTLENECK_PERSISTENCE: int = 5
 
     def __init__(self, model_path: Path | str | None = None) -> None:
         model_path = (
@@ -146,7 +140,7 @@ class CrowdTracker:
             persist=True,
             tracker="bytetrack.yaml",
             verbose=False,
-            imgsz=1280,
+            imgsz=640,
             conf=0.10,
             iou=0.80,
             classes=[0],
@@ -367,6 +361,10 @@ class CrowdTracker:
                 continue
 
             # 1. Individual zigzag logic
+            total_disp = math.hypot(history[-1][0] - history[0][0], history[-1][1] - history[0][1])
+            if total_disp < self.MIN_ZIGZAG_TRACK_DIST:
+                continue
+
             smoothed_history = _smoothed_positions(history, window_size=3)
             if len(smoothed_history) >= 4:
                 headings: list[float] = []
@@ -375,7 +373,8 @@ class CrowdTracker:
                 ):
                     dx = current[0] - previous[0]
                     dy = current[1] - previous[1]
-                    if dx != 0.0 or dy != 0.0:
+                    speed = _segment_speed(dx, dy)
+                    if speed >= self.MIN_ZIGZAG_SEGMENT_SPEED:
                         headings.append(_vector_heading_degrees(dx, dy))
 
                 if len(headings) >= 4:
