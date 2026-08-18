@@ -1,0 +1,102 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { showLocalNotification } from '../services/push';
+import { getTranslation } from '../i18n/translations';
+
+export interface Location {
+  lat: number;
+  lng: number;
+}
+
+export interface ZoneRisk {
+  zone_id: string;
+  risk_score: number;
+  risk_level: string;
+  contributing_factors: Record<string, number>;
+}
+
+export interface Recommendation {
+  action: string;
+  category: string;
+  urgency: string;
+  reasoning: string;
+}
+
+export interface Alert {
+  zone_id: string;
+  risk_level?: 'low' | 'moderate' | 'high' | 'critical' | string;
+  timestamp?: string;
+  message?: {
+    en?: string;
+    [key: string]: string | undefined;
+  };
+  recommendations: Recommendation[];
+}
+
+export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
+
+interface AppState {
+  userLocation: Location | null;
+  activeZoneRisks: ZoneRisk[];
+  selectedLanguage: string;
+  activeAlerts: Alert[];
+  connectionStatus: ConnectionStatus;
+  clientDeviceId: string;
+  geofenceStatus: {
+    inDangerZone: boolean;
+    nearestDangerZoneId: string | null;
+    distanceMeters: number | null;
+  } | null;
+
+  // Actions
+  setUserLocation: (location: Location | null) => void;
+  setActiveZoneRisks: (risks: ZoneRisk[]) => void;
+  setSelectedLanguage: (lang: string) => void;
+  setActiveAlerts: (alerts: Alert[]) => void;
+  addAlert: (alert: Alert) => void;
+  setConnectionStatus: (status: ConnectionStatus) => void;
+  setGeofenceStatus: (status: AppState['geofenceStatus']) => void;
+}
+
+export const useAppStore = create<AppState>()(
+  persist(
+    (set, get) => ({
+      userLocation: null,
+      activeZoneRisks: [],
+      selectedLanguage: 'en',
+      activeAlerts: [],
+      connectionStatus: 'disconnected',
+      clientDeviceId: crypto.randomUUID(),
+      geofenceStatus: null,
+
+      setUserLocation: (location) => set({ userLocation: location }),
+      setActiveZoneRisks: (risks) => set({ activeZoneRisks: risks }),
+      setSelectedLanguage: (lang) => set({ selectedLanguage: lang }),
+      setActiveAlerts: (alerts) => set({ activeAlerts: alerts }),
+      addAlert: (alert) => set((state) => ({ activeAlerts: [...state.activeAlerts, alert] })),
+      setConnectionStatus: (status) => set({ connectionStatus: status }),
+      setGeofenceStatus: (status) => {
+        const state = get();
+        const currentZone = state.geofenceStatus?.inDangerZone ? state.geofenceStatus.nearestDangerZoneId : null;
+        const newZone = status?.inDangerZone ? status.nearestDangerZoneId : null;
+
+        // Transition: entering a danger zone (either from safe, or moving directly to a different danger zone)
+        if (newZone && currentZone !== newZone) {
+          const title = getTranslation(state.selectedLanguage, 'alerts');
+          const body = getTranslation(state.selectedLanguage, 'nearHighRiskZone');
+          showLocalNotification(title, `${body} (${newZone})`);
+        }
+
+        set({ geofenceStatus: status });
+      },
+    }),
+    {
+      name: 'citizen-app-storage',
+      // Only persist selectedLanguage and clientDeviceId to localStorage
+      partialize: (state) => ({
+        selectedLanguage: state.selectedLanguage,
+        clientDeviceId: state.clientDeviceId,
+      }),
+    }
+  )
+);
