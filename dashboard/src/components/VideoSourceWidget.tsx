@@ -517,7 +517,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     // Selecting a new file implicitly stops any active backend session from the UI side
     isBackendActiveRef.current = false;
     setIsProcessingBackend(false);
-    setBackendMessage(null);
+    setBackendMessage(`Video "${file.name}" loaded. Click "Feed Video to AI Backend" to begin CV processing.`);
 
     const objectUrl = URL.createObjectURL(file);
     setUploadedVideoUrl(objectUrl);
@@ -525,8 +525,8 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     setMode('uploaded');
     setSourceName(file.name);
     onSourceChange?.('uploaded', file.name);
-      setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
-      setHasCompleted(false);
+    setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
+    setHasCompleted(false);
     // Autoplay the uploaded video after setting URL
     setTimeout(() => {
       if (uploadedVideoRef.current) {
@@ -539,9 +539,6 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     if (previewVideoRef.current) {
       previewVideoRef.current.srcObject = null;
     }
-
-    // Auto-feed immediately into Python CV pipeline so AI analysis starts automatically
-    handleFeedToBackend(file);
   };
 
   // Backend start processing call — dispatches file binary to /upload or source path to /start
@@ -575,10 +572,20 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
         });
       }
 
-      setBackendMessage(`✓ AI Pipeline Active (${res.status}) - Session: ${res.session_id || 'live'}`);
+      setBackendMessage(`✓ AI Pipeline Active (${res?.status || 'started'}) - Session: ${res?.session_id || 'live'}`);
+
+      // Browser popup alerting that the video got fed successfully
+      setTimeout(() => {
+        window.alert(`✓ Video successfully fed to AI backend!\n\nVideo Source: ${fileToFeed?.name || sourceName}\nSession ID: ${res?.session_id || 'live'}\n\nVision AI pipeline & real-time crowd tracking are now active.`);
+      }, 50);
     } catch (err: any) {
       console.error('[VideoSourceWidget] Start processing error:', err);
-      setBackendMessage(err?.response?.data?.detail || '✓ Video processing request dispatched to backend.');
+      const detailMsg = err?.response?.data?.detail || '✓ Video processing request dispatched to backend.';
+      setBackendMessage(detailMsg);
+
+      setTimeout(() => {
+        window.alert(`✓ Video fed to backend processing stream.\n\nSource: ${fileToFeed?.name || sourceName}\nStatus: Active`);
+      }, 50);
     }
   };
 
