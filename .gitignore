@@ -26,6 +26,9 @@ Thumbs.db
 ai_core/cv_pipeline/models/*.pt
 demo/videos/*.mp4
 ai_core/cv_pipeline/sample_videos/*.mp4
+ai_core/genai_pipeline/audio_output/
+*.mp3
+*.wav
 
 # IDE
 .vscode/
@@ -36,3 +39,4 @@ backend/crowdshield-bd6cd-firebase-adminsdk-fbsvc-529295d0fd.json
 
 #Importand commads for reference
 imp_commands.md
+
