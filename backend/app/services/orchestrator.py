@@ -164,24 +164,37 @@ class EventOrchestrator:
 
     async def run_live_processing(
         self,
-        video_source: str | Path,
-        zones: List[Any],
-        venue_id: str,
-        websocket_manager: Any,
+        video_source: str,
+        zones: List[Dict[str, Any]],
+        venue_id: str = "test_venue",
+        websocket_manager: Any = None,
         sample_every_n_frames: int = 3,
         target_fps: float = 10.0,
+        session_id: Optional[str] = None,
     ) -> None:
         """
         Main processing loop iterating over CVPipeline stream, scoring with RiskEngine,
         applying weather multiplier, writing metrics to Supabase, handling GenAI recommendations,
         and broadcasting combined frame packets over WebSockets.
         """
-        logger.info(f"Starting live orchestrator loop for venue '{venue_id}' with video '{video_source}'.")
-
+        active_session = session_id or uuid.uuid4().hex
+        self.current_session_id = active_session
         self.is_processing = True
         self.start_time = datetime.now(timezone.utc)
         self.frames_processed = 0
         self.max_risk_score_seen = 0.0
+        self.active_alerts.clear()
+        self.previous_zone_risk_levels.clear()
+
+        logger.info(
+            f"Starting live orchestrator session '{active_session}' for venue '{venue_id}' with video '{video_source}'."
+        )
+
+        try:
+            from ai_core.risk_engine.scripts.pipeline import RiskEngine
+            self.risk_engine = RiskEngine()
+        except Exception:
+            pass
 
         # a) Normalize zones and instantiate CVPipeline
         normalized_zones = _normalize_zones(zones)
@@ -207,24 +220,39 @@ class EventOrchestrator:
             f"Venue '{venue_id}' diffusion_rate={venue_diffusion_rate}, decay_rate={venue_decay_rate}."
         )
 
-        # b) Obtain Phase 1 streaming generator
-        frame_generator = cv_pipeline.process_video(
-            video_path=video_source,
-            sample_every_n_frames=sample_every_n_frames,
-            mode="stream",
-        )
+        # b) Obtain Phase 1 streaming generator with seamless continuous looping
+        def _create_generator():
+            return cv_pipeline.process_video(
+                video_path=video_source,
+                sample_every_n_frames=sample_every_n_frames,
+                mode="stream",
+            )
 
-        sleep_interval = 1.0 / max(1.0, target_fps)
+        frame_generator = _create_generator()
 
         try:
-            for cv_frame in frame_generator:
+            while self.is_processing and self.current_session_id == active_session:
+                cv_frame = await asyncio.to_thread(lambda: next(frame_generator, None))
+                if self.current_session_id != active_session:
+                    logger.info(f"Session '{active_session}' superseded by '{self.current_session_id}'. Exiting old loop.")
+                    break
+
+                if cv_frame is None:
+                    # Seamlessly loop back to start of video for continuous live CCTV surveillance
+                    logger.info(f"Session '{active_session}' reached end of file. Seamlessly looping video.")
+                    frame_generator = _create_generator()
+                    cv_frame = await asyncio.to_thread(lambda: next(frame_generator, None))
+                    if cv_frame is None or self.current_session_id != active_session:
+                        break
+
                 if not isinstance(cv_frame, dict):
                     continue
 
                 self.frames_processed += 1
 
                 # c) Process frame via RiskEngine using venue-specific tuning parameters
-                risk_output = self.risk_engine.process_frame(
+                risk_output = await asyncio.to_thread(
+                    self.risk_engine.process_frame,
                     cv_frame,
                     diffusion_rate=venue_diffusion_rate,
                     decay_rate=venue_decay_rate,
@@ -334,39 +362,69 @@ class EventOrchestrator:
                     if escalated:
                         logger.warning(
                             f"Zone '{z_id}' escalated from '{prev_level}' to '{curr_level}'. "
-                            f"Generating GenAI recommendations."
+                            f"Triggering active alert."
                         )
 
                         neighbor_zones = [
                             rz for rz in risk_data.get("zones", []) if rz.get("zone_id") != z_id
                         ]
-                        rec_output = await asyncio.to_thread(
-                            self.genai.recommendation_engine.generate_recommendations,
-                            risk_zone,
-                            neighbor_zones,
-                        )
 
-                        recommendations = rec_output.get("recommendations", [])
+                        try:
+                            from ai_core.genai_pipeline.scripts.recommendation_engine import _generate_contextual_fallback
+                            initial_recs = _generate_contextual_fallback(risk_zone)
+                        except Exception:
+                            initial_recs = [
+                                {
+                                    "action": f"Deploy crowd stewards to monitor {z_id} immediately.",
+                                    "category": "crowd_control",
+                                    "urgency": "immediate" if curr_level == "critical" else "soon",
+                                    "reasoning": f"Elevated crowd risk level ({curr_level}) observed.",
+                                }
+                            ]
+
                         alert_record = {
                             "zone_id": z_id,
                             "triggered_at": frame_timestamp,
-                            "risk_level": curr_level,
+                            "risk_level_at_trigger": curr_level,
                             "peak_risk_score": float(risk_zone.get("risk_score", 0.0)),
-                            "recommendations": recommendations,
+                            "recommendations": initial_recs,
                         }
-
-                        # Insert alert record into Supabase
-                        alert_id = await asyncio.to_thread(
-                            supabase_client.insert_risk_alert, alert_record
-                        )
-                        if alert_id:
-                            alert_record["id"] = alert_id
-                            self.active_alerts[z_id] = alert_id
 
                         new_alerts_this_frame.append(alert_record)
 
-                        # Trigger FCM push notification hook for mobile devices
-                        await self._trigger_push_notification_hook(alert_record)
+                        # Offload Supabase insertion, FCM push notification, and LLM enhancement to background task
+                        async def _handle_alert_background(
+                            rec_alert: Dict[str, Any],
+                            target_zone_id: str,
+                            r_zone: Dict[str, Any],
+                            n_zones: List[Dict[str, Any]],
+                        ):
+                            try:
+                                try:
+                                    llm_out = await asyncio.to_thread(
+                                        self.genai.recommendation_engine.generate_recommendations,
+                                        r_zone,
+                                        n_zones,
+                                    )
+                                    if llm_out and llm_out.get("recommendations"):
+                                        rec_alert["recommendations"] = llm_out["recommendations"]
+                                except Exception:
+                                    pass
+
+                                alert_id = await asyncio.to_thread(
+                                    supabase_client.insert_risk_alert, rec_alert
+                                )
+                                if alert_id:
+                                    rec_alert["id"] = alert_id
+                                    self.active_alerts[target_zone_id] = alert_id
+
+                                await self._trigger_push_notification_hook(rec_alert)
+                            except Exception as err:
+                                logger.warning(f"Background alert task failed for zone '{target_zone_id}': {err}")
+
+                        asyncio.create_task(
+                            _handle_alert_background(alert_record, z_id, dict(risk_zone), list(neighbor_zones))
+                        )
 
                     # Update tracked risk level for transition detection
                     self.previous_zone_risk_levels[z_id] = curr_level
@@ -381,8 +439,8 @@ class EventOrchestrator:
                 # Broadcast combined frame over WebSocket
                 await websocket_manager.broadcast(combined_payload)
 
-                # Maintain target streaming frame rate
-                await asyncio.sleep(sleep_interval)
+                # Quick async yield to keep event loop responsive
+                await asyncio.sleep(0.01)
 
         except asyncio.CancelledError:
             logger.info("Processing loop task was cancelled.")
@@ -390,5 +448,8 @@ class EventOrchestrator:
         except Exception as e:
             logger.error(f"Unexpected error in live orchestrator loop: {e}", exc_info=True)
         finally:
-            self.is_processing = False
-            logger.info("Live orchestrator processing loop stopped.")
+            if self.current_session_id == active_session:
+                self.is_processing = False
+                logger.info(f"Live orchestrator session '{active_session}' stopped.")
+            else:
+                logger.info(f"Stale orchestrator session '{active_session}' finalized without stopping active session '{self.current_session_id}'.")

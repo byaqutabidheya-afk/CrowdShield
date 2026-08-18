@@ -207,7 +207,11 @@ class CVPipeline:
     ) -> Iterator[dict[str, Any]]:
         self._reset_runtime_state()
 
-        capture = cv2.VideoCapture(str(video_path))
+        v_src: Any = str(video_path)
+        if str(video_path).strip().isdigit():
+            v_src = int(str(video_path).strip())
+
+        capture = cv2.VideoCapture(v_src)
         if not capture.isOpened():
             raise RuntimeError(f"Could not open video: {video_path}")
 

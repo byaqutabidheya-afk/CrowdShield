@@ -26,19 +26,46 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-FALLBACK_RECOMMENDATIONS: list[dict[str, str]] = [
-    {
-        "action": "Increase monitoring of this zone",
-        "category": "crowd_control",
-        "urgency": "soon",
-        "reasoning": "Generic fallback recommendation due to invalid LLM output or API failure.",
-    }
-]
+def _generate_contextual_fallback(zone_risk_data: dict[str, Any]) -> list[dict[str, str]]:
+    factors = zone_risk_data.get("contributing_factors", {})
+    recs = []
+    zone_id = zone_risk_data.get("zone_id", "Zone")
+    risk_level = str(zone_risk_data.get("risk_level", "high")).lower()
+
+    if factors.get("bottleneck_indicator", 0) > 0.3:
+        recs.append({
+            "action": f"Deploy crowd marshals to open secondary egress and clear bottlenecks in {zone_id}.",
+            "category": "crowd_control",
+            "urgency": "immediate" if risk_level == "critical" else "soon",
+            "reasoning": f"Severe bottleneck accumulation detected in {zone_id}."
+        })
+    if factors.get("flow_convergence_score", 0) > 0.3 or factors.get("reverse_flow_indicator", 0) > 0.3:
+        recs.append({
+            "action": f"Erect directional barrier stanchions at {zone_id} transition point.",
+            "category": "flow_management",
+            "urgency": "immediate" if risk_level == "critical" else "soon",
+            "reasoning": f"Counter-flow opposing vectors causing turbulent crowd pressure in {zone_id}."
+        })
+    if factors.get("density_score", 0) > 0.2:
+        recs.append({
+            "action": f"Broadcast automated crowd redistribution announcement to divert incoming flow from {zone_id}.",
+            "category": "communication",
+            "urgency": "soon",
+            "reasoning": f"Density exceeding safety margins in {zone_id}."
+        })
+    if not recs:
+        recs.append({
+            "action": f"Deploy secondary safety stewards to monitor {zone_id}.",
+            "category": "resource_deployment",
+            "urgency": "soon",
+            "reasoning": f"Elevated crowd risk level ({risk_level}) observed in {zone_id}."
+        })
+    return recs
 
 
 class RecommendationEngine:
     """
-    Generates actionable crowd-control recommendations using LLMClient.
+    Generates actionable crowd-control recommendations using LLMClient with fast rule-based fallback.
     """
 
     def __init__(self, llm_client: LLMClient | None = None) -> None:
@@ -49,21 +76,6 @@ class RecommendationEngine:
         zone_risk_data: dict[str, Any],
         neighbor_zones_data: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        """
-        Generate 2-4 tactical recommendations for a given zone.
-
-        Parameters
-        ----------
-        zone_risk_data : dict
-            Dict containing 'zone_id', 'risk_level', 'contributing_factors', etc.
-        neighbor_zones_data : list[dict] | None
-            Optional list of neighboring zone states for broader context.
-
-        Returns
-        -------
-        dict
-            Dict matching the specified recommendation schema.
-        """
         zone_id = zone_risk_data.get("zone_id", "unknown_zone")
         risk_level = zone_risk_data.get("risk_level", "unknown")
         now_iso = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -80,12 +92,12 @@ class RecommendationEngine:
             raw_response = self.client.generate_json(prompt, schema_hint)
             validated_recs = self._validate_and_format_recommendations(raw_response)
         except Exception as exc:
-            logger.warning(
-                "Recommendation generation failed for zone %s: %s. Falling back to default recommendation.",
+            logger.info(
+                "Recommendation generation used contextual fallback for %s (%s)",
                 zone_id,
                 exc,
             )
-            validated_recs = FALLBACK_RECOMMENDATIONS
+            validated_recs = _generate_contextual_fallback(zone_risk_data)
 
         return {
             "zone_id": zone_id,

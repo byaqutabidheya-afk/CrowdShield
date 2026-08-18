@@ -76,25 +76,28 @@ export default function AlertsScreen({ onNavigateToMap }: AlertsScreenProps) {
           {isRefreshing ? '↻...' : '↻ Refresh'}
         </button>
       </div>
+      {/* Geofence Status Header */}
+      <div style={{ marginBottom: '16px' }}>
+        <h3 style={{ fontSize: '1rem', marginBottom: '8px', color: 'var(--text-color)' }}>Your Location Status</h3>
 
-      {(geofenceStatus?.inDangerZone || (geofenceStatus?.distanceMeters !== null && geofenceStatus!.distanceMeters < 50)) && (
-        <div style={{
-          backgroundColor: 'var(--error-color)',
-          color: 'white',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.2)'
-        }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '1.25rem' }}>🚨</span>
-            <strong style={{ fontSize: '0.875rem', lineHeight: 1.4 }}>
-              {getTranslation(selectedLanguage, 'nearHighRiskZone')}. Consider moving to a safer area.
-            </strong>
-          </div>
+        {(geofenceStatus?.inDangerZone || (geofenceStatus != null && geofenceStatus.distanceMeters != null && geofenceStatus.distanceMeters < 50)) && (
+          <div style={{
+            backgroundColor: 'var(--error-color)',
+            color: 'white',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.2)'
+          }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '1.25rem' }}>🚨</span>
+              <strong style={{ fontSize: '0.875rem', lineHeight: 1.4 }}>
+                {getTranslation(selectedLanguage, 'nearHighRiskZone')}. Consider moving to a safer area.
+              </strong>
+            </div>
           {onNavigateToMap && (
             <button 
               onClick={onNavigateToMap}
@@ -115,6 +118,7 @@ export default function AlertsScreen({ onNavigateToMap }: AlertsScreenProps) {
           )}
         </div>
       )}
+      </div>
 
       {sortedAlerts.length === 0 ? (
         <div style={{ 

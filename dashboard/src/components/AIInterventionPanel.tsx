@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLiveDataStore } from '../store/liveDataStore';
 import { postAnnouncement, postIntervention } from '../api/client';
 import type { AlertData, AnnouncementResponse, InterventionRecord } from '../types/api';
+import { AudioAnnouncementPlayer } from './AudioAnnouncementPlayer';
 
 // Risk Level Badge Colors (as mandated by dashboard spec)
 const getRiskBadgeColor = (riskLevel: string = 'low'): string => {
@@ -16,17 +17,6 @@ const getRiskBadgeColor = (riskLevel: string = 'low'): string => {
     default:
       return '#22c55e'; // low green
   }
-};
-
-// Helper to construct full playable audio URL
-const getAudioUrl = (audioPath?: string | null): string | null => {
-  if (!audioPath) return null;
-  if (audioPath.startsWith('http://') || audioPath.startsWith('https://')) {
-    return audioPath;
-  }
-  const backendBase = (import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api').replace(/\/api\/?$/, '');
-  const cleanPath = audioPath.replace(/\\/g, '/').replace(/^\//, '');
-  return `${backendBase}/${cleanPath}`;
 };
 
 export const AIInterventionPanel: React.FC = () => {
@@ -378,24 +368,25 @@ export const AIInterventionPanel: React.FC = () => {
                                   <div style={{ fontSize: '0.65rem', color: 'var(--color-text-dim)', marginBottom: '0.25rem' }} className="font-mono">
                                     TTS AUDIO BROADCAST PREVIEWS:
                                   </div>
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                                    {Object.entries(bState.data.translations).map(([lang, detail]) => {
-                                      const playableUrl = getAudioUrl(detail.audio_path);
-                                      return (
-                                        <div key={lang} style={{ fontSize: '0.7rem', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                                          <span style={{ color: 'var(--color-accent-blue)', fontWeight: 600 }} className="font-mono">
-                                            [{lang.toUpperCase()}] "{detail.text}"
-                                          </span>
-                                          {playableUrl ? (
-                                            <audio controls src={playableUrl} style={{ height: '28px', width: '100%' }} />
-                                          ) : (
-                                            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-dim)' }}>
-                                              (Audio file synthesized)
-                                            </span>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
+                                  <div
+                                    style={{
+                                      maxHeight: '220px',
+                                      overflowY: 'auto',
+                                      overflowX: 'hidden',
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      gap: '0.45rem',
+                                      paddingRight: '0.25rem',
+                                    }}
+                                  >
+                                    {Object.entries(bState.data.translations).map(([lang, detail]: [string, any]) => (
+                                      <AudioAnnouncementPlayer
+                                        key={lang}
+                                        languageCode={lang}
+                                        text={detail.text}
+                                        audioUrl={detail.audio_path}
+                                      />
+                                    ))}
                                   </div>
                                 </div>
                               )}

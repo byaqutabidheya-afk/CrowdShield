@@ -308,10 +308,20 @@ class LLMClient:
                 status_code: int | None = getattr(exc, "status_code", None) or getattr(
                     exc, "code", None
                 )
+                
+                # If daily quota is exhausted, fail fast to allow instant fallback without hanging
+                if "RESOURCE_EXHAUSTED" in str(exc) or status_code == 429 or "quota" in str(exc).lower():
+                    logger.warning(
+                        "Gemini quota exhausted or 429 rate limit. Failing fast to local fallback: %s",
+                        exc,
+                    )
+                    raise LLMClientError(
+                        f"Gemini API quota exhausted (status={status_code}): {exc}",
+                        cause=exc,
+                    ) from exc
+
                 is_retryable = (
                     status_code in _RETRYABLE_HTTP_CODES
-                    or "quota" in str(exc).lower()
-                    or "rate" in str(exc).lower()
                     or "unavailable" in str(exc).lower()
                 )
 

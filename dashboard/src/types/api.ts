@@ -58,6 +58,7 @@ export interface VoiceCommandResponse {
   matched_intent: string;
   intent_params?: Record<string, any>;
   confidence: string;
+  spoken_response?: string;
   note?: string;
 }
 

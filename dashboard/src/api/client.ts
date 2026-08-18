@@ -21,9 +21,19 @@ import type {
 
 /**
  * Base URL for CrowdShield REST backend.
- * Configurable via environment variable VITE_BACKEND_HTTP_URL, defaulting to http://localhost:8000/api
  */
-const BASE_URL = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api';
+const getBaseUrl = (): string => {
+  if (import.meta.env.VITE_BACKEND_HTTP_URL) {
+    return import.meta.env.VITE_BACKEND_HTTP_URL;
+  }
+  if (typeof window !== 'undefined' && (window.location.port === '3000' || window.location.port === '5173')) {
+    return '/api';
+  }
+  const host = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : '127.0.0.1';
+  return `http://${host}:8000/api`;
+};
+
+const BASE_URL = getBaseUrl();
 
 /**
  * Configured Axios Instance for CrowdShield REST API
@@ -115,8 +125,12 @@ export const postPreEventSimulation = async (
  * Fetch aggregated social media crowd sentiment and unrest score.
  * GET /sentiment
  */
-export const getSentiment = async (): Promise<SentimentAnalysisResponse> => {
-  const response = await apiClient.get<SentimentAnalysisResponse>('/sentiment');
+export const getSentiment = async (params?: {
+  force?: boolean;
+  refresh?: boolean;
+  t?: number;
+}): Promise<SentimentAnalysisResponse> => {
+  const response = await apiClient.get<SentimentAnalysisResponse>('/sentiment', { params });
   return response.data;
 };
 
@@ -213,6 +227,15 @@ export const stopVideoProcessing = async (): Promise<{ status: string; session_i
  */
 export const getVideoProcessingStatus = async (): Promise<ProcessingStatusResponse> => {
   const response = await apiClient.get<ProcessingStatusResponse>('/processing/status');
+  return response.data;
+};
+
+/**
+ * Fetch live weather data polled from OpenWeatherMap.
+ * GET /weather
+ */
+export const getWeather = async (): Promise<any> => {
+  const response = await apiClient.get('/weather');
   return response.data;
 };
 

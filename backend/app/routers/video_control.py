@@ -39,22 +39,24 @@ class StartProcessingRequest(BaseModel):
 
 async def _stop_current_task() -> None:
     """
-    Cancel the active processing task and wait for it to fully stop before returning.
-    This prevents the old CVPipeline from racing against the new one on the same file.
+    Cancel the active processing task and ensure orchestrator stops immediately.
     """
     global _current_processing_task
+
+    orchestrator.is_processing = False
 
     if _current_processing_task and not _current_processing_task.done():
         logger.info(f"Cancelling active processing task for session '{_current_session_id}'.")
         _current_processing_task.cancel()
         try:
-            await asyncio.wait_for(_current_processing_task, timeout=1.0)
+            await asyncio.wait_for(_current_processing_task, timeout=0.5)
         except (asyncio.CancelledError, asyncio.TimeoutError, Exception):
-            pass  # Expected — task was cancelled or timed out
+            pass
+        except BaseException:
+            pass
         _current_processing_task = None
 
     # Reset orchestrator state so counters and alert history are fresh for next session
-    orchestrator.is_processing = False
     orchestrator.frames_processed = 0
     orchestrator.max_risk_score_seen = 0.0
     orchestrator.active_alerts.clear()
@@ -113,15 +115,23 @@ async def start_processing(payload: StartProcessingRequest) -> Dict[str, Any]:
         f"Starting background processing task session '{_current_session_id}' for video '{video_src}'..."
     )
 
-    _current_processing_task = asyncio.create_task(
-        orchestrator.run_live_processing(
-            video_source=video_src,
-            zones=zones,
-            venue_id=payload.venue_id,
-            websocket_manager=websocket_manager,
-            sample_every_n_frames=payload.sample_every_n_frames,
+    try:
+        _current_processing_task = asyncio.create_task(
+            orchestrator.run_live_processing(
+                video_source=video_src,
+                zones=zones,
+                venue_id=payload.venue_id,
+                websocket_manager=websocket_manager,
+                sample_every_n_frames=payload.sample_every_n_frames,
+                session_id=_current_session_id,
+            )
         )
-    )
+    except Exception as exc:
+        logger.error(f"Failed to launch live processing: {exc}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to start video processing: {exc}",
+        )
 
     return {
         "status": "started",
@@ -150,37 +160,58 @@ async def upload_and_start_processing(
 
     await _stop_current_task()
 
-    # Ensure uploads directory exists and save the file
-    upload_dir = Path("demo/videos/uploads")
-    upload_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        # Ensure uploads directory exists
+        upload_dir = Path("demo/videos/uploads")
+        upload_dir.mkdir(parents=True, exist_ok=True)
 
-    file_path = upload_dir / file.filename
-    content = await file.read()
-    with open(file_path, "wb") as buffer:
-        buffer.write(content)
+        raw_filename = file.filename or "uploaded_video.mp4"
+        clean_stem = Path(raw_filename).stem
+        clean_suffix = Path(raw_filename).suffix or ".mp4"
+        unique_filename = f"{clean_stem}_{uuid.uuid4().hex[:6]}{clean_suffix}"
+        file_path = upload_dir / unique_filename
 
-    logger.info(f"Saved uploaded video file ({len(content)} bytes) to '{file_path.absolute()}'. Starting CV Pipeline...")
+        content = await file.read()
+        if not content:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Uploaded file is empty.",
+            )
 
-    zones = _resolve_zones(None, venue_id)
-    _current_session_id = f"session_{uuid.uuid4().hex[:8]}"
+        with open(file_path, "wb") as buffer:
+            buffer.write(content)
 
-    _current_processing_task = asyncio.create_task(
-        orchestrator.run_live_processing(
-            video_source=str(file_path.absolute()),
-            zones=zones,
-            venue_id=venue_id,
-            websocket_manager=websocket_manager,
-            sample_every_n_frames=sample_every_n_frames,
+        logger.info(f"Saved uploaded video file ({len(content)} bytes) to '{file_path.absolute()}'. Starting CV Pipeline...")
+
+        zones = _resolve_zones(None, venue_id)
+        _current_session_id = f"session_{uuid.uuid4().hex[:8]}"
+
+        _current_processing_task = asyncio.create_task(
+            orchestrator.run_live_processing(
+                video_source=str(file_path.absolute()),
+                zones=zones,
+                venue_id=venue_id,
+                websocket_manager=websocket_manager,
+                sample_every_n_frames=sample_every_n_frames,
+                session_id=_current_session_id,
+            )
         )
-    )
 
-    return {
-        "status": "started",
-        "session_id": _current_session_id,
-        "video_source": file.filename,
-        "saved_path": str(file_path.absolute()),
-        "venue_id": venue_id,
-    }
+        return {
+            "status": "started",
+            "session_id": _current_session_id,
+            "video_source": raw_filename,
+            "saved_path": str(file_path.absolute()),
+            "venue_id": venue_id,
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(f"Error during video upload and processing start: {exc}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error starting video processing: {exc}",
+        )
 
 
 @router.post(

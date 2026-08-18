@@ -182,33 +182,50 @@ class MultilingualAnnouncer:
 
         # 1. Try Edge-TTS (preferred)
         voice = EDGE_TTS_VOICES.get(language_code, "hi-IN-MadhurNeural")
+        saved = False
         if edge_tts is not None:
             try:
                 communicate = edge_tts.Communicate(translated_text, voice)
-                await communicate.save(str(filepath))
+                await asyncio.wait_for(communicate.save(str(filepath)), timeout=3.5)
                 logger.info("Generated Edge-TTS audio: %s", filepath)
-                return str(filepath).replace("\\", "/")
+                saved = True
             except Exception as exc:
                 logger.warning(
-                    "Edge-TTS failed for language %s (%s). Attempting gTTS fallback...",
+                    "Edge-TTS failed or timed out for language %s (%s). Attempting gTTS fallback...",
                     language_code,
                     exc,
                 )
 
         # 2. Fallback to gTTS if Edge-TTS fails or is unavailable
-        if gTTS is not None:
+        if not saved and gTTS is not None:
             try:
                 loop = asyncio.get_running_loop()
                 tts = gTTS(text=translated_text, lang=language_code)
-                await loop.run_in_executor(None, tts.save, str(filepath))
+                await asyncio.wait_for(loop.run_in_executor(None, tts.save, str(filepath)), timeout=3.0)
                 logger.info("Generated gTTS audio fallback: %s", filepath)
-                return str(filepath).replace("\\", "/")
+                saved = True
             except Exception as exc:
                 logger.error("gTTS fallback also failed for %s: %s", language_code, exc)
 
         # 3. Dummy file as last resort (fail-safe for offline testing)
-        filepath.touch(exist_ok=True)
-        return str(filepath).replace("\\", "/")
+        if not saved:
+            filepath.touch(exist_ok=True)
+
+        # Sync copy to alternate audio_output paths
+        import shutil
+        for alt in [
+            Path("ai_core/genai_pipeline/audio_output"),
+            Path("backend/ai_core/genai_pipeline/audio_output"),
+            Path(__file__).resolve().parent.parent / "audio_output",
+        ]:
+            try:
+                if alt.resolve() != out_path.resolve():
+                    alt.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(filepath, alt / filename)
+            except Exception:
+                pass
+
+        return f"ai_core/genai_pipeline/audio_output/{filename}"
 
     async def create_multilingual_alert(
         self,
@@ -236,8 +253,18 @@ class MultilingualAnnouncer:
             datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         )
 
-        # Step 1: Translate text
-        translations_text = self.translate_message(base_message_en, target_languages)
+        # Step 1: Translate text in thread with strict timeout to avoid blocking
+        try:
+            translations_text = await asyncio.wait_for(
+                asyncio.to_thread(self.translate_message, base_message_en, target_languages),
+                timeout=4.0,
+            )
+        except Exception as exc:
+            logger.warning("Translation timed out or failed: %s. Using local fallback translations.", exc)
+            translations_text = {
+                lang: FALLBACK_TRANSLATIONS.get(lang, f"[Safety Alert] {base_message_en}")
+                for lang in target_languages
+            }
 
         # Step 2: Generate audio concurrently for all target languages
         async def process_lang(lang: str):

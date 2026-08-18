@@ -604,8 +604,12 @@ class CrowdTracker:
                         if cos_theta < self.COSINE_SIMILARITY_THRESHOLD:
                             opposing_vectors += 1
 
+        erratic = "YES" if self._detect_erratic_movement(tracks_in_zone) else "NO"
+        bottleneck = "YES" if self._zone_bottleneck_state.get(zone_id) else "NO"
+
         print(
             f"[DIAG] Frame={self._frame_counter} Zone={zone_id} "
             f"Tracks={current_crowd_count} Density={current_density:.3f} "
-            f"MeanVel={current_speed:.3f} Opposing={opposing_vectors}"
+            f"MeanVel={current_speed:.3f} Opposing={opposing_vectors} "
+            f"Erratic={erratic} Bottleneck={bottleneck}"
         )

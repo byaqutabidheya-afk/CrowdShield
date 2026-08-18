@@ -129,7 +129,7 @@ if allowed_origins_env:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",  # Production Vercel preview & deployment origins
+    allow_origin_regex=r"^(https?://(localhost|127\.0\.0\.1)(:\d+)?|https://.*\.vercel\.app)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -137,11 +137,19 @@ app.add_middleware(
 
 from fastapi.staticfiles import StaticFiles
 
-# Ensure audio directory exists before mounting (using absolute path relative to CWD to match where the pipeline creates them)
-audio_dir = os.path.join(os.getcwd(), "ai_core", "genai_pipeline", "audio_output")
-os.makedirs(audio_dir, exist_ok=True)
+# Ensure audio directories exist before mounting
+project_root = Path(__file__).resolve().parent.parent.parent
+primary_audio_dir = project_root / "ai_core" / "genai_pipeline" / "audio_output"
+backend_audio_dir = Path(__file__).resolve().parent.parent / "ai_core" / "genai_pipeline" / "audio_output"
+cwd_audio_dir = Path(os.getcwd()) / "ai_core" / "genai_pipeline" / "audio_output"
 
-app.mount("/ai_core/genai_pipeline/audio_output", StaticFiles(directory=audio_dir), name="audio_output")
+for d in [primary_audio_dir, backend_audio_dir, cwd_audio_dir]:
+    d.mkdir(parents=True, exist_ok=True)
+
+# Prefer directory that contains files
+chosen_audio_dir = str(backend_audio_dir) if any(backend_audio_dir.iterdir()) else str(primary_audio_dir)
+app.mount("/ai_core/genai_pipeline/audio_output", StaticFiles(directory=chosen_audio_dir), name="audio_output")
+app.mount("/audio", StaticFiles(directory=chosen_audio_dir), name="audio_short")
 
 # Include all API & WebSocket Routers
 app.include_router(incidents.router)
@@ -170,3 +178,12 @@ async def health_check() -> dict:
         "version": "1.0.0",
         "weather_risk_multiplier": weather_service.get_weather_risk_multiplier(),
     }
+
+
+@app.get("/api/weather", tags=["Weather"])
+@app.get("/weather", tags=["Weather"])
+async def get_weather() -> dict:
+    """
+    Returns live weather polled from OpenWeatherMap for the active venue.
+    """
+    return weather_service.get_weather_state()

@@ -1,8 +1,31 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLiveDataStore } from '../store/liveDataStore';
+import { getWeather } from '../api/client';
 
 const WeatherWidget: React.FC = () => {
   const weatherState = useLiveDataStore((state) => state.weatherState);
+  const setWeatherState = useLiveDataStore((state) => state.setWeatherState);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchWeather = async () => {
+      try {
+        const data = await getWeather();
+        if (isMounted && data && data.details) {
+          setWeatherState(data);
+        }
+      } catch (err) {
+        console.error('[WeatherWidget] Failed to fetch weather data:', err);
+      }
+    };
+
+    fetchWeather();
+    const interval = setInterval(fetchWeather, 60000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [setWeatherState]);
 
   if (!weatherState || !weatherState.details) {
     return (
@@ -18,7 +41,7 @@ const WeatherWidget: React.FC = () => {
           fontSize: '0.75rem',
           fontFamily: 'var(--font-mono)',
           minWidth: '140px',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
       >
         Weather Loading...

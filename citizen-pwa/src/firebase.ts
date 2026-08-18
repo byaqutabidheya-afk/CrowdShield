@@ -11,16 +11,18 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
-
-// Initialize Cloud Messaging and get a reference to the service
-// We wrap this in a try-catch because getMessaging() can throw if the browser 
-// does not support the required APIs (e.g., no IndexedDB, ServiceWorkers, etc.)
+let app = null;
 let messaging: Messaging | null = null;
-try {
-  messaging = getMessaging(app);
-} catch (e) {
-  console.warn("Firebase Messaging is not supported in this browser environment.", e);
+
+if (firebaseConfig.apiKey) {
+  try {
+    app = initializeApp(firebaseConfig);
+    messaging = getMessaging(app);
+  } catch (e) {
+    console.warn("Firebase Messaging initialization failed. Are env vars correct?", e);
+  }
+} else {
+  console.warn("Firebase configuration missing! Background push is disabled. Please configure your .env file.");
 }
 
 export { app, messaging };

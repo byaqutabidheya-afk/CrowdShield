@@ -487,11 +487,11 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
                 interactive
                 pathOptions={{
                   className: 'live-venue-zone',
-                  color: isTarget ? '#a78bfa' : riskStyle.stroke,
+                  color: isTarget ? '#38bdf8' : riskStyle.stroke,
                   weight: isTarget ? 4 : 2,
                   opacity: 0.95,
-                  fillColor: isTarget ? '#8b5cf6' : riskStyle.fill,
-                  fillOpacity: isTarget ? 0.5 : 0.28,
+                  fillColor: riskStyle.fill,
+                  fillOpacity: isTarget ? 0.45 : 0.28,
                 }}
                 positions={normalizedBoundsToSimpleCrsPolygon(zoneConfig.bounds_normalized, {
                   width: imageWidth,

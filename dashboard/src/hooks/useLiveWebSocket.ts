@@ -7,8 +7,6 @@ const MAX_BACKOFF_MS = 10000;
 
 /**
  * Custom React Hook to manage real-time WebSocket connection to CrowdShield backend.
- * Uses refs for all mutable state to eliminate stale closure bugs that prevented
- * onopen from ever firing setConnectionStatus('connected').
  */
 export const useLiveWebSocket = () => {
   const setConnectionStatus = useLiveDataStore((state) => state.setConnectionStatus);
@@ -21,18 +19,16 @@ export const useLiveWebSocket = () => {
   const isMountedRef = useRef<boolean>(false);
 
   // Keep store actions in refs so callbacks always call the latest version
-  // without needing them as useCallback / useEffect dependencies.
   const setConnectionStatusRef = useRef(setConnectionStatus);
   const processWebSocketMessageRef = useRef(processWebSocketMessage);
   useEffect(() => { setConnectionStatusRef.current = setConnectionStatus; }, [setConnectionStatus]);
   useEffect(() => { processWebSocketMessageRef.current = processWebSocketMessage; }, [processWebSocketMessage]);
 
-  // Forward-declared via ref so connect() and scheduleReconnect() can reference
-  // each other without circular dependency array issues.
-  const connectRef = useRef<(force?: boolean) => void>(() => {});
-  const scheduleReconnectRef = useRef<() => void>(() => {});
-
   const cleanupSocket = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
     if (socketRef.current) {
       const old = socketRef.current;
       socketRef.current = null;
@@ -50,114 +46,114 @@ export const useLiveWebSocket = () => {
     }
   }, []);
 
-  // Define connect and scheduleReconnect as plain functions stored in refs.
-  // This means they always see the latest values of each other and of isMountedRef
-  // without any dependency arrays — completely eliminating stale closures.
-  useEffect(() => {
-    scheduleReconnectRef.current = () => {
-      if (!isMountedRef.current) return;
+  const getWsUrl = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname || '127.0.0.1';
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      return `${protocol}//${host}:8000/ws/live`;
+    }
+    return import.meta.env.VITE_BACKEND_WS_URL || 'ws://127.0.0.1:8000/ws/live';
+  }, []);
 
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
+  // Forward ref for reconnect scheduler
+  const scheduleReconnectRef = useRef<() => void>(() => {});
 
-      const delay = backoffDelayRef.current;
-      backoffDelayRef.current = Math.min(delay * 2, MAX_BACKOFF_MS);
+  const connect = useCallback((force: boolean = false) => {
+    if (!isMountedRef.current) return;
 
-      reconnectTimeoutRef.current = setTimeout(() => {
-        if (isMountedRef.current) {
-          connectRef.current(true);
-        }
-      }, delay);
-    };
-
-    connectRef.current = (force: boolean = false) => {
-      if (!isMountedRef.current) return;
-
-      // Skip if already open/connecting and not forced
-      if (!force && socketRef.current) {
-        if (socketRef.current.readyState === WebSocket.OPEN) {
-          setConnectionStatusRef.current('connected');
-          return;
-        }
-        if (socketRef.current.readyState === WebSocket.CONNECTING) {
-          return;
-        }
-      }
-
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
-
-      cleanupSocket();
-      setConnectionStatusRef.current('connecting');
-
-      const wsUrl = import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:8000/ws/live';
-
-      let socket: WebSocket;
-      try {
-        socket = new WebSocket(wsUrl);
-        socketRef.current = socket;
-      } catch (err) {
-        console.error('[useLiveWebSocket] Failed to create WebSocket:', err);
-        setConnectionStatusRef.current('error');
-        scheduleReconnectRef.current();
+    if (!force && socketRef.current) {
+      if (socketRef.current.readyState === WebSocket.OPEN) {
+        setConnectionStatusRef.current('connected');
         return;
       }
+      if (socketRef.current.readyState === WebSocket.CONNECTING) {
+        return;
+      }
+    }
 
-      socket.onopen = () => {
-        // Guard: discard events from a socket that was replaced
-        if (!isMountedRef.current || socketRef.current !== socket) return;
-        console.log(`[useLiveWebSocket] Connected to ${wsUrl}`);
-        setConnectionStatusRef.current('connected');
-        backoffDelayRef.current = INITIAL_BACKOFF_MS;
-      };
+    cleanupSocket();
+    setConnectionStatusRef.current('connecting');
 
-      socket.onmessage = (event: MessageEvent) => {
-        if (!isMountedRef.current || socketRef.current !== socket) return;
-        try {
-          const data: WebSocketFrameMessage = JSON.parse(event.data);
-          processWebSocketMessageRef.current(data);
-        } catch (err) {
-          console.error('[useLiveWebSocket] Failed to parse message:', err, event.data);
-        }
-      };
+    const wsUrl = getWsUrl();
+    console.log(`[useLiveWebSocket] Attempting WebSocket connection to ${wsUrl}...`);
 
-      socket.onerror = () => {
-        if (!isMountedRef.current || socketRef.current !== socket) return;
-        setConnectionStatusRef.current('error');
-      };
+    let socket: WebSocket;
+    try {
+      socket = new WebSocket(wsUrl);
+      socketRef.current = socket;
+    } catch (err) {
+      console.error('[useLiveWebSocket] Failed to create WebSocket:', err);
+      setConnectionStatusRef.current('error');
+      scheduleReconnectRef.current();
+      return;
+    }
 
-      socket.onclose = (event: CloseEvent) => {
-        if (!isMountedRef.current || socketRef.current !== socket) return;
-        console.log(`[useLiveWebSocket] Closed (code ${event.code}). Reconnecting...`);
-        setConnectionStatusRef.current('disconnected');
-        socketRef.current = null;
-        scheduleReconnectRef.current();
-      };
+    socket.onopen = () => {
+      if (!isMountedRef.current || socketRef.current !== socket) return;
+      console.log(`[useLiveWebSocket] Successfully connected to ${wsUrl}`);
+      setConnectionStatusRef.current('connected');
+      backoffDelayRef.current = INITIAL_BACKOFF_MS;
     };
-  }); // no dependency array — runs after every render to keep refs fresh
 
-  // Mount / unmount effect — runs exactly once
+    socket.onmessage = (event: MessageEvent) => {
+      if (!isMountedRef.current || socketRef.current !== socket) return;
+      try {
+        const data: WebSocketFrameMessage = JSON.parse(event.data);
+        processWebSocketMessageRef.current(data);
+      } catch (err) {
+        console.error('[useLiveWebSocket] Failed to parse message:', err, event.data);
+      }
+    };
+
+    socket.onerror = (err) => {
+      if (!isMountedRef.current || socketRef.current !== socket) return;
+      console.warn('[useLiveWebSocket] WebSocket error encountered:', err);
+      setConnectionStatusRef.current('error');
+    };
+
+    socket.onclose = (event: CloseEvent) => {
+      if (!isMountedRef.current || socketRef.current !== socket) return;
+      console.log(`[useLiveWebSocket] Closed (code ${event.code}). Reconnecting in ${backoffDelayRef.current}ms...`);
+      setConnectionStatusRef.current('disconnected');
+      socketRef.current = null;
+      scheduleReconnectRef.current();
+    };
+  }, [cleanupSocket, getWsUrl]);
+
+  const scheduleReconnect = useCallback(() => {
+    if (!isMountedRef.current) return;
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+    const delay = backoffDelayRef.current;
+    backoffDelayRef.current = Math.min(delay * 2, MAX_BACKOFF_MS);
+
+    reconnectTimeoutRef.current = setTimeout(() => {
+      if (isMountedRef.current) {
+        connect(true);
+      }
+    }, delay);
+  }, [connect]);
+
+  useEffect(() => {
+    scheduleReconnectRef.current = scheduleReconnect;
+  }, [scheduleReconnect]);
+
+  // Mount effect: connect on mount, cleanup on unmount
   useEffect(() => {
     isMountedRef.current = true;
-    connectRef.current();
+    connect();
 
     return () => {
       isMountedRef.current = false;
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
       cleanupSocket();
     };
-  }, [cleanupSocket]); // cleanupSocket is stable (empty deps useCallback)
+  }, [connect, cleanupSocket]);
 
   const reconnect = useCallback(() => {
     backoffDelayRef.current = INITIAL_BACKOFF_MS;
-    connectRef.current(true);
-  }, []);
+    connect(true);
+  }, [connect]);
 
   return { connectionStatus, reconnect };
 };

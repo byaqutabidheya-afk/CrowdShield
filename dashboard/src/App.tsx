@@ -54,9 +54,6 @@ export const App: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<string>('');
 
   useEffect(() => {
-    // Initial fetch of incident reports on mount
-    fetchIncidents();
-
     const updateClock = () => {
       const now = new Date();
       const formattedIST = now.toLocaleTimeString('en-IN', {

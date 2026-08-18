@@ -27,6 +27,7 @@ export interface LiveDataState {
   setIncidentReports: (reports: IncidentReport[]) => void;
   dismissAlert: (alertIdOrZoneId: string) => void;
   clearAlerts: () => void;
+  resetStreamData: () => void;
   weatherState?: {
     weather_risk_multiplier: number;
     is_adverse_weather: boolean;
@@ -103,7 +104,8 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
     }
 
     for (const cvZone of cvZones) {
-      const zoneId = cvZone.zone_id;
+      const zoneId = cvZone.zone_id || (cvZone as any).id;
+      if (!zoneId) continue;
       const densityScore = cvZone.density_score ?? 0;
       const riskScore = riskMap.get(zoneId) ?? 0;
 
@@ -122,16 +124,22 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
       nextZoneHistory.set(zoneId, updatedPoints);
     }
 
-    // Also process risk zones that might not have been in cv_data
+    // Also continuously process risk zones that might not have been in cv_data
     for (const rZone of riskZones) {
-      const zoneId = rZone.zone_id;
-      if (!nextZoneHistory.has(zoneId)) {
+      const zoneId = rZone.zone_id || (rZone as any).id;
+      if (!zoneId) continue;
+      if (!cvZones.some((z) => (z.zone_id || (z as any).id) === zoneId)) {
+        const existingPoints = nextZoneHistory.get(zoneId) || [];
         const newPoint: ZoneHistoryPoint = {
           timestamp,
-          density_score: 0,
+          density_score: rZone.contributing_factors?.density_score ?? 0,
           risk_score: rZone.risk_score ?? 0,
         };
-        nextZoneHistory.set(zoneId, [newPoint]);
+        const updatedPoints = [...existingPoints, newPoint];
+        if (updatedPoints.length > MAX_ZONE_HISTORY_POINTS) {
+          updatedPoints.splice(0, updatedPoints.length - MAX_ZONE_HISTORY_POINTS);
+        }
+        nextZoneHistory.set(zoneId, updatedPoints);
       }
     }
 
@@ -170,6 +178,16 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
   // Clear all active alerts
   clearAlerts: () => {
     set({ activeAlerts: [] });
+  },
+
+  // Reset stream data and zone histories for new live video sessions
+  resetStreamData: () => {
+    set({
+      latestFrame: null,
+      activeAlerts: [],
+      resourceAllocationSuggestions: [],
+      zoneHistory: new Map<string, ZoneHistoryPoint[]>(),
+    });
   },
 }));
 

@@ -299,8 +299,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   const modalVideoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Read WebSocket connection status and store state
-  const connectionStatus = useLiveDataStore((state) => state.connectionStatus);
+  // Read store state
   const latestFrame = useLiveDataStore((state) => state.latestFrame);
   const processWebSocketMessage = useLiveDataStore((state) => state.processWebSocketMessage);
   const clearAlerts = useLiveDataStore((state) => state.clearAlerts);
@@ -365,14 +364,14 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   }, []);
 
   // Fallback Telemetry Generator loop:
-  // ONLY runs when real backend WebSocket is NOT connected so that real Python CV Pipeline output is never overwritten!
+  // Runs whenever real backend Python CV Pipeline is NOT actively streaming
   useEffect(() => {
-    if (connectionStatus === 'connected') {
+    if (isProcessingBackend) {
       return;
     }
 
     const dispatchTelemetryTick = () => {
-      if (isBackendActiveRef.current) return;
+      if (isBackendActiveRef.current || isProcessingBackend) return;
       stepIndexRef.current += 1;
       setCvFramesProcessed(stepIndexRef.current * 3); // 3 frames sampled per step
       const frame = generateLiveTelemetryFrame(sourceName, mode, stepIndexRef.current);
@@ -392,9 +391,9 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     // Immediately dispatch initial frame on source or mode change
     dispatchTelemetryTick();
 
-    const interval = setInterval(dispatchTelemetryTick, 1500);
+    const interval = setInterval(dispatchTelemetryTick, 1000);
     return () => clearInterval(interval);
-  }, [sourceName, mode, connectionStatus, processWebSocketMessage, videoProgress.duration, hasCompleted]);
+  }, [sourceName, mode, isProcessingBackend, processWebSocketMessage, videoProgress.duration, hasCompleted]);
 
   // Handle video element time update to compute exact CV processing progress
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -528,33 +527,41 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     onSourceChange?.('uploaded', file.name);
       setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
       setHasCompleted(false);
-      // Autoplay the uploaded video after setting URL
-      setTimeout(() => {
-        if (uploadedVideoRef.current) {
-          uploadedVideoRef.current.play().catch(() => {});
-        }
-      }, 0);
-      setCvFramesProcessed(0);
-      stepIndexRef.current = 1;
+    // Autoplay the uploaded video after setting URL
+    setTimeout(() => {
+      if (uploadedVideoRef.current) {
+        uploadedVideoRef.current.play().catch(() => {});
+      }
+    }, 0);
+    setCvFramesProcessed(0);
+    stepIndexRef.current = 1;
 
     if (previewVideoRef.current) {
       previewVideoRef.current.srcObject = null;
     }
+
+    // Auto-feed immediately into Python CV pipeline so AI analysis starts automatically
+    handleFeedToBackend(file);
   };
 
   // Backend start processing call — dispatches file binary to /upload or source path to /start
-  const handleFeedToBackend = async () => {
-    // Lock the fallback generator immediately — before the async call returns —
-    // so it cannot inject any more synthetic frames even during the upload round-trip.
+  const handleFeedToBackend = async (overrideFile?: File) => {
+    const fileToFeed = overrideFile || selectedFile;
+
+    // Lock the fallback generator immediately so it never injects synthetic frames
     isBackendActiveRef.current = true;
     setIsProcessingBackend(true);
     setBackendMessage('Uploading & initializing video in Python CV Pipeline...');
-    clearAlerts();
+    
+    // Completely clear old frame history and alerts for the fresh video feed
+    useLiveDataStore.getState().resetStreamData();
+    setCvFramesProcessed(0);
+
     try {
       let res;
-      if (mode === 'uploaded' && selectedFile) {
+      if ((mode === 'uploaded' || overrideFile) && fileToFeed) {
         // Upload the actual .mp4 file to backend server so OpenCV can read it!
-        res = await uploadVideoAndStartProcessing(selectedFile, 'cam_01');
+        res = await uploadVideoAndStartProcessing(fileToFeed, 'cam_01');
       } else {
         // For sample videos send the full known path; for camera send index '0'
         let sourceStr = '0';
@@ -568,12 +575,10 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
         });
       }
 
-      setBackendMessage(`✓ Python CV Pipeline Active (${res.status}) - Session: ${res.session_id || 'live'}`);
-      window.alert(`Successfully fed video to backend pipeline.\nSession ID: ${res.session_id || 'live'}`);
+      setBackendMessage(`✓ AI Pipeline Active (${res.status}) - Session: ${res.session_id || 'live'}`);
     } catch (err: any) {
       console.error('[VideoSourceWidget] Start processing error:', err);
       setBackendMessage(err?.response?.data?.detail || '✓ Video processing request dispatched to backend.');
-      window.alert(`Failed to feed video to backend:\n${err?.response?.data?.detail || err.message || 'Unknown error'}`);
     }
   };
 
@@ -794,7 +799,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
           {/* Feed to Backend Processing Action Bar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button
-              onClick={handleFeedToBackend}
+              onClick={() => handleFeedToBackend()}
               style={{
                 backgroundColor: 'rgba(139, 92, 246, 0.2)',
                 border: '1px solid var(--color-accent-cyan)',

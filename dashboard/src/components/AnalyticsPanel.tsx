@@ -49,14 +49,54 @@ const formatTimeLabel = (ts: string | number): string => {
 };
 
 export const AnalyticsPanel: React.FC = () => {
-  const [zones, setZones] = useState<ZoneConfig[]>([]);
+  const [staticZones, setStaticZones] = useState<ZoneConfig[]>([]);
   const [selectedZoneId, setSelectedZoneId] = useState<string>('');
   const [historicalData, setHistoricalData] = useState<ZoneTrendPoint[]>([]);
   const [isLoadingZones, setIsLoadingZones] = useState<boolean>(true);
   const [isLoadingTrends, setIsLoadingTrends] = useState<boolean>(false);
 
-  // Subscribe to live in-memory zoneHistory Map from zustand store
+  // Subscribe to live in-memory zoneHistory Map and latestFrame from zustand store
   const zoneHistory = useLiveDataStore((state) => state.zoneHistory);
+  const latestFrame = useLiveDataStore((state) => state.latestFrame);
+
+  // Combine static API zones with any dynamic zones discovered from live telemetry frames
+  const allZones = useMemo<ZoneConfig[]>(() => {
+    const zoneMap = new Map<string, ZoneConfig>();
+
+    for (const z of staticZones) {
+      zoneMap.set(z.zone_id, z);
+    }
+
+    // Add zones discovered in live zoneHistory
+    for (const zId of zoneHistory.keys()) {
+      if (!zoneMap.has(zId)) {
+        zoneMap.set(zId, {
+          zone_id: zId,
+          venue_id: 'cam_01',
+          bounds_normalized: { x_min: 0, y_min: 0, x_max: 1, y_max: 1 },
+          max_expected_count: 50,
+          adjacency: [],
+        });
+      }
+    }
+
+    // Add zones discovered in latest live frame
+    const frameCvZones = latestFrame?.cv_data?.zones || [];
+    for (const z of frameCvZones) {
+      const zId = z.zone_id || (z as any).id;
+      if (zId && !zoneMap.has(zId)) {
+        zoneMap.set(zId, {
+          zone_id: zId,
+          venue_id: 'cam_01',
+          bounds_normalized: z.bounds_normalized || { x_min: 0, y_min: 0, x_max: 1, y_max: 1 },
+          max_expected_count: 50,
+          adjacency: [],
+        });
+      }
+    }
+
+    return Array.from(zoneMap.values());
+  }, [staticZones, zoneHistory, latestFrame]);
 
   // Load available zones on mount
   useEffect(() => {
@@ -66,8 +106,8 @@ export const AnalyticsPanel: React.FC = () => {
         setIsLoadingZones(true);
         const data = await getZones();
         if (isMounted && data && data.length > 0) {
-          setZones(data);
-          setSelectedZoneId(data[0].zone_id);
+          setStaticZones(data);
+          setSelectedZoneId((prev) => prev || data[0].zone_id);
         }
       } catch (err) {
         console.error('[AnalyticsPanel] Failed to fetch zone list:', err);
@@ -82,13 +122,20 @@ export const AnalyticsPanel: React.FC = () => {
     };
   }, []);
 
+  // Ensure selectedZoneId defaults to first available zone if current is invalid
+  useEffect(() => {
+    if (!selectedZoneId && allZones.length > 0) {
+      setSelectedZoneId(allZones[0].zone_id);
+    }
+  }, [selectedZoneId, allZones]);
+
   // Fetch historical trends when selectedZoneId changes
   const fetchHistoricalTrends = useCallback(async (zoneId: string) => {
     if (!zoneId) return;
     try {
       setIsLoadingTrends(true);
       const trends = await getTrends(zoneId);
-      setHistoricalData(trends);
+      setHistoricalData(trends || []);
     } catch (err) {
       console.error(`[AnalyticsPanel] Failed to fetch trends for zone '${zoneId}':`, err);
       setHistoricalData([]);
@@ -103,48 +150,55 @@ export const AnalyticsPanel: React.FC = () => {
     }
   }, [selectedZoneId, fetchHistoricalTrends]);
 
-  // Combine historical data + live WebSocket zoneHistory points (deduplicated by timestamp)
+  // Combine historical data + live in-memory zoneHistory points
   const combinedChartData = useMemo<ChartPoint[]>(() => {
     if (!selectedZoneId) return [];
 
     const livePoints: ZoneHistoryPoint[] = zoneHistory.get(selectedZoneId) || [];
+    const points: ChartPoint[] = [];
 
-    const pointMap = new Map<string, ChartPoint>();
+    // 1. Add historical points
+    if (historicalData && historicalData.length > 0) {
+      for (const hPoint of historicalData) {
+        points.push({
+          rawTimestamp: hPoint.timestamp,
+          formattedTime: formatTimeLabel(hPoint.timestamp),
+          density_score: Number(hPoint.density_score || 0),
+          risk_score: Number(hPoint.risk_score || 0),
+          risk_level: hPoint.risk_level || getRiskLevelLabel(hPoint.risk_score || 0),
+        });
+      }
+    }
 
-    // Add historical points first
-    for (const hPoint of historicalData) {
-      const ts = hPoint.timestamp;
-      pointMap.set(String(ts), {
-        rawTimestamp: ts,
-        formattedTime: formatTimeLabel(ts),
-        density_score: hPoint.density_score,
-        risk_score: hPoint.risk_score,
-        risk_level: hPoint.risk_level || getRiskLevelLabel(hPoint.risk_score),
+    // 2. Append live in-memory streaming points
+    for (let i = 0; i < livePoints.length; i++) {
+      const lPoint = livePoints[i];
+      points.push({
+        rawTimestamp: lPoint.timestamp,
+        formattedTime: formatTimeLabel(lPoint.timestamp),
+        density_score: Number(lPoint.density_score || 0),
+        risk_score: Number(lPoint.risk_score || 0),
+        risk_level: getRiskLevelLabel(lPoint.risk_score || 0),
       });
     }
 
-    // Overlay live in-memory points
-    for (const lPoint of livePoints) {
-      const ts = lPoint.timestamp;
-      pointMap.set(String(ts), {
-        rawTimestamp: ts,
-        formattedTime: formatTimeLabel(ts),
-        density_score: lPoint.density_score,
-        risk_score: lPoint.risk_score,
-        risk_level: getRiskLevelLabel(lPoint.risk_score),
-      });
+    // 3. If only 1 single point exists, synthesize an initial starting baseline so Recharts AreaChart draws properly
+    if (points.length === 1) {
+      const p = points[0];
+      return [
+        {
+          rawTimestamp: p.rawTimestamp,
+          formattedTime: p.formattedTime,
+          density_score: 0,
+          risk_score: 0,
+          risk_level: 'LOW',
+        },
+        p,
+      ];
     }
 
-    // Sort by timestamp
-    const allPoints = Array.from(pointMap.values()).sort((a, b) => {
-      const timeA = new Date(a.rawTimestamp).getTime();
-      const timeB = new Date(b.rawTimestamp).getTime();
-      if (!isNaN(timeA) && !isNaN(timeB)) return timeA - timeB;
-      return 0;
-    });
-
-    // Cap to most recent ~50 points for auto-scroll sparkline readability
-    return allPoints.slice(-50);
+    // Cap to most recent ~60 points for auto-scroll sparkline readability
+    return points.slice(-60);
   }, [selectedZoneId, historicalData, zoneHistory]);
 
   const latestPoint = combinedChartData[combinedChartData.length - 1];
@@ -175,7 +229,7 @@ export const AnalyticsPanel: React.FC = () => {
           <select
             value={selectedZoneId}
             onChange={(e) => setSelectedZoneId(e.target.value)}
-            disabled={isLoadingZones}
+            disabled={isLoadingZones && allZones.length === 0}
             style={{
               backgroundColor: '#090d16',
               color: '#f8fafc',
@@ -189,12 +243,12 @@ export const AnalyticsPanel: React.FC = () => {
               outline: 'none',
             }}
           >
-            {isLoadingZones ? (
+            {isLoadingZones && allZones.length === 0 ? (
               <option value="">Loading zones...</option>
-            ) : zones.length === 0 ? (
+            ) : allZones.length === 0 ? (
               <option value="">No zones configured</option>
             ) : (
-              zones.map((z) => (
+              allZones.map((z) => (
                 <option key={z.zone_id} value={z.zone_id}>
                   {z.zone_id} (Max: {z.max_expected_count})
                 </option>
@@ -245,7 +299,7 @@ export const AnalyticsPanel: React.FC = () => {
         </div>
       ) : combinedChartData.length === 0 ? (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-dim)', fontSize: '0.85rem' }}>
-          No trend data recorded for selected zone yet.
+          No trend data recorded for selected zone yet. Feed a video to stream live metrics.
         </div>
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem', minHeight: 0 }}>

@@ -224,10 +224,17 @@ def insert_intervention(intervention: Dict[str, Any]) -> Optional[Dict[str, Any]
         return None
 
 
+_zone_config_cache: Dict[str, Any] = {}
+
 def get_zone_config(venue_id: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Fetch zone configurations from the `zones` table, optionally filtered by venue_id.
+    Uses memory cache for instant responses.
     """
+    cache_key = venue_id or "default"
+    if cache_key in _zone_config_cache:
+        return _zone_config_cache[cache_key]
+
     client = get_supabase_client()
     if not client:
         logger.warning("Supabase client uninitialized. Returning empty zone configs.")
@@ -238,7 +245,10 @@ def get_zone_config(venue_id: Optional[str] = None) -> List[Dict[str, Any]]:
         if venue_id:
             query = query.eq("venue_id", venue_id)
         response = query.execute()
-        return response.data or []
+        data = response.data or []
+        if data:
+            _zone_config_cache[cache_key] = data
+        return data
     except Exception as e:
         logger.error(f"Error fetching zone configs: {e}")
         return []
@@ -279,12 +289,18 @@ def upsert_zone_config(zones: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         return []
 
 
+_venue_config_cache: Dict[str, Dict[str, Any]] = {}
+
+
 def get_venue_config(venue_id: str) -> Dict[str, Any]:
     """
     Get venue panic-diffusion tuning config from `venue_configs`.
     Returns dict with {venue_id, diffusion_rate, decay_rate}.
     Defaults to diffusion_rate=0.15, decay_rate=0.05 if row missing.
     """
+    if venue_id in _venue_config_cache:
+        return _venue_config_cache[venue_id]
+
     default_config = {
         "venue_id": venue_id,
         "diffusion_rate": 0.15,
@@ -302,12 +318,15 @@ def get_venue_config(venue_id: str) -> Dict[str, Any]:
         )
         if response.data and len(response.data) > 0:
             row = response.data[0]
-            return {
+            config = {
                 "venue_id": row.get("venue_id", venue_id),
                 "diffusion_rate": float(row.get("diffusion_rate", 0.15)),
                 "decay_rate": float(row.get("decay_rate", 0.05)),
                 "updated_at": row.get("updated_at"),
             }
+            _venue_config_cache[venue_id] = config
+            return config
+        _venue_config_cache[venue_id] = default_config
         return default_config
     except Exception as e:
         logger.error(f"Error fetching venue config for {venue_id}: {e}")
