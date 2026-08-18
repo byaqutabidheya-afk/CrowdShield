@@ -26,9 +26,15 @@ Thumbs.db
 ai_core/cv_pipeline/models/*.pt
 demo/videos/*.mp4
 ai_core/cv_pipeline/sample_videos/*.mp4
-ai_core/genai_pipeline/audio_output/
+**/audio_output/
 *.mp3
 *.wav
+*.m4a
+*.ogg
+**/*.mp3
+**/*.wav
+**/*.ogg
+**/*.m4a
 
 # IDE
 .vscode/
