@@ -17,20 +17,26 @@ export interface ZoneRisk {
 
 export interface Recommendation {
   action: string;
-  category: string;
-  urgency: string;
-  reasoning: string;
+  category?: string;
+  urgency?: string;
+  reasoning?: string;
 }
 
 export interface Alert {
   zone_id: string;
   risk_level?: 'low' | 'moderate' | 'high' | 'critical' | string;
+  risk_level_at_trigger?: string;
+  peak_risk_score?: number;
+  risk_score?: number;
   timestamp?: string;
+  triggered_at?: string;
   message?: {
     en?: string;
     [key: string]: string | undefined;
   };
-  recommendations: Recommendation[];
+  recommendations?: Recommendation[];
+  reasoning?: string;
+  contributing_factors?: Record<string, number>;
 }
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';

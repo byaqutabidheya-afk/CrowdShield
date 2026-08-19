@@ -25,6 +25,8 @@ export const translations: Record<string, Record<string, string>> = {
     reportError: "Failed to submit report. Please try again.",
     retry: "Retry",
     noReportsYet: "No reports yet",
+    reasoning: "Reasoning",
+    recommendedAction: "Recommended Action",
   },
   hi: {
     alerts: "अलर्ट",
@@ -52,6 +54,8 @@ export const translations: Record<string, Record<string, string>> = {
     reportError: "रिपोर्ट जमा करने में विफल। कृपया पुनः प्रयास करें।",
     retry: "पुनः प्रयास करें",
     noReportsYet: "अभी तक कोई रिपोर्ट नहीं",
+    reasoning: "कारण",
+    recommendedAction: "अनुशंसित कार्रवाई",
   },
   ta: {
     alerts: "எச்சரிக்கைகள்",
@@ -79,6 +83,8 @@ export const translations: Record<string, Record<string, string>> = {
     reportError: "அறிக்கையை சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
     retry: "மீண்டும் முயற்சிக்கவும்",
     noReportsYet: "இதுவரை எந்த அறிக்கையும் இல்லை",
+    reasoning: "காரணம்",
+    recommendedAction: "பரிந்துரைக்கப்பட்ட நடவடிக்கை",
   },
   te: {
     alerts: "హెచ్చరికలు",
@@ -106,6 +112,8 @@ export const translations: Record<string, Record<string, string>> = {
     reportError: "నివేదికను సమర్పించడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.",
     retry: "మళ్లీ ప్రయత్నించండి",
     noReportsYet: "ఇంకా నివేదికలు లేవు",
+    reasoning: "కారణం",
+    recommendedAction: "సిఫార్సు చేయబడిన చర్య",
   },
   bn: {
     alerts: "সতর্কতা",
@@ -133,6 +141,8 @@ export const translations: Record<string, Record<string, string>> = {
     reportError: "রিপোর্ট জমা দিতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
     retry: "পুনরায় চেষ্টা করুন",
     noReportsYet: "এখনো কোনো রিপোর্ট নেই",
+    reasoning: "কারণ",
+    recommendedAction: "সুপারিশকৃত পদক্ষেপ",
   },
   mr: {
     alerts: "अॅलर्ट",
@@ -160,6 +170,8 @@ export const translations: Record<string, Record<string, string>> = {
     reportError: "अहवाल सबमिट करण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा.",
     retry: "पुन्हा प्रयत्न करा",
     noReportsYet: "अद्याप कोणतेही अहवाल नाहीत",
+    reasoning: "कारण",
+    recommendedAction: "शिफारस केलेली कृती",
   },
 };
 
