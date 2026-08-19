@@ -285,9 +285,10 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   // Live Camera Elapsed Timer
   const [liveElapsedSeconds, setLiveElapsedSeconds] = useState<number>(0);
 
-  // Backend processing status
+  // Backend processing status & active streaming toggle
+  const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const [isProcessingBackend, setIsProcessingBackend] = useState<boolean>(false);
-  const [backendMessage, setBackendMessage] = useState<string | null>(null);
+  const [backendMessage, setBackendMessage] = useState<string | null>('Ready — Select a video source and click "Feed Video to AI Backend".');
 
   // Step counter for fallback telemetry streaming
   const stepIndexRef = useRef<number>(1);
@@ -364,14 +365,14 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   }, []);
 
   // Fallback Telemetry Generator loop:
-  // Runs whenever real backend Python CV Pipeline is NOT actively streaming
+  // Runs ONLY when a video stream is actively started/fed AND real backend Python CV Pipeline is NOT actively streaming
   useEffect(() => {
-    if (isProcessingBackend) {
+    if (!isStreaming || isProcessingBackend) {
       return;
     }
 
     const dispatchTelemetryTick = () => {
-      if (isBackendActiveRef.current || isProcessingBackend) return;
+      if (!isStreaming || isBackendActiveRef.current || isProcessingBackend) return;
       stepIndexRef.current += 1;
       setCvFramesProcessed(stepIndexRef.current * 3); // 3 frames sampled per step
       const frame = generateLiveTelemetryFrame(sourceName, mode, stepIndexRef.current);
@@ -388,12 +389,12 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       }
     };
 
-    // Immediately dispatch initial frame on source or mode change
+    // Dispatch frame on source or mode change if streaming
     dispatchTelemetryTick();
 
     const interval = setInterval(dispatchTelemetryTick, 1000);
     return () => clearInterval(interval);
-  }, [sourceName, mode, isProcessingBackend, processWebSocketMessage, videoProgress.duration, hasCompleted]);
+  }, [isStreaming, sourceName, mode, isProcessingBackend, processWebSocketMessage, videoProgress.duration, hasCompleted]);
 
   // Handle video element time update to compute exact CV processing progress
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -487,14 +488,20 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       activeStream.getTracks().forEach((t) => t.stop());
       setActiveStream(null);
     }
+    setIsStreaming(false);
+    isBackendActiveRef.current = false;
+    setIsProcessingBackend(false);
+    useLiveDataStore.getState().resetStreamData();
+    clearAlerts();
     setMode('sample');
     setSourceName(sampleId);
     setSelectedFile(null);
     onSourceChange?.('sample', sampleId);
-      setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
-      setHasCompleted(false);
-      setCvFramesProcessed(0);
-      stepIndexRef.current = 1;
+    setVideoProgress({ percent: 0, currentTime: 0, duration: 0 });
+    setHasCompleted(false);
+    setCvFramesProcessed(0);
+    stepIndexRef.current = 1;
+    setBackendMessage(`Selected "${sampleId}". Click "Feed Video to AI Backend" to begin CV processing.`);
 
     if (previewVideoRef.current) {
       previewVideoRef.current.srcObject = null;
@@ -515,8 +522,11 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     e.target.value = '';
 
     // Selecting a new file implicitly stops any active backend session from the UI side
+    setIsStreaming(false);
     isBackendActiveRef.current = false;
     setIsProcessingBackend(false);
+    useLiveDataStore.getState().resetStreamData();
+    clearAlerts();
     setBackendMessage(`Video "${file.name}" loaded. Click "Feed Video to AI Backend" to begin CV processing.`);
 
     const objectUrl = URL.createObjectURL(file);
@@ -545,13 +555,14 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   const handleFeedToBackend = async (overrideFile?: File) => {
     const fileToFeed = overrideFile || selectedFile;
 
-    // Lock the fallback generator immediately so it never injects synthetic frames
+    setIsStreaming(true);
     isBackendActiveRef.current = true;
     setIsProcessingBackend(true);
     setBackendMessage('Uploading & initializing video in Python CV Pipeline...');
     
     // Completely clear old frame history and alerts for the fresh video feed
     useLiveDataStore.getState().resetStreamData();
+    clearAlerts();
     setCvFramesProcessed(0);
 
     try {
@@ -591,7 +602,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
 
   // Backend stop processing call — fully resets all state so a new video can be uploaded and fed
   const handleStopBackend = async () => {
-    // Unlock the fallback generator before clearing state
+    setIsStreaming(false);
     isBackendActiveRef.current = false;
     try {
       await stopVideoProcessing();
@@ -599,7 +610,8 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       // Ignore stop errors — backend may already be idle
     }
     setIsProcessingBackend(false);
-    setBackendMessage('CV Pipeline processing loop stopped. Upload a new video to continue.');
+    setBackendMessage('CV Pipeline processing loop stopped. Select a video source and click "Feed Video to AI Backend".');
+    useLiveDataStore.getState().resetStreamData();
     clearAlerts();
     // Reset counters so a fresh Feed shows clean metrics
     setCvFramesProcessed(0);
@@ -617,52 +629,60 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const w = 640;
+    const h = 360;
+    canvas.width = w;
+    canvas.height = h;
+
     let animId: number;
-    const particles = Array.from({ length: 40 }, () => ({
-      x: Math.random() * 200,
-      y: Math.random() * 110,
-      vx: (Math.random() - 0.5) * 0.9,
-      vy: (Math.random() - 0.5) * 0.9,
+    const particles = Array.from({ length: 65 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 1.2,
+      vy: (Math.random() - 0.5) * 1.2,
       color: Math.random() > 0.7 ? '#ef4444' : Math.random() > 0.4 ? '#f97316' : '#8b5cf6',
     }));
 
     const renderFrame = () => {
       ctx.fillStyle = '#090d16';
-      ctx.fillRect(0, 0, 200, 110);
+      ctx.fillRect(0, 0, w, h);
 
-      // Grid overlay
+      // Grid overlay across full window
       ctx.strokeStyle = 'rgba(167, 139, 250, 0.12)';
       ctx.lineWidth = 1;
-      for (let x = 0; x < 200; x += 20) {
+      for (let x = 0; x < w; x += 32) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, 110);
+        ctx.lineTo(x, h);
         ctx.stroke();
       }
-      for (let y = 0; y < 110; y += 20) {
+      for (let y = 0; y < h; y += 32) {
         ctx.beginPath();
         ctx.moveTo(0, y);
-        ctx.lineTo(200, y);
+        ctx.lineTo(w, y);
         ctx.stroke();
       }
 
-      // Draw crowd particles
+      // Draw crowd particles across entire view window
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x < 0 || p.x > 200) p.vx *= -1;
-        if (p.y < 0 || p.y > 110) p.vy *= -1;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
 
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // Overlay bounding box simulation
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.6)';
+      // Overlay 2x2 simulated zone tracking boxes across full frame
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.5)';
       ctx.lineWidth = 1.5;
-      ctx.strokeRect(35, 20, 130, 70);
+      ctx.strokeRect(w * 0.05, h * 0.05, w * 0.42, h * 0.42);
+      ctx.strokeRect(w * 0.53, h * 0.05, w * 0.42, h * 0.42);
+      ctx.strokeRect(w * 0.05, h * 0.53, w * 0.42, h * 0.42);
+      ctx.strokeRect(w * 0.53, h * 0.53, w * 0.42, h * 0.42);
 
       animId = requestAnimationFrame(renderFrame);
     };
@@ -757,7 +777,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
                 />
             ) : (
               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <canvas ref={canvasRef} width={400} height={220} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <canvas ref={canvasRef} width={640} height={360} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             )}
           </div>

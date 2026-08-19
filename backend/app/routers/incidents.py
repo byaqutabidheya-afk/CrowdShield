@@ -97,6 +97,22 @@ async def delete_incident_report(incident_id: str) -> Dict[str, Any]:
     return {"status": "deleted", "id": incident_id}
 
 
+@router.delete(
+    "/purge/all",
+    status_code=status.HTTP_200_OK,
+    response_model=Dict[str, Any],
+    summary="Clear all incident reports",
+)
+async def clear_all_incident_reports() -> Dict[str, Any]:
+    """
+    Purges all stored incident reports from DB and memory.
+    """
+    logger.info("Purging all incident reports.")
+    supabase_client.clear_all_incident_reports()
+    return {"status": "cleared"}
+
+
+
 @router.post(
     "/summary",
     response_model=Dict[str, Any],

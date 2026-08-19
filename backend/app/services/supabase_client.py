@@ -135,16 +135,8 @@ def resolve_risk_alert(alert_id: str) -> Optional[Dict[str, Any]]:
 
 import uuid
 
-_local_incident_reports: List[Dict[str, Any]] = [
-    {
-        "id": "inc_seed_01",
-        "source": "citizen",
-        "zone_id": "zone_A1",
-        "notes": "[CITIZEN REPORT] High density surge detected at Gate B. Security requested to open auxiliary bypass gates.",
-        "submitted_at": datetime.now(timezone.utc).isoformat(),
-        "client_device_id": "device_seed_01",
-    }
-]
+_local_incident_reports: List[Dict[str, Any]] = []
+
 
 
 def insert_incident_report(report: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -251,6 +243,21 @@ def delete_incident_report(report_id: str) -> bool:
         except Exception as e:
             logger.error(f"Error deleting incident report {report_id} from Supabase: {e}")
     return True
+
+
+def clear_all_incident_reports() -> bool:
+    """Clear all incident reports from DB and in-memory fallback list."""
+    global _local_incident_reports
+    _local_incident_reports = []
+
+    client = get_supabase_client()
+    if client:
+        try:
+            client.table("incident_reports").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+        except Exception as e:
+            logger.error(f"Error clearing all incident reports from Supabase: {e}")
+    return True
+
 
 
 def update_incident_ai_summary(report_id: str, ai_summary: Dict[str, Any]) -> Optional[Dict[str, Any]]:
