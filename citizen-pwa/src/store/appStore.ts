@@ -52,6 +52,9 @@ interface AppState {
     inDangerZone: boolean;
     nearestDangerZoneId: string | null;
     distanceMeters: number | null;
+    nearestZoneId?: string | null;
+    nearestZoneDistanceMeters?: number | null;
+    currentZoneId?: string | null;
   } | null;
 
   // Actions
@@ -64,6 +67,17 @@ interface AppState {
   setGeofenceStatus: (status: AppState['geofenceStatus']) => void;
 }
 
+function generateDeviceId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      // Fallback if randomUUID throws
+    }
+  }
+  return 'device_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now().toString(36);
+}
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -72,7 +86,7 @@ export const useAppStore = create<AppState>()(
       selectedLanguage: 'en',
       activeAlerts: [],
       connectionStatus: 'disconnected',
-      clientDeviceId: crypto.randomUUID(),
+      clientDeviceId: generateDeviceId(),
       geofenceStatus: null,
 
       setUserLocation: (location) => set({ userLocation: location }),

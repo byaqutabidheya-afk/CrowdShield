@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import { getIncidents } from '../api/client';
+import { getIncidents, getInterventions } from '../api/client';
 import type {
   WebSocketFrameMessage,
   ZoneHistoryPoint,
   AlertData,
   ResourceAllocationSuggestion,
   IncidentReport,
+  InterventionRecord,
   ConnectionStatus,
 } from '../types/api';
 
@@ -18,6 +19,7 @@ export interface LiveDataState {
   activeAlerts: AlertData[];
   resourceAllocationSuggestions: ResourceAllocationSuggestion[];
   incidentReports: IncidentReport[];
+  interventions: InterventionRecord[];
   connectionStatus: ConnectionStatus;
 
   // Actions
@@ -25,6 +27,10 @@ export interface LiveDataState {
   processWebSocketMessage: (message: WebSocketFrameMessage) => void;
   fetchIncidents: (params?: { source?: string; zone_id?: string }) => Promise<void>;
   setIncidentReports: (reports: IncidentReport[]) => void;
+  fetchInterventions: (params?: { zone_id?: string }) => Promise<void>;
+  setInterventions: (interventions: InterventionRecord[]) => void;
+  addIntervention: (intervention: InterventionRecord) => void;
+  dismissIntervention: (id: string) => void;
   dismissAlert: (alertIdOrZoneId: string) => void;
   clearAlerts: () => void;
   resetStreamData: () => void;
@@ -49,6 +55,7 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
   activeAlerts: [],
   resourceAllocationSuggestions: [],
   incidentReports: [],
+  interventions: [],
   connectionStatus: 'connecting',
   weatherState: undefined,
 
@@ -164,6 +171,37 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
   // Directly set incident reports
   setIncidentReports: (reports: IncidentReport[]) => {
     set({ incidentReports: reports });
+  },
+
+  // Fetch logged manual and AI interventions from backend REST API
+  fetchInterventions: async (params?: { zone_id?: string }) => {
+    try {
+      const records = await getInterventions(params);
+      if (Array.isArray(records)) {
+        set({ interventions: records });
+      }
+    } catch (error) {
+      console.error('Failed to fetch interventions for liveDataStore:', error);
+    }
+  },
+
+  // Directly set interventions list
+  setInterventions: (interventions: InterventionRecord[]) => {
+    set({ interventions });
+  },
+
+  // Prepend a newly logged intervention immediately into state
+  addIntervention: (intervention: InterventionRecord) => {
+    set((state) => ({
+      interventions: [intervention, ...state.interventions.filter((i) => i.id !== intervention.id)],
+    }));
+  },
+
+  // Dismiss / close a single recorded intervention by ID
+  dismissIntervention: (id: string) => {
+    set((state) => ({
+      interventions: state.interventions.filter((i) => i.id !== id),
+    }));
   },
 
   // Dismiss a single alert by ID or zone_id

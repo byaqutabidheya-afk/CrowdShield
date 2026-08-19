@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useAppStore } from '../store/appStore';
+import { getBackendWsUrl } from '../services/apiConfig';
 
 export function useLiveWebSocket() {
   const ws = useRef<WebSocket | null>(null);
@@ -16,7 +17,7 @@ export function useLiveWebSocket() {
 
     setConnectionStatus('connecting');
 
-    const url = import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:8000/ws/live';
+    const url = getBackendWsUrl();
     
     try {
       ws.current = new WebSocket(url);

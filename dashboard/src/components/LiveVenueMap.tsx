@@ -146,12 +146,48 @@ function MapFlyToZone({
   return null;
 }
 
+function MapViewportController() {
+  const map = useMap();
+
+  useEffect(() => {
+    map.invalidateSize();
+    const t1 = setTimeout(() => map.invalidateSize(), 80);
+    const t2 = setTimeout(() => map.invalidateSize(), 300);
+    const t3 = setTimeout(() => map.invalidateSize(), 800);
+
+    const container = map.getContainer();
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    resizeObserver.observe(container);
+
+    const onZoom = () => {
+      map.invalidateSize();
+    };
+    map.on('zoomend', onZoom);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      resizeObserver.disconnect();
+      map.off('zoomend', onZoom);
+    };
+  }, [map]);
+
+  return null;
+}
+
 function HeatmapLayer({
   points,
   isActive,
+  renderer,
 }: {
   points: Array<[number, number, number]>;
   isActive: boolean;
+  renderer?: L.SVG;
 }) {
   if (!isActive) return null;
 
@@ -170,6 +206,7 @@ function HeatmapLayer({
             key={`${latitude}-${longitude}-${index}-${haloIndex}`}
             center={[latitude, longitude]}
             radius={radius}
+            renderer={renderer}
             pathOptions={{
               className: 'risk-heat-circle',
               color,
@@ -438,6 +475,8 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
   const showZoneView = viewMode === 'zones';
   const showHeatmapView = viewMode === 'heatmap';
 
+  const customSvgRenderer = useMemo(() => L.svg({ padding: 2.0 }), []);
+
   return (
     <div
       className={className}
@@ -468,6 +507,8 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
       >
         <ImageOverlay url={overlayUrl} bounds={bounds} opacity={0.98} />
 
+        <MapViewportController />
+
         <MapFlyToZone
           selectedZoneId={selectedZoneId}
           zoneConfigs={zoneConfigs}
@@ -485,6 +526,7 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
               <Polygon
                 key={zoneConfig.zone_id}
                 interactive
+                renderer={customSvgRenderer}
                 pathOptions={{
                   className: 'live-venue-zone',
                   color: isTarget ? '#38bdf8' : riskStyle.stroke,
@@ -522,7 +564,7 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
             );
           })}
 
-        <HeatmapLayer points={heatPoints} isActive={showHeatmapView} />
+        <HeatmapLayer points={heatPoints} isActive={showHeatmapView} renderer={customSvgRenderer} />
       </MapContainer>
 
       <LiveVenueMapControls

@@ -3,6 +3,7 @@ import axios from 'axios';
 import type { Alert, ZoneRisk } from '../store/appStore';
 import { useAppStore } from '../store/appStore';
 import { getTranslation } from '../i18n/translations';
+import { getBackendHttpUrl } from '../services/apiConfig';
 
 // Simple time-ago helper to avoid adding heavy dependencies like date-fns
 function timeAgo(dateString?: string) {
@@ -92,7 +93,7 @@ interface AlertsScreenProps {
 }
 
 export default function AlertsScreen({ onNavigateToMap }: AlertsScreenProps) {
-  const { selectedLanguage, activeAlerts, geofenceStatus } = useAppStore();
+  const { selectedLanguage, activeAlerts, geofenceStatus, userLocation } = useAppStore();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Derive risk_level from activeZoneRisks if not directly in the alert
@@ -102,7 +103,7 @@ export default function AlertsScreen({ onNavigateToMap }: AlertsScreenProps) {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      const url = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api';
+      const url = getBackendHttpUrl();
       await axios.get(`${url}/zones`);
     } catch (e) {
       console.error('Refresh failed:', e);
@@ -114,9 +115,11 @@ export default function AlertsScreen({ onNavigateToMap }: AlertsScreenProps) {
   // Sort most recent first based on timestamp (if available, otherwise by array order)
   const sortedAlerts = [...activeAlerts].reverse();
 
+  const isDangerActive = geofenceStatus?.inDangerZone || (geofenceStatus != null && geofenceStatus.distanceMeters != null && geofenceStatus.distanceMeters < 50);
+
   return (
     <div style={{ paddingBottom: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
         <h1 style={{ margin: 0 }}>{getTranslation(selectedLanguage, 'alerts')}</h1>
         <button 
           onClick={handleRefresh}
@@ -134,48 +137,132 @@ export default function AlertsScreen({ onNavigateToMap }: AlertsScreenProps) {
           {isRefreshing ? '↻...' : '↻ Refresh'}
         </button>
       </div>
-      {/* Geofence Status Header */}
-      <div style={{ marginBottom: '16px' }}>
-        <h3 style={{ fontSize: '1rem', marginBottom: '8px', color: 'var(--text-color)' }}>Your Location Status</h3>
 
-        {(geofenceStatus?.inDangerZone || (geofenceStatus != null && geofenceStatus.distanceMeters != null && geofenceStatus.distanceMeters < 50)) && (
+      {/* Geofence & Location Status Card */}
+      <div style={{ marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span>📍</span>
+          <span>Your Location Status</span>
+        </h3>
+
+        {isDangerActive ? (
           <div style={{
-            backgroundColor: 'var(--error-color)',
+            backgroundColor: '#ef4444',
             color: 'white',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            marginBottom: '1.5rem',
+            padding: '14px 16px',
+            borderRadius: '12px',
             display: 'flex',
             flexDirection: 'column',
             gap: '12px',
-            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.2)'
+            boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)'
           }}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '1.25rem' }}>🚨</span>
-              <strong style={{ fontSize: '0.875rem', lineHeight: 1.4 }}>
-                {getTranslation(selectedLanguage, 'nearHighRiskZone')}. Consider moving to a safer area.
-              </strong>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '1.4rem' }}>🚨</span>
+              <div>
+                <strong style={{ fontSize: '0.92rem', display: 'block', marginBottom: '2px' }}>
+                  {geofenceStatus?.inDangerZone ? 'You are inside a High-Risk Zone!' : getTranslation(selectedLanguage, 'nearHighRiskZone')}
+                </strong>
+                <span style={{ fontSize: '0.8rem', opacity: 0.95 }}>
+                  {geofenceStatus?.nearestDangerZoneId ? `Zone: ${geofenceStatus.nearestDangerZoneId}` : ''}
+                  {geofenceStatus?.distanceMeters ? ` • Distance: ~${geofenceStatus.distanceMeters}m away` : ''}
+                  {' • Please follow evacuation routes to the nearest exit.'}
+                </span>
+              </div>
             </div>
-          {onNavigateToMap && (
-            <button 
-              onClick={onNavigateToMap}
-              style={{
-                backgroundColor: 'white',
-                border: 'none',
-                color: 'var(--error-color)',
-                padding: '10px',
-                borderRadius: '6px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                textAlign: 'center',
-                width: '100%'
-              }}
-            >
-              Show Safe Route
-            </button>
-          )}
-        </div>
-      )}
+            {onNavigateToMap && (
+              <button 
+                onClick={onNavigateToMap}
+                style={{
+                  backgroundColor: 'white',
+                  border: 'none',
+                  color: '#dc2626',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  width: '100%',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                }}
+              >
+                🗺️ Show Safe Route
+              </button>
+            )}
+          </div>
+        ) : userLocation ? (
+          <div style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #10b981',
+            padding: '14px 16px',
+            borderRadius: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: '#10b981', fontSize: '1.1rem' }}>🛡️</span>
+                <strong style={{ fontSize: '0.9rem', color: '#065f46' }}>Safe Zone • Live GPS Monitored</strong>
+              </div>
+              <span style={{ fontSize: '0.72rem', backgroundColor: '#d1fae5', color: '#065f46', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                NORMAL
+              </span>
+            </div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span>
+                Nearest Venue Zone: <strong>{geofenceStatus?.nearestZoneId || 'Zone A1'}</strong>
+                {geofenceStatus?.nearestZoneDistanceMeters != null && (
+                  <span> ({geofenceStatus.nearestZoneDistanceMeters < 1000 ? `${geofenceStatus.nearestZoneDistanceMeters}m away` : `${(geofenceStatus.nearestZoneDistanceMeters/1000).toFixed(1)}km`})</span>
+                )}
+              </span>
+              <span style={{ fontSize: '0.74rem', opacity: 0.8 }}>
+                GPS: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+              </span>
+            </div>
+            {onNavigateToMap && (
+              <button
+                onClick={onNavigateToMap}
+                style={{
+                  marginTop: '4px',
+                  background: '#f8fafc',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-color)',
+                  padding: '8px',
+                  borderRadius: '6px',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'center'
+                }}
+              >
+                🗺️ View On Safe Map
+              </button>
+            )}
+          </div>
+        ) : (
+          <div style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid var(--border-color)',
+            padding: '14px 16px',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '1.2rem' }}>📍</span>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <strong style={{ fontSize: '0.85rem' }}>GPS Tracking Inactive</strong>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  Enable GPS in Settings to see live proximity warnings.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {sortedAlerts.length === 0 ? (

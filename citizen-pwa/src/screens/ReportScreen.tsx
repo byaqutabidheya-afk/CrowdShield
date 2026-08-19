@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAppStore } from '../store/appStore';
 import { getTranslation } from '../i18n/translations';
+import { getBackendHttpUrl } from '../services/apiConfig';
 
 export default function ReportScreen() {
   const { selectedLanguage, userLocation, clientDeviceId } = useAppStore();
@@ -17,7 +18,7 @@ export default function ReportScreen() {
   const fetchMyReports = async () => {
     try {
       setIsLoadingReports(true);
-      const url = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api';
+      const url = getBackendHttpUrl();
       const res = await axios.get(`${url}/incidents`, {
         params: { client_device_id: clientDeviceId }
       });
@@ -87,7 +88,7 @@ export default function ReportScreen() {
         console.log(`[Compression] Original: ${(selectedPhoto.size/1024).toFixed(1)}KB, Compressed: ${(compressedBlob.size/1024).toFixed(1)}KB`);
       }
 
-      const url = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api';
+      const url = getBackendHttpUrl();
       await axios.post(`${url}/incidents`, {
         source: 'citizen',
         gps_coordinates: userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : null,

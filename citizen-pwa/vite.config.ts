@@ -3,16 +3,40 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  server: {
+    host: true,
+    port: 5174,
+    allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/ws': {
+        target: 'ws://127.0.0.1:8000',
+        ws: true,
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true,
+      },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
       manifest: {
         name: 'CrowdShield Citizen Safety',
         short_name: 'CrowdShield',
+        id: '/',
+        scope: '/',
         start_url: '/',
-        display: 'standalone',
+        display: 'fullscreen',
+        display_override: ['fullscreen', 'standalone', 'window-controls-overlay'],
+        orientation: 'portrait',
+        prefer_related_applications: false,
         theme_color: '#0f172a',
         background_color: '#0f172a',
         icons: [

@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import L from 'leaflet';
-import 'leaflet-routing-machine';
-import { MapContainer, ImageOverlay, Polygon, CircleMarker, Polyline } from 'react-leaflet';
+import { MapContainer, ImageOverlay, Polygon, CircleMarker, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 import { useAppStore } from '../store/appStore';
 import { getTranslation } from '../i18n/translations';
 import { DEMO_CALIBRATION, latLngToNormalized } from '../services/geofencing';
+import { getBackendHttpUrl } from '../services/apiConfig';
 
 const DEFAULT_IMAGE_WIDTH = 1600;
 const DEFAULT_IMAGE_HEIGHT = 900;
@@ -41,6 +41,40 @@ function normalizedBoundsToSimpleCrsPolygon(
     [yTop, xMax],
     [yTop, xMin],
   ];
+}
+
+function MapViewportController() {
+  const map = useMap();
+
+  useEffect(() => {
+    map.invalidateSize();
+    const t1 = setTimeout(() => map.invalidateSize(), 80);
+    const t2 = setTimeout(() => map.invalidateSize(), 300);
+    const t3 = setTimeout(() => map.invalidateSize(), 800);
+
+    const container = map.getContainer();
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    resizeObserver.observe(container);
+
+    const onZoom = () => {
+      map.invalidateSize();
+    };
+    map.on('zoomend', onZoom);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      resizeObserver.disconnect();
+      map.off('zoomend', onZoom);
+    };
+  }, [map]);
+
+  return null;
 }
 
 function createPlaceholderFloorPlanSvg(width: number, height: number): string {
@@ -94,11 +128,36 @@ export default function SafeMapScreen() {
     let isMounted = true;
     const fetchZones = async () => {
       try {
-        const url = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api';
+        const url = getBackendHttpUrl();
         const res = await axios.get(`${url}/zones`);
-        if (isMounted) setZones(res.data);
+        if (isMounted && res.data && res.data.length > 0) {
+          // Ensure at least zone_B2 and zone_A2 are marked as exits if missing
+          const enriched = res.data.map((z: any) => {
+            if (z.is_exit != null) return z;
+            return {
+              ...z,
+              is_exit: z.zone_id === 'zone_B2' || z.zone_id === 'zone_A2' || z.zone_id.toLowerCase().includes('exit')
+            };
+          });
+          setZones(enriched);
+        } else if (isMounted) {
+          setZones([
+            { zone_id: 'zone_A1', bounds_normalized: { x_min: 0, y_min: 0, x_max: 0.5, y_max: 0.5 }, is_exit: false },
+            { zone_id: 'zone_A2', bounds_normalized: { x_min: 0.5, y_min: 0, x_max: 1.0, y_max: 0.5 }, is_exit: true },
+            { zone_id: 'zone_B1', bounds_normalized: { x_min: 0, y_min: 0.5, x_max: 0.5, y_max: 1.0 }, is_exit: false },
+            { zone_id: 'zone_B2', bounds_normalized: { x_min: 0.5, y_min: 0.5, x_max: 1.0, y_max: 1.0 }, is_exit: true },
+          ]);
+        }
       } catch (e) {
-        console.error('Failed to fetch zones', e);
+        console.error('Failed to fetch zones, using fallback defaults', e);
+        if (isMounted) {
+          setZones([
+            { zone_id: 'zone_A1', bounds_normalized: { x_min: 0, y_min: 0, x_max: 0.5, y_max: 0.5 }, is_exit: false },
+            { zone_id: 'zone_A2', bounds_normalized: { x_min: 0.5, y_min: 0, x_max: 1.0, y_max: 0.5 }, is_exit: true },
+            { zone_id: 'zone_B1', bounds_normalized: { x_min: 0, y_min: 0.5, x_max: 0.5, y_max: 1.0 }, is_exit: false },
+            { zone_id: 'zone_B2', bounds_normalized: { x_min: 0.5, y_min: 0.5, x_max: 1.0, y_max: 1.0 }, is_exit: true },
+          ]);
+        }
       }
     };
     fetchZones();
@@ -109,9 +168,14 @@ export default function SafeMapScreen() {
     if (!userLocation || zones.length === 0) return;
 
     const computeRoute = async () => {
-      // Find exits (for the hackathon demo, assuming we flag is_exit in the payload, 
-      // or we just pick the first zone with 'exit' in the ID)
-      const exits = zones.filter(z => z.is_exit || z.zone_id.toLowerCase().includes('exit'));
+      // Find exits: check is_exit flag, 'exit' keyword, or designated exit perimeter zones
+      let exits = zones.filter(z => z.is_exit || z.zone_id.toLowerCase().includes('exit'));
+      if (exits.length === 0) {
+        exits = zones.filter(z => z.zone_id === 'zone_B2' || z.zone_id === 'zone_B1' || z.zone_id === 'zone_A2');
+      }
+      if (exits.length === 0) {
+        exits = zones.length > 0 ? [zones[zones.length - 1]] : [];
+      }
       if (exits.length === 0) return;
 
       const getRealWorldLatLng = (normBox: any) => {
@@ -133,7 +197,7 @@ export default function SafeMapScreen() {
 
       // 1. Fetch GET /api/routes for route blockage predictions before computing
       try {
-        const url = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api';
+        const url = getBackendHttpUrl();
         const res = await axios.get(`${url}/routes`);
         const blockages = res.data;
         const nearestExitBlockage = blockages.find((b: any) => b.route_id === targetExit.zone_id);
@@ -199,27 +263,21 @@ export default function SafeMapScreen() {
         }
       }
 
-      // Call public OSRM for routing
-      // Note: We use the osrmv1 class directly to bypass the UI control panel
-      // so we can map the real-world GPS results back into our CRS.Simple canvas.
-      const router = L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' });
-      (router as any).route([
-        { latLng: L.latLng(userLocation.lat, userLocation.lng) },
-        ...intermediateWaypoints.map(wp => ({ latLng: wp })),
-        { latLng: L.latLng(targetExit.lat, targetExit.lng) }
-      ], (err: any, routes: any) => {
-         if (err) return;
-         if (routes && routes.length > 0) {
-            const coords = routes[0].coordinates; 
-            const mappedCoords = coords.map((c: any) => {
-               const norm = latLngToNormalized({lat: c.lat, lng: c.lng}, DEMO_CALIBRATION);
-               const crsX = clamp01(norm.x) * DEFAULT_IMAGE_WIDTH;
-               const crsY = DEFAULT_IMAGE_HEIGHT - clamp01(norm.y) * DEFAULT_IMAGE_HEIGHT;
-               return [crsY, crsX] as [number, number];
-            });
-            setRoutePolyline(mappedCoords);
-         }
+      // Map waypoints into CRS.Simple canvas space
+      const allWaypoints = [
+        userLocation,
+        ...intermediateWaypoints,
+        { lat: targetExit.lat, lng: targetExit.lng }
+      ];
+
+      const mappedCoords = allWaypoints.map((wp: any) => {
+        const norm = latLngToNormalized({ lat: wp.lat, lng: wp.lng }, DEMO_CALIBRATION);
+        const crsX = clamp01(norm.x) * DEFAULT_IMAGE_WIDTH;
+        const crsY = DEFAULT_IMAGE_HEIGHT - clamp01(norm.y) * DEFAULT_IMAGE_HEIGHT;
+        return [crsY, crsX] as [number, number];
       });
+
+      setRoutePolyline(mappedCoords);
     };
 
     computeRoute();
@@ -230,6 +288,8 @@ export default function SafeMapScreen() {
     [DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH],
   ];
   const overlayUrl = createPlaceholderFloorPlanSvg(DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT);
+
+  const customSvgRenderer = useMemo(() => L.svg({ padding: 2.0 }), []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', paddingBottom: '16px' }}>
@@ -294,13 +354,14 @@ export default function SafeMapScreen() {
       )}
 
       <div style={{
+        position: 'relative',
         flex: 1,
         borderRadius: '12px',
         overflow: 'hidden',
         border: '1px solid var(--border-color)',
         background: '#09101d', // matches dashboard background perfectly
         boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-        minHeight: '300px'
+        minHeight: '340px'
       }}>
         <MapContainer
           crs={L.CRS.Simple}
@@ -317,6 +378,8 @@ export default function SafeMapScreen() {
         >
           <ImageOverlay url={overlayUrl} bounds={bounds} opacity={0.98} />
 
+          <MapViewportController />
+
           {zones.map((zoneConfig) => {
             const riskZone = activeZoneRisks.find((r) => r.zone_id === zoneConfig.zone_id);
             const riskStyle = getRiskLevelStyle(riskZone?.risk_level);
@@ -325,6 +388,7 @@ export default function SafeMapScreen() {
               <Polygon
                 key={zoneConfig.zone_id}
                 interactive={false}
+                renderer={customSvgRenderer}
                 pathOptions={{
                   className: 'citizen-pwa-zone',
                   color: riskStyle.stroke,
@@ -341,16 +405,50 @@ export default function SafeMapScreen() {
             );
           })}
 
+          {/* Render Exit Gates */}
+          {zones.filter(z => z.is_exit).map(exitZone => {
+            const crsX = ((exitZone.bounds_normalized.x_min + exitZone.bounds_normalized.x_max) / 2) * DEFAULT_IMAGE_WIDTH;
+            const crsY = DEFAULT_IMAGE_HEIGHT - ((exitZone.bounds_normalized.y_min + exitZone.bounds_normalized.y_max) / 2) * DEFAULT_IMAGE_HEIGHT;
+            return (
+              <CircleMarker
+                key={`exit-${exitZone.zone_id}`}
+                center={[crsY, crsX]}
+                radius={10}
+                renderer={customSvgRenderer}
+                pathOptions={{
+                  color: '#15803d',
+                  weight: 3,
+                  fillColor: '#22c55e',
+                  fillOpacity: 0.9,
+                }}
+              />
+            );
+          })}
+
           {routePolyline.length > 0 && (
-            <Polyline 
-              positions={routePolyline} 
-              pathOptions={{
-                color: '#3b82f6', // Visual distinction from risk zones (which are red/orange/yellow/green)
-                weight: 5,
-                opacity: 0.9,
-                dashArray: '10, 10'
-              }} 
-            />
+            <>
+              {/* Outer glow line */}
+              <Polyline 
+                positions={routePolyline} 
+                renderer={customSvgRenderer}
+                pathOptions={{
+                  color: '#60a5fa',
+                  weight: 10,
+                  opacity: 0.4,
+                }} 
+              />
+              {/* Main dashed navigation line */}
+              <Polyline 
+                positions={routePolyline} 
+                renderer={customSvgRenderer}
+                pathOptions={{
+                  color: '#2563eb',
+                  weight: 5,
+                  opacity: 1,
+                  dashArray: '8, 8'
+                }} 
+              />
+            </>
           )}
 
           {userLocation && (() => {
@@ -359,16 +457,32 @@ export default function SafeMapScreen() {
             const crsY = DEFAULT_IMAGE_HEIGHT - clamp01(normalized.y) * DEFAULT_IMAGE_HEIGHT;
             
             return (
-              <CircleMarker 
-                center={[crsY, crsX]} 
-                radius={8}
-                pathOptions={{
-                  color: 'white',
-                  weight: 3,
-                  fillColor: '#3b82f6', // Bright blue location dot
-                  fillOpacity: 1
-                }}
-              />
+              <>
+                {/* Outer pulse */}
+                <CircleMarker 
+                  center={[crsY, crsX]} 
+                  radius={14}
+                  renderer={customSvgRenderer}
+                  pathOptions={{
+                    color: '#3b82f6',
+                    weight: 1,
+                    fillColor: '#93c5fd',
+                    fillOpacity: 0.4
+                  }}
+                />
+                {/* Inner dot */}
+                <CircleMarker 
+                  center={[crsY, crsX]} 
+                  radius={7}
+                  renderer={customSvgRenderer}
+                  pathOptions={{
+                    color: 'white',
+                    weight: 2.5,
+                    fillColor: '#1d4ed8',
+                    fillOpacity: 1
+                  }}
+                />
+              </>
             );
           })()}
         </MapContainer>
@@ -379,51 +493,66 @@ export default function SafeMapScreen() {
             left: '12px',
             bottom: '12px',
             zIndex: 450,
-            padding: '10px 12px',
-            borderRadius: '10px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            background: 'rgba(9, 16, 29, 0.9)',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+            padding: '8px 10px',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            background: 'rgba(9, 16, 29, 0.88)',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
             pointerEvents: 'none',
-            minWidth: '120px',
+            minWidth: '105px',
           }}
         >
           <div
             style={{
-              fontSize: '0.65rem',
-              letterSpacing: '0.05em',
+              fontSize: '0.62rem',
+              letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              color: '#cbd5e1',
-              marginBottom: '8px',
+              color: '#94a3b8',
+              marginBottom: '6px',
               fontWeight: 700
             }}
           >
-            Risk Legend
+            Legend
           </div>
           {[
-            ['low', 'Low'],
+            ['low', 'Low Risk'],
             ['moderate', 'Moderate'],
-            ['high', 'High'],
+            ['high', 'High Risk'],
             ['critical', 'Critical'],
           ].map(([level, label]) => {
             const style = getRiskLevelStyle(level);
             return (
-              <div key={level} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+              <div key={level} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
                 <span
                   aria-hidden="true"
                   style={{
-                    width: '12px',
-                    height: '12px',
+                    width: '10px',
+                    height: '10px',
                     borderRadius: '50%',
                     backgroundColor: style.fill,
                     border: `1px solid ${style.stroke}`,
                     flexShrink: 0,
                   }}
                 />
-                <span style={{ fontSize: '0.75rem', color: '#e2e8f0', fontWeight: 500 }}>{label}</span>
+                <span style={{ fontSize: '0.7rem', color: '#f1f5f9', fontWeight: 600 }}>{label}</span>
               </div>
             );
           })}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '5px', paddingTop: '4px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <span
+              aria-hidden="true"
+              style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: '#22c55e',
+                border: '1px solid #15803d',
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: '0.7rem', color: '#86efac', fontWeight: 600 }}>Safe Exit</span>
+          </div>
         </div>
 
         {zones.length === 0 && (

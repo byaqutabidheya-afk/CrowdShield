@@ -17,10 +17,10 @@ export interface VenueCalibration {
   bottomRightLatLng: Location;
 }
 
-// Hardcoded for the hackathon demo based on the venue's approximate bounds.
+// Calibrated around user live coordinates (20.5479, 86.0004) for realistic physical testing
 export const DEMO_CALIBRATION: VenueCalibration = {
-  topLeftLatLng: { lat: 20.345, lng: 85.806 },
-  bottomRightLatLng: { lat: 20.344, lng: 85.807 }
+  topLeftLatLng: { lat: 20.5484, lng: 85.9999 },
+  bottomRightLatLng: { lat: 20.5474, lng: 86.0009 }
 };
 
 /**
@@ -133,7 +133,7 @@ function getDistanceFromLatLonInMeters(lat1: number, lon1: number, lat2: number,
 }
 
 /**
- * Checks if the user is inside or near a high/critical risk zone.
+ * Checks if the user is inside or near a zone and evaluates proximity to danger zones.
  */
 export function checkGeofenceProximity(
   userLocation: Location,
@@ -143,41 +143,58 @@ export function checkGeofenceProximity(
 ) {
   let inDangerZone = false;
   let nearestDangerZoneId: string | null = null;
-  let minDistanceMeters: number | null = null;
+  let minDangerDistanceMeters: number | null = null;
+
+  let currentZoneId: string | null = null;
+  let nearestZoneId: string | null = null;
+  let minZoneDistanceMeters: number | null = null;
 
   for (const zone of zones) {
     const risk = activeZoneRisks.find(r => r.zone_id === zone.zone_id);
-    if (!risk || (risk.risk_level !== 'high' && risk.risk_level !== 'critical')) {
-      continue;
+    const isDanger = risk && (risk.risk_level === 'high' || risk.risk_level === 'critical');
+
+    const bounds = interpolateBounds(zone.bounds_normalized, venueCalibration);
+    const minLat = Math.min(bounds.lat_min, bounds.lat_max);
+    const maxLat = Math.max(bounds.lat_min, bounds.lat_max);
+    const minLng = Math.min(bounds.lng_min, bounds.lng_max);
+    const maxLng = Math.max(bounds.lng_min, bounds.lng_max);
+
+    const isInside =
+      userLocation.lat >= minLat && userLocation.lat <= maxLat &&
+      userLocation.lng >= minLng && userLocation.lng <= maxLng;
+
+    const centroidLat = (minLat + maxLat) / 2;
+    const centroidLng = (minLng + maxLng) / 2;
+    const distance = getDistanceFromLatLonInMeters(userLocation.lat, userLocation.lng, centroidLat, centroidLng);
+
+    if (isInside) {
+      currentZoneId = zone.zone_id;
+      if (isDanger) {
+        inDangerZone = true;
+        nearestDangerZoneId = zone.zone_id;
+        minDangerDistanceMeters = 0;
+      }
     }
 
-    const { lat_min, lat_max, lng_min, lng_max } = interpolateBounds(zone.bounds_normalized, venueCalibration);
-
-    // a) Check if user falls inside the approximate zone bounds
-    if (
-      userLocation.lat >= lat_min && userLocation.lat <= lat_max &&
-      userLocation.lng >= lng_min && userLocation.lng <= lng_max
-    ) {
-      inDangerZone = true;
-      nearestDangerZoneId = zone.zone_id;
-      minDistanceMeters = 0;
-      break; // Short-circuit: we found they are currently in a danger zone
-    } else {
-      // b) Compute distance to the centroid for proximity warning
-      const centroidLat = (lat_min + lat_max) / 2;
-      const centroidLng = (lng_min + lng_max) / 2;
-      const distance = getDistanceFromLatLonInMeters(userLocation.lat, userLocation.lng, centroidLat, centroidLng);
-      
-      if (minDistanceMeters === null || distance < minDistanceMeters) {
-        minDistanceMeters = distance;
+    if (isDanger) {
+      if (minDangerDistanceMeters === null || distance < minDangerDistanceMeters) {
+        minDangerDistanceMeters = isInside ? 0 : Math.round(distance);
         nearestDangerZoneId = zone.zone_id;
       }
+    }
+
+    if (minZoneDistanceMeters === null || distance < minZoneDistanceMeters) {
+      minZoneDistanceMeters = isInside ? 0 : Math.round(distance);
+      nearestZoneId = zone.zone_id;
     }
   }
 
   return {
     inDangerZone,
     nearestDangerZoneId,
-    distanceMeters: minDistanceMeters
+    distanceMeters: minDangerDistanceMeters,
+    nearestZoneId: nearestZoneId || (zones.length > 0 ? zones[0].zone_id : null),
+    nearestZoneDistanceMeters: minZoneDistanceMeters,
+    currentZoneId
   };
 }

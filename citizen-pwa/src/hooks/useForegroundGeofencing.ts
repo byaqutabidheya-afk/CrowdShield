@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAppStore } from '../store/appStore';
 import { checkGeofenceProximity, startLocationTracking, DEMO_CALIBRATION } from '../services/geofencing';
 import type { Zone } from '../services/geofencing';
+import { getBackendHttpUrl } from '../services/apiConfig';
 
 export function useForegroundGeofencing() {
   const { userLocation, activeZoneRisks, setUserLocation, setGeofenceStatus } = useAppStore();
@@ -20,7 +21,7 @@ export function useForegroundGeofencing() {
   useEffect(() => {
     const fetchZones = async () => {
       try {
-        const url = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api';
+        const url = getBackendHttpUrl();
         const res = await axios.get(`${url}/zones`);
         setZones(res.data);
       } catch (e) {

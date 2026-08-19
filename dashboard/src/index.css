@@ -481,13 +481,28 @@ button:active {
   background: transparent;
 }
 
+/* Ensure Leaflet SVG vector layers (polygons, heatmaps, zones) are never clipped when zooming or panning */
+.leaflet-pane svg,
+.leaflet-overlay-pane svg,
+.leaflet-container svg {
+  overflow: visible !important;
+  max-width: none !important;
+  max-height: none !important;
+  pointer-events: auto;
+}
+
+.leaflet-overlay-pane {
+  z-index: 400;
+}
+
 .leaflet-pane .live-venue-zone {
   transition:
     stroke 260ms ease,
     fill 260ms ease,
     stroke-opacity 260ms ease,
     fill-opacity 260ms ease,
-  stroke-width 260ms ease;
+    stroke-width 260ms ease;
+  vector-effect: non-scaling-stroke;
 }
 
 /* Dark dashboard theme for zone hover tooltips and click popups. */

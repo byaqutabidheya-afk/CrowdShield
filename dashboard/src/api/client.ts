@@ -183,6 +183,17 @@ export const postIntervention = async (
 };
 
 /**
+ * Fetch recorded manual interventions audit log.
+ * GET /interventions
+ */
+export const getInterventions = async (params?: {
+  zone_id?: string;
+}): Promise<InterventionRecord[]> => {
+  const response = await apiClient.get<InterventionRecord[]>('/interventions', { params });
+  return response.data;
+};
+
+/**
  * Start backend live video processing loop.
  * POST /processing/start
  */

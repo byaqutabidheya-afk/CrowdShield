@@ -12,16 +12,31 @@
  * @param title - Notification title
  * @param body - Notification body text
  */
-export async function showLocalNotification(title: string, body: string): Promise<void> {
-  // Check if browser supports notifications natively
-  if (!('Notification' in window)) {
-    console.warn('This browser does not support local notifications.');
-    return;
-  }
+import { getToken, onMessage } from 'firebase/messaging';
+import { messaging } from '../firebase';
+import axios from 'axios';
+import { useAppStore } from '../store/appStore';
+import { getBackendHttpUrl } from './apiConfig';
 
-  // Only proceed if permission has already been granted explicitly
-  if (Notification.permission === 'granted') {
-    try {
+/**
+ * Shows an immediate local notification for events derived on the client (e.g., geofencing proximity checks).
+ * This is distinct from server-triggered remote push notifications.
+ * Uses the ServiceWorker registration if available (more reliable in installed PWAs),
+ * falling back to the standard native Notification API otherwise.
+ * 
+ * @param title - Notification title
+ * @param body - Notification body text
+ */
+export async function showLocalNotification(title: string, body: string): Promise<void> {
+  try {
+    // Check if browser supports notifications natively
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      console.warn('This browser does not support local notifications.');
+      return;
+    }
+
+    // Only proceed if permission has already been granted explicitly
+    if (Notification.permission === 'granted') {
       // Attempt to use the active ServiceWorker registration first
       if ('serviceWorker' in navigator) {
         // getRegistration resolves immediately, unlike .ready which may hang if no SW exists
@@ -43,32 +58,19 @@ export async function showLocalNotification(title: string, body: string): Promis
         body,
         icon: '/icons/icon-192x192.png'
       });
-    } catch (error) {
-      console.error('Failed to display local notification:', error);
+    } else {
+      console.debug('Local notification suppressed: Notification.permission is not granted.');
     }
-  } else {
-    console.debug('Local notification suppressed: Notification.permission is not granted.');
+  } catch (error) {
+    console.error('Failed to display local notification:', error);
   }
 }
 
-import { getToken, onMessage } from 'firebase/messaging';
-import { messaging } from '../firebase';
-import axios from 'axios';
-import { useAppStore } from '../store/appStore';
-
 /**
  * Requests Notification permission and registers for remote push notifications via Firebase.
- * 
- * NOTE ON MECHANISMS:
- * This handles (a) Server-triggered push via Firebase Cloud Messaging for Web.
- * This is used for venue-wide/zone-wide broadcast alerts (e.g., Phase 3 multilingual announcements).
- * 
- * This is fundamentally distinct from (b) Foreground geofence warnings generated locally 
- * in the browser (Phase 6c), which do NOT depend on push infrastructure and work completely 
- * standalone even if this FCM registration fails or is denied.
  */
 export async function registerForPush(): Promise<string | null> {
-  if (!('Notification' in window)) {
+  if (typeof window === 'undefined' || !('Notification' in window)) {
     console.warn('This browser does not support notifications.');
     return null;
   }
@@ -102,7 +104,7 @@ export async function registerForPush(): Promise<string | null> {
       const location = state.userLocation;
       const deviceId = state.clientDeviceId;
       
-      const url = import.meta.env.VITE_BACKEND_HTTP_URL || 'http://localhost:8000/api';
+      const url = getBackendHttpUrl();
       
       await axios.post(`${url}/devices/register`, {
         device_id: deviceId,
