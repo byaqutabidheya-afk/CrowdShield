@@ -82,6 +82,21 @@ async def list_incident_reports(
     return reports
 
 
+@router.delete(
+    "/{incident_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=Dict[str, Any],
+    summary="Delete an incident report",
+)
+async def delete_incident_report(incident_id: str) -> Dict[str, Any]:
+    """
+    Deletes an incident report by ID.
+    """
+    logger.info(f"Deleting incident report id='{incident_id}'.")
+    supabase_client.delete_incident_report(incident_id)
+    return {"status": "deleted", "id": incident_id}
+
+
 @router.post(
     "/summary",
     response_model=Dict[str, Any],

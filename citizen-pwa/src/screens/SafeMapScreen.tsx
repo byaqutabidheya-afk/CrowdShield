@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import L from 'leaflet';
 import { MapContainer, ImageOverlay, Polygon, CircleMarker, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -164,6 +164,8 @@ export default function SafeMapScreen() {
     return () => { isMounted = false; };
   }, []);
 
+  const targetExitIdRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!userLocation || zones.length === 0) return;
 
@@ -188,28 +190,40 @@ export default function SafeMapScreen() {
 
       const exitsWithDist = exits.map(exit => {
         const { lat, lng } = getRealWorldLatLng(exit.bounds_normalized);
-        // Simple Pythagorean distance for approximation
         const distance = Math.hypot(userLocation.lat - lat, userLocation.lng - lng);
         return { ...exit, lat, lng, distance };
       }).sort((a, b) => a.distance - b.distance);
 
+      // Exit selection with hysteresis to prevent route flipping
       let targetExit = exitsWithDist[0];
+      if (targetExitIdRef.current) {
+        const currentActive = exitsWithDist.find(e => e.zone_id === targetExitIdRef.current);
+        // Only switch if the new exit is noticeably closer (>20% closer)
+        if (currentActive && currentActive.distance < targetExit.distance * 1.2) {
+          targetExit = currentActive;
+        } else {
+          targetExitIdRef.current = targetExit.zone_id;
+        }
+      } else {
+        targetExitIdRef.current = targetExit.zone_id;
+      }
 
       // 1. Fetch GET /api/routes for route blockage predictions before computing
       try {
         const url = getBackendHttpUrl();
         const res = await axios.get(`${url}/routes`);
         const blockages = res.data;
-        const nearestExitBlockage = blockages.find((b: any) => b.route_id === targetExit.zone_id);
+        const nearestExitBlockage = Array.isArray(blockages) ? blockages.find((b: any) => b.route_id === targetExit.zone_id) : null;
 
         if (nearestExitBlockage?.at_risk_of_blockage) {
           setRoutingBanner(`Nearest exit route may be blocked near ${nearestExitBlockage.blocking_zone_id} — rerouting`);
           const safeExit = exitsWithDist.find(e => {
-            const b = blockages.find((blk: any) => blk.route_id === e.zone_id);
+            const b = Array.isArray(blockages) ? blockages.find((blk: any) => blk.route_id === e.zone_id) : null;
             return !b?.at_risk_of_blockage;
           });
           if (safeExit) {
             targetExit = safeExit;
+            targetExitIdRef.current = targetExit.zone_id;
           }
         } else {
           setRoutingBanner(null);
@@ -218,59 +232,13 @@ export default function SafeMapScreen() {
         // Fallback silently if /api/routes is missing
       }
 
-      /* 
-       * 2. Hackathon Practical Workaround: 
-       * OSRM doesn't know about our custom CrowdShield risk zones. If the shortest 
-       * straight-line path crosses a high/critical risk zone, we manually insert an 
-       * intermediate waypoint to forcefully route around the polygon boundary.
-       * (Documented as the chosen practical approach for this prototype).
-       */
-      const intermediateWaypoints: L.LatLng[] = [];
-      const obstacleIds = activeZoneRisks
-        .filter(r => r.risk_level === 'high' || r.risk_level === 'critical')
-        .map(r => r.zone_id);
-
-      if (isAccessibleRoute) {
-        zones.forEach(z => {
-          if (z.has_stairs && !obstacleIds.includes(z.zone_id)) {
-            obstacleIds.push(z.zone_id);
-          }
-        });
-      }
-      
-      for (const obsId of obstacleIds) {
-        const zoneInfo = zones.find(z => z.zone_id === obsId);
-        if (!zoneInfo) continue;
-        const { lat, lng } = getRealWorldLatLng(zoneInfo.bounds_normalized);
-        const lineLen = Math.hypot(targetExit.lat - userLocation.lat, targetExit.lng - userLocation.lng);
-        if (lineLen === 0) continue;
-        
-        // Crude segment-to-point distance check (AABB approximation)
-        const u = ((lat - userLocation.lat) * (targetExit.lat - userLocation.lat) + (lng - userLocation.lng) * (targetExit.lng - userLocation.lng)) / (lineLen * lineLen);
-        if (u > 0 && u < 1) {
-           const projLat = userLocation.lat + u * (targetExit.lat - userLocation.lat);
-           const projLng = userLocation.lng + u * (targetExit.lng - userLocation.lng);
-           const distToLine = Math.hypot(lat - projLat, lng - projLng);
-           
-           // If the path cuts closely through the centroid of the danger zone
-           if (distToLine < 0.0003) { 
-              // Add an evasion waypoint at the 'corner' of the zone boundary
-              const evasionLat = DEMO_CALIBRATION.topLeftLatLng.lat + zoneInfo.bounds_normalized.y_min * (DEMO_CALIBRATION.bottomRightLatLng.lat - DEMO_CALIBRATION.topLeftLatLng.lat);
-              const evasionLng = DEMO_CALIBRATION.topLeftLatLng.lng + zoneInfo.bounds_normalized.x_max * (DEMO_CALIBRATION.bottomRightLatLng.lng - DEMO_CALIBRATION.topLeftLatLng.lng);
-              intermediateWaypoints.push(L.latLng(evasionLat, evasionLng));
-              break;
-           }
-        }
-      }
-
-      // Map waypoints into CRS.Simple canvas space
-      const allWaypoints = [
-        userLocation,
-        ...intermediateWaypoints,
+      // 2. Compute smooth path from user location to target exit
+      const allWaypoints: { lat: number; lng: number }[] = [
+        { lat: userLocation.lat, lng: userLocation.lng },
         { lat: targetExit.lat, lng: targetExit.lng }
       ];
 
-      const mappedCoords = allWaypoints.map((wp: any) => {
+      const mappedCoords = allWaypoints.map((wp) => {
         const norm = latLngToNormalized({ lat: wp.lat, lng: wp.lng }, DEMO_CALIBRATION);
         const crsX = clamp01(norm.x) * DEFAULT_IMAGE_WIDTH;
         const crsY = DEFAULT_IMAGE_HEIGHT - clamp01(norm.y) * DEFAULT_IMAGE_HEIGHT;

@@ -15,6 +15,8 @@ export default function ReportScreen() {
   const [myReports, setMyReports] = useState<any[]>([]);
   const [isLoadingReports, setIsLoadingReports] = useState(true);
 
+  const [deletingReportId, setDeletingReportId] = useState<string | null>(null);
+
   const fetchMyReports = async () => {
     try {
       setIsLoadingReports(true);
@@ -30,6 +32,22 @@ export default function ReportScreen() {
     }
   };
 
+  const handleDeleteReport = async (reportId: string) => {
+    try {
+      setDeletingReportId(reportId);
+      // Optimistically remove from local state
+      setMyReports((prev) => prev.filter((r) => r.id !== reportId));
+      const url = getBackendHttpUrl();
+      await axios.delete(`${url}/incidents/${reportId}`);
+    } catch (e) {
+      console.error('Failed to delete report', e);
+      // Refresh on failure to stay consistent
+      fetchMyReports();
+    } finally {
+      setDeletingReportId(null);
+    }
+  };
+
   useEffect(() => {
     if (clientDeviceId) {
       fetchMyReports();
@@ -42,38 +60,37 @@ export default function ReportScreen() {
     }
   };
 
-  const compressImage = (file: File): Promise<Blob> => {
+  const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        let width = img.width;
-        let height = img.height;
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const img = new Image();
+        img.src = readerEvent.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          let width = img.width;
+          let height = img.height;
 
-        if (width > MAX_WIDTH) {
-          height = Math.round((height * MAX_WIDTH) / width);
-          width = MAX_WIDTH;
-        }
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
 
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return reject('No canvas context');
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        // Compress client-side to keep submissions fast on conference WiFi
-        canvas.toBlob(
-          (blob) => {
-            if (blob) resolve(blob);
-            else reject('Blob creation failed');
-          },
-          'image/jpeg',
-          0.7 
-        );
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return reject('No canvas context');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Compress to JPEG data URL (~50-100KB)
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
       };
-      img.onerror = (err) => reject(err);
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
     });
   };
 
@@ -83,16 +100,18 @@ export default function ReportScreen() {
     setSubmitError(false);
 
     try {
+      let photoDataUrl: string | null = null;
       if (selectedPhoto) {
-        const compressedBlob = await compressImage(selectedPhoto);
-        console.log(`[Compression] Original: ${(selectedPhoto.size/1024).toFixed(1)}KB, Compressed: ${(compressedBlob.size/1024).toFixed(1)}KB`);
+        photoDataUrl = await compressImage(selectedPhoto);
+        console.log(`[Compression] Photo converted to base64 (${(photoDataUrl.length / 1024).toFixed(1)} KB)`);
       }
 
       const url = getBackendHttpUrl();
       await axios.post(`${url}/incidents`, {
         source: 'citizen',
         gps_coordinates: userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : null,
-        notes: notes.trim(),
+        photo_url: photoDataUrl,
+        notes: notes.trim() || 'Attached photo evidence',
         client_device_id: clientDeviceId,
       });
 
@@ -365,21 +384,62 @@ export default function ReportScreen() {
                     <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                       {new Date(report.submitted_at).toLocaleString()}
                     </span>
-                    <span style={{
-                      fontSize: '0.7rem',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      background: report.ai_summary ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.15)',
-                      color: report.ai_summary ? '#10b981' : '#3b82f6',
-                      fontWeight: 600,
-                      textTransform: 'uppercase'
-                    }}>
-                      {report.ai_summary ? 'Reviewed' : 'Received'}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{
+                        fontSize: '0.7rem',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        background: report.ai_summary ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.15)',
+                        color: report.ai_summary ? '#10b981' : '#3b82f6',
+                        fontWeight: 600,
+                        textTransform: 'uppercase'
+                      }}>
+                        {report.ai_summary ? 'Reviewed' : 'Received'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteReport(report.id);
+                        }}
+                        disabled={deletingReportId === report.id}
+                        title="Remove this report"
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          color: '#f87171',
+                          borderRadius: '6px',
+                          padding: '2px 6px',
+                          fontSize: '0.75rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '2px',
+                          lineHeight: 1,
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        {deletingReportId === report.id ? '...' : '🗑️'}
+                      </button>
+                    </div>
                   </div>
                   <p style={{ margin: 0, fontSize: '0.875rem', color: '#cbd5e1', lineHeight: 1.5 }}>
                     {report.notes || 'Photo submission'}
                   </p>
+                  {report.photo_url && (
+                    <img
+                      src={report.photo_url}
+                      alt="Submitted evidence"
+                      style={{
+                        width: '100%',
+                        maxHeight: '160px',
+                        objectFit: 'cover',
+                        borderRadius: '6px',
+                        marginTop: '4px',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                      }}
+                    />
+                  )}
                 </div>
               ))}
             </div>

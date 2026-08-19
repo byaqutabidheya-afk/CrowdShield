@@ -51,6 +51,35 @@ const getRelativeTime = (timestamp?: string): string => {
   }
 };
 
+const formatTimestampDetails = (timestamp?: string): { relative: string; exact: string } => {
+  if (!timestamp) return { relative: 'Just now', exact: new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) };
+  try {
+    const d = new Date(timestamp);
+    const exactTime = d.toLocaleTimeString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    const exactDate = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+    return { relative: getRelativeTime(timestamp), exact: `${exactTime} • ${exactDate}` };
+  } catch {
+    return { relative: 'Just now', exact: String(timestamp) };
+  }
+};
+
+const formatLocation = (coords: any, zoneId?: string): string => {
+  if (coords) {
+    const lat = coords.lat ?? coords.latitude;
+    const lng = coords.lng ?? coords.longitude;
+    if (typeof lat === 'number' && typeof lng === 'number') {
+      return `${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E`;
+    }
+  }
+  return zoneId ? `Zone ${zoneId}` : 'Venue Area';
+};
+
 export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNavigateToZone }) => {
   const incidentReports = useLiveDataStore((state) => state.incidentReports);
   const fetchIncidents = useLiveDataStore((state) => state.fetchIncidents);
@@ -63,6 +92,15 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
   const [summarizingIncidentId, setSummarizingIncidentId] = useState<string | null>(null);
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [expandedPhotoUrl, setExpandedPhotoUrl] = useState<string | null>(null);
+
+  // Fetch incidents on mount and poll every 3 seconds for live incoming reports
+  React.useEffect(() => {
+    fetchIncidents();
+    const interval = setInterval(() => {
+      fetchIncidents();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [fetchIncidents]);
 
   const handleManualRefresh = async () => {
     setIsRefreshing(true);
@@ -470,6 +508,53 @@ export const IncidentReportsPanel: React.FC<IncidentReportsPanelProps> = ({ onNa
                 <p style={{ fontSize: '0.75rem', color: '#f8fafc', lineHeight: '1.35', margin: 0 }}>
                   {report.notes}
                 </p>
+
+                {/* Location & Exact Timestamp Metadata Bar */}
+                {(() => {
+                  const timeInfo = formatTimestampDetails(report.submitted_at);
+                  const locText = formatLocation(report.gps_coordinates, report.zone_id || undefined);
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem', fontSize: '0.66rem', marginTop: '0.1rem' }}>
+                      <span
+                        className="font-mono"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                          color: '#cbd5e1',
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '4px',
+                          border: '1px solid rgba(255, 255, 255, 0.08)'
+                        }}
+                      >
+                        <span>🕒</span>
+                        <span>{timeInfo.exact}</span>
+                        <span style={{ color: 'var(--color-text-dim)' }}>({timeInfo.relative})</span>
+                      </span>
+
+                      <span
+                        onClick={() => onNavigateToZone && report.zone_id && onNavigateToZone(report.zone_id, report.gps_coordinates || undefined)}
+                        className="font-mono"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                          color: '#38bdf8',
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '4px',
+                          border: '1px solid rgba(56, 189, 248, 0.25)',
+                          cursor: onNavigateToZone ? 'pointer' : 'default',
+                        }}
+                        title="Click to view on venue map"
+                      >
+                        <span>📍</span>
+                        <span>{locText}</span>
+                      </span>
+                    </div>
+                  );
+                })()}
 
                 {/* Action Trigger Button */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem' }}>
