@@ -1,46 +1,53 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { 
+  ShieldCheck, 
+  AlertTriangle, 
+  MapPin, 
+  Compass, 
+  Clock, 
+  Sparkles, 
+  RefreshCw, 
+  Navigation,
+  Activity,
+  CheckCircle2
+} from 'lucide-react';
 import type { Alert, ZoneRisk } from '../store/appStore';
 import { useAppStore } from '../store/appStore';
 import { getTranslation } from '../i18n/translations';
 import { getBackendHttpUrl } from '../services/apiConfig';
 
-// Simple time-ago helper to avoid adding heavy dependencies like date-fns
 function timeAgo(dateString?: string) {
   if (!dateString) return 'Just now';
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return 'Just now';
   
   const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-  if (seconds < 60) return 'Just now';
+  if (seconds < 60) return `${Math.max(1, seconds)}s ago`;
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+  if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-  return `${Math.floor(hours / 24)} days ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
-// Phase 5 dashboard color palette for risk levels
 const getRiskColor = (level?: string) => {
   switch (level?.toLowerCase()) {
-    case 'low': return '#16a34a'; // Green
-    case 'moderate': return '#eab308'; // Yellow
-    case 'high': return '#f97316'; // Orange
-    case 'critical': return '#dc2626'; // Red
-    default: return '#64748b'; // Gray/Unknown
+    case 'low': return { text: '#34d399', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.35)', badge: '#10b981' };
+    case 'moderate': return { text: '#fbbf24', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.35)', badge: '#f59e0b' };
+    case 'high': return { text: '#fb923c', bg: 'rgba(249, 115, 22, 0.15)', border: 'rgba(249, 115, 22, 0.35)', badge: '#f97316' };
+    case 'critical': return { text: '#f87171', bg: 'rgba(239, 68, 68, 0.18)', border: 'rgba(239, 68, 68, 0.45)', badge: '#ef4444' };
+    default: return { text: '#a78bfa', bg: 'rgba(167, 139, 250, 0.15)', border: 'rgba(167, 139, 250, 0.3)', badge: '#8b5cf6' };
   }
 };
 
-// Helper to extract or generate human-readable reasoning
 function getAlertReasonings(alert: Alert, zoneRisk?: ZoneRisk): string[] {
   const reasonings: string[] = [];
 
-  // 1. Direct alert-level reasoning if present
   if (alert.reasoning && typeof alert.reasoning === 'string' && alert.reasoning.trim()) {
     reasonings.push(alert.reasoning.trim());
   }
 
-  // 2. Reasonings from recommendations
   if (Array.isArray(alert.recommendations) && alert.recommendations.length > 0) {
     for (const rec of alert.recommendations) {
       if (rec.reasoning && typeof rec.reasoning === 'string' && rec.reasoning.trim()) {
@@ -51,7 +58,6 @@ function getAlertReasonings(alert: Alert, zoneRisk?: ZoneRisk): string[] {
     }
   }
 
-  // 3. Fallback: derive from contributing factors if available
   if (reasonings.length === 0) {
     const factors = alert.contributing_factors || zoneRisk?.contributing_factors;
     if (factors && typeof factors === 'object') {
@@ -79,7 +85,6 @@ function getAlertReasonings(alert: Alert, zoneRisk?: ZoneRisk): string[] {
     }
   }
 
-  // 4. Baseline fallback
   if (reasonings.length === 0) {
     const level = (alert.risk_level || alert.risk_level_at_trigger || zoneRisk?.risk_level || 'elevated').toLowerCase();
     reasonings.push(`Automated safety sensors detected elevated (${level}) crowd risk in this zone.`);
@@ -95,9 +100,6 @@ interface AlertsScreenProps {
 export default function AlertsScreen({ onNavigateToMap }: AlertsScreenProps) {
   const { selectedLanguage, activeAlerts, geofenceStatus, userLocation } = useAppStore();
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Derive risk_level from activeZoneRisks if not directly in the alert
-  // (In case the backend only sends risk_data.zones separately)
   const activeZoneRisks = useAppStore((state) => state.activeZoneRisks);
   
   const handleRefresh = async () => {
@@ -112,276 +114,311 @@ export default function AlertsScreen({ onNavigateToMap }: AlertsScreenProps) {
     }
   };
 
-  // Sort most recent first based on timestamp (if available, otherwise by array order)
   const sortedAlerts = [...activeAlerts].reverse();
-
   const isDangerActive = geofenceStatus?.inDangerZone || (geofenceStatus != null && geofenceStatus.distanceMeters != null && geofenceStatus.distanceMeters < 50);
 
   return (
-    <div style={{ paddingBottom: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-        <h1 style={{ margin: 0 }}>{getTranslation(selectedLanguage, 'alerts')}</h1>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Title & Refresh */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#ffffff' }}>
+            {getTranslation(selectedLanguage, 'alerts')}
+          </h1>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-dim)' }}>
+            Live venue safety advisories and proximity tracking
+          </p>
+        </div>
+
         <button 
           onClick={handleRefresh}
           disabled={isRefreshing}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '20px',
-            border: '1px solid var(--border-color)',
-            background: 'white',
-            cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '0.875rem'
-          }}
+          className="btn-secondary"
+          style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '8px' }}
         >
-          {isRefreshing ? '↻...' : '↻ Refresh'}
+          <RefreshCw size={14} className={isRefreshing ? 'pulse-dot' : ''} />
+          <span>{isRefreshing ? 'Syncing...' : 'Refresh'}</span>
         </button>
       </div>
 
       {/* Geofence & Location Status Card */}
-      <div style={{ marginBottom: '20px' }}>
-        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span>📍</span>
-          <span>Your Location Status</span>
-        </h3>
+      <div className="glass-card" style={{ overflow: 'hidden' }}>
+        <div className="glass-card-header" style={{ padding: '10px 14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-accent-violet)' }}>
+            <Compass size={16} />
+            <span>YOUR LIVE VENUE TELEMETRY</span>
+          </div>
 
-        {isDangerActive ? (
-          <div style={{
-            backgroundColor: '#ef4444',
-            color: 'white',
-            padding: '14px 16px',
-            borderRadius: '12px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-            boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)'
-          }}>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '1.4rem' }}>🚨</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span className="pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: userLocation ? '#34d399' : '#94a3b8' }} />
+            <span className="font-mono" style={{ fontSize: '0.65rem', color: userLocation ? '#34d399' : 'var(--color-text-dim)' }}>
+              {userLocation ? 'GPS ACTIVE' : 'NO GPS'}
+            </span>
+          </div>
+        </div>
+
+        <div className="glass-card-body" style={{ padding: '14px' }}>
+          {isDangerActive ? (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(185, 28, 28, 0.15) 100%)',
+              border: '1px solid rgba(239, 68, 68, 0.45)',
+              padding: '14px',
+              borderRadius: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f87171',
+                  flexShrink: 0
+                }}>
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <strong style={{ fontSize: '0.88rem', color: '#ffffff', display: 'block', marginBottom: '2px' }}>
+                    {geofenceStatus?.inDangerZone ? 'You are inside a High-Risk Zone!' : getTranslation(selectedLanguage, 'nearHighRiskZone')}
+                  </strong>
+                  <span style={{ fontSize: '0.78rem', color: '#fca5a5', lineHeight: 1.4 }}>
+                    {geofenceStatus?.nearestDangerZoneId ? `Zone ${geofenceStatus.nearestDangerZoneId}` : ''}
+                    {geofenceStatus?.distanceMeters ? ` • Distance: ~${geofenceStatus.distanceMeters}m away` : ''}
+                    {' • Please follow evacuation path to designated safe exit.'}
+                  </span>
+                </div>
+              </div>
+
+              {onNavigateToMap && (
+                <button 
+                  onClick={onNavigateToMap}
+                  className="btn-primary"
+                  style={{
+                    backgroundColor: '#ef4444',
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    boxShadow: '0 4px 14px rgba(239, 68, 68, 0.4)',
+                    padding: '9px 14px',
+                    fontSize: '0.82rem',
+                    width: '100%'
+                  }}
+                >
+                  <Navigation size={15} />
+                  <span>Show Evacuation Safe Route</span>
+                </button>
+              )}
+            </div>
+          ) : userLocation ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#34d399'
+                  }}>
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div>
+                    <strong style={{ fontSize: '0.86rem', color: '#ffffff', display: 'block' }}>Safe Zone • Live Monitored</strong>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--color-text-dim)' }}>Low crowd pressure in current perimeter</span>
+                  </div>
+                </div>
+
+                <span style={{ 
+                  fontSize: '0.65rem', 
+                  backgroundColor: 'rgba(16, 185, 129, 0.15)', 
+                  color: '#34d399', 
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  padding: '3px 8px', 
+                  borderRadius: '99px', 
+                  fontWeight: 700 
+                }}>
+                  NORMAL
+                </span>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '8px',
+                padding: '8px 10px',
+                background: 'rgba(255, 255, 255, 0.02)',
+                borderRadius: '8px',
+                border: '1px solid var(--border-subtle)'
+              }}>
+                <div>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--color-text-dim)', display: 'block' }}>NEAREST ZONE</span>
+                  <span className="font-mono" style={{ fontSize: '0.78rem', color: 'var(--color-accent-cyan)', fontWeight: 700 }}>
+                    {geofenceStatus?.nearestZoneId || 'Zone A1'} 
+                    {geofenceStatus?.nearestZoneDistanceMeters != null && (
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}> ({geofenceStatus.nearestZoneDistanceMeters < 1000 ? `${geofenceStatus.nearestZoneDistanceMeters}m` : `${(geofenceStatus.nearestZoneDistanceMeters/1000).toFixed(1)}km`})</span>
+                    )}
+                  </span>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '0.65rem', color: 'var(--color-text-dim)', display: 'block' }}>GPS POSITION</span>
+                  <span className="font-mono" style={{ fontSize: '0.75rem', color: '#e2e8f0', fontWeight: 600 }}>
+                    {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                  </span>
+                </div>
+              </div>
+
+              {onNavigateToMap && (
+                <button
+                  onClick={onNavigateToMap}
+                  className="btn-secondary"
+                  style={{ width: '100%', padding: '8px', fontSize: '0.78rem' }}
+                >
+                  <Navigation size={14} />
+                  <span>View On Tactical Safe Map</span>
+                </button>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <MapPin size={20} style={{ color: 'var(--color-text-dim)' }} />
               <div>
-                <strong style={{ fontSize: '0.92rem', display: 'block', marginBottom: '2px' }}>
-                  {geofenceStatus?.inDangerZone ? 'You are inside a High-Risk Zone!' : getTranslation(selectedLanguage, 'nearHighRiskZone')}
-                </strong>
-                <span style={{ fontSize: '0.8rem', opacity: 0.95 }}>
-                  {geofenceStatus?.nearestDangerZoneId ? `Zone: ${geofenceStatus.nearestDangerZoneId}` : ''}
-                  {geofenceStatus?.distanceMeters ? ` • Distance: ~${geofenceStatus.distanceMeters}m away` : ''}
-                  {' • Please follow evacuation routes to the nearest exit.'}
+                <strong style={{ fontSize: '0.82rem', color: '#ffffff', display: 'block' }}>GPS Location Inactive</strong>
+                <span style={{ fontSize: '0.74rem', color: 'var(--color-text-dim)' }}>
+                  Enable GPS in Settings tab to activate live evacuation geofencing.
                 </span>
               </div>
             </div>
-            {onNavigateToMap && (
-              <button 
-                onClick={onNavigateToMap}
-                style={{
-                  backgroundColor: 'white',
-                  border: 'none',
-                  color: '#dc2626',
-                  padding: '10px',
-                  borderRadius: '8px',
-                  fontWeight: 700,
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  width: '100%',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-                }}
-              >
-                🗺️ Show Safe Route
-              </button>
-            )}
-          </div>
-        ) : userLocation ? (
-          <div style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #10b981',
-            padding: '14px 16px',
-            borderRadius: '12px',
+          )}
+        </div>
+      </div>
+
+      {/* Active Incident & Safety Alerts Section */}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+          <Activity size={15} style={{ color: 'var(--color-accent-violet)' }} />
+          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Active Safety Alerts ({sortedAlerts.length})
+          </span>
+        </div>
+
+        {sortedAlerts.length === 0 ? (
+          <div className="glass-card" style={{
+            padding: '40px 20px',
+            textAlign: 'center',
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px',
-            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)'
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ color: '#10b981', fontSize: '1.1rem' }}>🛡️</span>
-                <strong style={{ fontSize: '0.9rem', color: '#065f46' }}>Safe Zone • Live GPS Monitored</strong>
-              </div>
-              <span style={{ fontSize: '0.72rem', backgroundColor: '#d1fae5', color: '#065f46', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
-                NORMAL
-              </span>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#34d399',
+              marginBottom: '4px'
+            }}>
+              <CheckCircle2 size={24} />
             </div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span>
-                Nearest Venue Zone: <strong>{geofenceStatus?.nearestZoneId || 'Zone A1'}</strong>
-                {geofenceStatus?.nearestZoneDistanceMeters != null && (
-                  <span> ({geofenceStatus.nearestZoneDistanceMeters < 1000 ? `${geofenceStatus.nearestZoneDistanceMeters}m away` : `${(geofenceStatus.nearestZoneDistanceMeters/1000).toFixed(1)}km`})</span>
-                )}
-              </span>
-              <span style={{ fontSize: '0.74rem', opacity: 0.8 }}>
-                GPS: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
-              </span>
-            </div>
-            {onNavigateToMap && (
-              <button
-                onClick={onNavigateToMap}
-                style={{
-                  marginTop: '4px',
-                  background: '#f8fafc',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-color)',
-                  padding: '8px',
-                  borderRadius: '6px',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}
-              >
-                🗺️ View On Safe Map
-              </button>
-            )}
+            <strong style={{ fontSize: '0.95rem', color: '#ffffff' }}>
+              {getTranslation(selectedLanguage, 'noActiveAlerts')}
+            </strong>
+            <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-dim)' }}>
+              All venue gates, corridors, and exits are operating at normal capacity.
+            </p>
           </div>
         ) : (
-          <div style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid var(--border-color)',
-            padding: '14px 16px',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '1.2rem' }}>📍</span>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <strong style={{ fontSize: '0.85rem' }}>GPS Tracking Inactive</strong>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                  Enable GPS in Settings to see live proximity warnings.
-                </span>
-              </div>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {sortedAlerts.map((alert, index) => {
+              const zoneRisk = activeZoneRisks.find(z => z.zone_id === alert.zone_id);
+              const riskLevel = alert.risk_level || alert.risk_level_at_trigger || zoneRisk?.risk_level || 'unknown';
+              const riskPalette = getRiskColor(riskLevel);
+              
+              const summaryMsg = alert.message?.[selectedLanguage] || 
+                                 alert.message?.en || 
+                                 `Safety alert for Zone ${alert.zone_id}: Elevated risk observed.`;
+
+              const reasonings = getAlertReasonings(alert, zoneRisk);
+
+              return (
+                <div 
+                  key={`${alert.zone_id}-${index}`}
+                  className="glass-card"
+                  style={{
+                    borderLeft: `4px solid ${riskPalette.badge}`,
+                    overflow: 'hidden'
+                  }}
+                >
+                  <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className="font-mono" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff' }}>
+                          [{alert.zone_id}]
+                        </span>
+                        <span style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          backgroundColor: riskPalette.bg,
+                          color: riskPalette.text,
+                          border: `1px solid ${riskPalette.border}`,
+                          textTransform: 'uppercase'
+                        }}>
+                          {riskLevel} RISK
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.68rem', color: 'var(--color-text-dim)' }}>
+                        <Clock size={11} />
+                        <span className="font-mono">{timeAgo(alert.timestamp || alert.triggered_at)}</span>
+                      </div>
+                    </div>
+
+                    <p style={{ margin: 0, fontSize: '0.82rem', fontWeight: 600, color: '#f8fafc', lineHeight: 1.4 }}>
+                      {summaryMsg}
+                    </p>
+
+                    {/* Reasoning Section */}
+                    <div style={{
+                      marginTop: '4px',
+                      padding: '10px 12px',
+                      backgroundColor: 'rgba(5, 8, 17, 0.6)',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-subtle)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', fontWeight: 700, color: 'var(--color-accent-violet)' }}>
+                        <Sparkles size={12} />
+                        <span>AI REASONING & TACTICAL ADVISORY</span>
+                      </div>
+                      {reasonings.map((reason, rIdx) => (
+                        <p key={rIdx} style={{ margin: 0, fontSize: '0.76rem', color: '#cbd5e1', lineHeight: 1.45 }}>
+                          {reason}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
-
-      {sortedAlerts.length === 0 ? (
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '64px 24px',
-          textAlign: 'center',
-          color: 'var(--text-secondary)'
-        }}>
-          <span style={{ fontSize: '3rem', marginBottom: '16px' }}>✓</span>
-          <h2 style={{ color: 'var(--text-color)' }}>{getTranslation(selectedLanguage, 'noActiveAlerts')}</h2>
-          <p>Everything is operating normally.</p>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {sortedAlerts.map((alert, index) => {
-            // Find current risk level from zone risks if not in alert
-            const zoneRisk = activeZoneRisks.find(z => z.zone_id === alert.zone_id);
-            const riskLevel = alert.risk_level || alert.risk_level_at_trigger || zoneRisk?.risk_level || 'unknown';
-            const riskColor = getRiskColor(riskLevel);
-            
-            // Get translation if available from multilingual pipeline, else fallback
-            const summaryMsg = alert.message?.[selectedLanguage] || 
-                               alert.message?.en || 
-                               `Safety alert for Zone ${alert.zone_id}: Elevated risk observed.`;
-
-            const reasonings = getAlertReasonings(alert, zoneRisk);
-
-            return (
-              <div 
-                key={`${alert.zone_id}-${index}`}
-                style={{
-                  background: 'white',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                  borderLeft: `6px solid ${riskColor}`
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <strong style={{ fontSize: '1.125rem' }}>Zone: {alert.zone_id}</strong>
-                  <span style={{ 
-                    fontSize: '0.75rem', 
-                    color: 'var(--text-secondary)',
-                    fontWeight: 500
-                  }}>
-                    {timeAgo(alert.timestamp || alert.triggered_at)}
-                  </span>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  <div style={{ 
-                    display: 'inline-block',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    background: riskColor + '22', // 22 is hex opacity
-                    color: riskColor,
-                    fontWeight: 700,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase'
-                  }}>
-                    {riskLevel} RISK
-                  </div>
-                  {(alert.peak_risk_score !== undefined || zoneRisk?.risk_score !== undefined) && (
-                    <span style={{ 
-                      fontSize: '0.75rem', 
-                      color: 'var(--text-secondary)', 
-                      fontWeight: 600,
-                      backgroundColor: '#f1f5f9',
-                      padding: '4px 8px',
-                      borderRadius: '4px'
-                    }}>
-                      Score: {Math.round(((alert.peak_risk_score ?? zoneRisk?.risk_score ?? 0)) * 100)}%
-                    </span>
-                  )}
-                </div>
-
-                {/* Primary Alert Message */}
-                <p style={{ margin: '0 0 12px 0', fontWeight: 600, color: 'var(--text-color)', fontSize: '0.95rem', lineHeight: 1.4 }}>
-                  {summaryMsg}
-                </p>
-
-                {/* Reasoning Box */}
-                <div style={{
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  padding: '10px 12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px'
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '6px', 
-                    color: 'var(--text-secondary)', 
-                    fontSize: '0.75rem', 
-                    fontWeight: 700, 
-                    textTransform: 'uppercase', 
-                    letterSpacing: '0.025em' 
-                  }}>
-                    <span>💡</span>
-                    <span>{getTranslation(selectedLanguage, 'reasoning')}:</span>
-                  </div>
-                  {reasonings.map((reason, rIdx) => (
-                    <p key={rIdx} style={{ margin: 0, fontSize: '0.85rem', color: '#334155', lineHeight: 1.45 }}>
-                      {reason}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }

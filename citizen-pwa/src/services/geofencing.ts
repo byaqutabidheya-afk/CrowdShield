@@ -17,15 +17,25 @@ export interface VenueCalibration {
   bottomRightLatLng: Location;
 }
 
-// Calibrated around user live coordinates (20.5479, 86.0004) for realistic physical testing
-export const DEMO_CALIBRATION: VenueCalibration = {
-  topLeftLatLng: { lat: 20.5484, lng: 85.9999 },
-  bottomRightLatLng: { lat: 20.5474, lng: 86.0009 }
-};
+// Dynamic venue calibration generator around a central lat/lng coordinate
+export function createVenueCalibration(centerLat: number, centerLng: number, radiusMeters: number = 120): VenueCalibration {
+  // 1 degree latitude ~ 111,320 meters
+  // 1 degree longitude ~ 111,320 * cos(lat)
+  const latDelta = radiusMeters / 111320;
+  const lngDelta = radiusMeters / (111320 * Math.cos((centerLat * Math.PI) / 180));
+
+  return {
+    topLeftLatLng: { lat: centerLat + latDelta, lng: centerLng - lngDelta },
+    bottomRightLatLng: { lat: centerLat - latDelta, lng: centerLng + lngDelta }
+  };
+}
+
+// Calibrated around user live coordinates (20.5479, 86.0004) with generous ~250m venue perimeter
+export const DEMO_CALIBRATION: VenueCalibration = createVenueCalibration(20.5479, 86.0004, 125);
 
 /**
  * Starts real-time location tracking using the browser's native watchPosition API.
- * Requests permission implicitly upon calling.
+ * Requests permission implicitly upon calling with high accuracy hardware satellite fixes.
  * 
  * @param onLocationUpdate - Callback fired on new position
  * @param onPermissionDenied - Callback fired if user denies permission
@@ -55,8 +65,8 @@ export function startLocationTracking(
       }
     },
     {
-      enableHighAccuracy: false, // Sufficient for venue-scale approximation
-      maximumAge: 5000,          // Reuse positions up to 5 seconds old
+      enableHighAccuracy: true,
+      maximumAge: 0,     // Fresh real-time satellite updates
       timeout: 10000
     }
   );
@@ -176,15 +186,21 @@ export function checkGeofenceProximity(
       }
     }
 
+    const formatStableDistance = (dist: number) => {
+      if (dist < 8) return Math.round(dist);
+      if (dist < 50) return Math.round(dist / 5) * 5;
+      return Math.round(dist / 10) * 10;
+    };
+
     if (isDanger) {
       if (minDangerDistanceMeters === null || distance < minDangerDistanceMeters) {
-        minDangerDistanceMeters = isInside ? 0 : Math.round(distance);
+        minDangerDistanceMeters = isInside ? 0 : formatStableDistance(distance);
         nearestDangerZoneId = zone.zone_id;
       }
     }
 
     if (minZoneDistanceMeters === null || distance < minZoneDistanceMeters) {
-      minZoneDistanceMeters = isInside ? 0 : Math.round(distance);
+      minZoneDistanceMeters = isInside ? 0 : formatStableDistance(distance);
       nearestZoneId = zone.zone_id;
     }
   }

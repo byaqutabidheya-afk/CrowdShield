@@ -56,6 +56,7 @@ interface AppState {
     nearestZoneDistanceMeters?: number | null;
     currentZoneId?: string | null;
   } | null;
+  inAppToast: { id: string; title: string; body: string; type?: 'alert' | 'info' } | null;
 
   // Actions
   setUserLocation: (location: Location | null) => void;
@@ -65,6 +66,8 @@ interface AppState {
   addAlert: (alert: Alert) => void;
   setConnectionStatus: (status: ConnectionStatus) => void;
   setGeofenceStatus: (status: AppState['geofenceStatus']) => void;
+  triggerInAppNotification: (title: string, body: string, type?: 'alert' | 'info') => void;
+  dismissInAppNotification: () => void;
 }
 
 function generateDeviceId(): string {
@@ -88,6 +91,7 @@ export const useAppStore = create<AppState>()(
       connectionStatus: 'disconnected',
       clientDeviceId: generateDeviceId(),
       geofenceStatus: null,
+      inAppToast: null,
 
       setUserLocation: (location) => set({ userLocation: location }),
       setActiveZoneRisks: (risks) => set({ activeZoneRisks: risks }),
@@ -95,6 +99,18 @@ export const useAppStore = create<AppState>()(
       setActiveAlerts: (alerts) => set({ activeAlerts: alerts }),
       addAlert: (alert) => set((state) => ({ activeAlerts: [...state.activeAlerts, alert] })),
       setConnectionStatus: (status) => set({ connectionStatus: status }),
+      triggerInAppNotification: (title, body, type = 'alert') => {
+        const id = 'notif_' + Date.now();
+        set({ inAppToast: { id, title, body, type } });
+        try {
+          if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
+          }
+        } catch {
+          // ignore vibration error
+        }
+      },
+      dismissInAppNotification: () => set({ inAppToast: null }),
       setGeofenceStatus: (status) => {
         const state = get();
         const currentZone = state.geofenceStatus?.inDangerZone ? state.geofenceStatus.nearestDangerZoneId : null;
@@ -105,6 +121,7 @@ export const useAppStore = create<AppState>()(
           const title = getTranslation(state.selectedLanguage, 'alerts');
           const body = getTranslation(state.selectedLanguage, 'nearHighRiskZone');
           showLocalNotification(title, `${body} (${newZone})`);
+          get().triggerInAppNotification(title, `${body} (${newZone})`, 'alert');
         }
 
         set({ geofenceStatus: status });

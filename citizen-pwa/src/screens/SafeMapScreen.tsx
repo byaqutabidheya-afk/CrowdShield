@@ -3,6 +3,7 @@ import L from 'leaflet';
 import { MapContainer, ImageOverlay, Polygon, CircleMarker, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
+import { Footprints, Accessibility, AlertTriangle } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 import { getTranslation } from '../i18n/translations';
 import { DEMO_CALIBRATION, latLngToNormalized } from '../services/geofencing';
@@ -118,7 +119,7 @@ function createPlaceholderFloorPlanSvg(width: number, height: number): string {
 }
 
 export default function SafeMapScreen() {
-  const { selectedLanguage, activeZoneRisks, userLocation } = useAppStore();
+  const { selectedLanguage, activeZoneRisks, userLocation, geofenceStatus } = useAppStore();
   const [zones, setZones] = useState<any[]>([]);
   const [routePolyline, setRoutePolyline] = useState<[number, number][]>([]);
   const [routingBanner, setRoutingBanner] = useState<string | null>(null);
@@ -131,7 +132,6 @@ export default function SafeMapScreen() {
         const url = getBackendHttpUrl();
         const res = await axios.get(`${url}/zones`);
         if (isMounted && res.data && res.data.length > 0) {
-          // Ensure at least zone_B2 and zone_A2 are marked as exits if missing
           const enriched = res.data.map((z: any) => {
             if (z.is_exit != null) return z;
             return {
@@ -170,7 +170,6 @@ export default function SafeMapScreen() {
     if (!userLocation || zones.length === 0) return;
 
     const computeRoute = async () => {
-      // Find exits: check is_exit flag, 'exit' keyword, or designated exit perimeter zones
       let exits = zones.filter(z => z.is_exit || z.zone_id.toLowerCase().includes('exit'));
       if (exits.length === 0) {
         exits = zones.filter(z => z.zone_id === 'zone_B2' || z.zone_id === 'zone_B1' || z.zone_id === 'zone_A2');
@@ -194,11 +193,9 @@ export default function SafeMapScreen() {
         return { ...exit, lat, lng, distance };
       }).sort((a, b) => a.distance - b.distance);
 
-      // Exit selection with hysteresis to prevent route flipping
       let targetExit = exitsWithDist[0];
       if (targetExitIdRef.current) {
         const currentActive = exitsWithDist.find(e => e.zone_id === targetExitIdRef.current);
-        // Only switch if the new exit is noticeably closer (>20% closer)
         if (currentActive && currentActive.distance < targetExit.distance * 1.2) {
           targetExit = currentActive;
         } else {
@@ -208,7 +205,6 @@ export default function SafeMapScreen() {
         targetExitIdRef.current = targetExit.zone_id;
       }
 
-      // 1. Fetch GET /api/routes for route blockage predictions before computing
       try {
         const url = getBackendHttpUrl();
         const res = await axios.get(`${url}/routes`);
@@ -229,10 +225,9 @@ export default function SafeMapScreen() {
           setRoutingBanner(null);
         }
       } catch (e) {
-        // Fallback silently if /api/routes is missing
+        // Silent fallback
       }
 
-      // 2. Compute smooth path from user location to target exit
       const allWaypoints: { lat: number; lng: number }[] = [
         { lat: userLocation.lat, lng: userLocation.lng },
         { lat: targetExit.lat, lng: targetExit.lng }
@@ -260,75 +255,120 @@ export default function SafeMapScreen() {
   const customSvgRenderer = useMemo(() => L.svg({ padding: 2.0 }), []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', paddingBottom: '16px' }}>
-      <h1 style={{ margin: '0 0 1rem 0' }}>{getTranslation(selectedLanguage, 'safeMap')}</h1>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#ffffff' }}>
+            {getTranslation(selectedLanguage, 'safeMap')}
+          </h1>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-dim)' }}>
+            Real-time venue floorplan & dynamic evasion routing
+          </p>
+        </div>
+
+        {userLocation && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            backgroundColor: 'rgba(139, 92, 246, 0.15)',
+            border: '1px solid rgba(167, 139, 250, 0.3)',
+            borderRadius: '99px',
+            fontSize: '0.72rem',
+            color: 'var(--color-accent-violet)',
+            fontWeight: 700
+          }}>
+            <span className="pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#34d399' }} />
+            <span>{geofenceStatus?.currentZoneId || geofenceStatus?.nearestZoneId || 'Zone A1'}</span>
+          </div>
+        )}
+      </div>
       
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
+      {/* Route Mode Toggle Bar */}
+      <div style={{
+        display: 'flex',
+        gap: '6px',
+        padding: '4px',
+        backgroundColor: 'rgba(13, 19, 34, 0.8)',
+        borderRadius: '12px',
+        border: '1px solid var(--border-panel)'
+      }}>
         <button
           onClick={() => setIsAccessibleRoute(false)}
           style={{
             flex: 1,
-            padding: '10px 8px',
-            backgroundColor: !isAccessibleRoute ? 'var(--primary-color)' : 'rgba(255,255,255,0.05)',
-            color: !isAccessibleRoute ? 'white' : 'var(--text-secondary)',
-            border: `1px solid ${!isAccessibleRoute ? 'var(--primary-color)' : 'var(--border-color)'}`,
+            padding: '8px 12px',
+            backgroundColor: !isAccessibleRoute ? 'rgba(139, 92, 246, 0.25)' : 'transparent',
+            color: !isAccessibleRoute ? '#ffffff' : 'var(--color-text-muted)',
+            border: !isAccessibleRoute ? '1px solid rgba(192, 132, 252, 0.4)' : '1px solid transparent',
             borderRadius: '8px',
             cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '0.875rem'
+            fontWeight: 700,
+            fontSize: '0.78rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            transition: 'all 0.15s ease',
+            boxShadow: !isAccessibleRoute ? '0 0 10px rgba(139, 92, 246, 0.2)' : 'none'
           }}
         >
-          Standard Route
+          <Footprints size={14} />
+          <span>Standard Route</span>
         </button>
+
         <button
           onClick={() => setIsAccessibleRoute(true)}
           style={{
             flex: 1,
-            padding: '10px 8px',
-            backgroundColor: isAccessibleRoute ? '#3b82f6' : 'rgba(255,255,255,0.05)',
-            color: isAccessibleRoute ? 'white' : 'var(--text-secondary)',
-            border: `1px solid ${isAccessibleRoute ? '#3b82f6' : 'var(--border-color)'}`,
+            padding: '8px 12px',
+            backgroundColor: isAccessibleRoute ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
+            color: isAccessibleRoute ? '#ffffff' : 'var(--color-text-muted)',
+            border: isAccessibleRoute ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
             borderRadius: '8px',
             cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '0.875rem',
+            fontWeight: 700,
+            fontSize: '0.78rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '6px'
+            gap: '6px',
+            transition: 'all 0.15s ease',
+            boxShadow: isAccessibleRoute ? '0 0 10px rgba(56, 189, 248, 0.2)' : 'none'
           }}
         >
-          <span>♿</span>
-          {getTranslation(selectedLanguage, 'wheelchairAccessibleRoute')}
+          <Accessibility size={14} />
+          <span>{getTranslation(selectedLanguage, 'wheelchairAccessibleRoute')}</span>
         </button>
       </div>
 
       {routingBanner && (
         <div style={{
-          backgroundColor: 'var(--warning-color)',
-          color: 'black',
+          backgroundColor: 'rgba(245, 158, 11, 0.15)',
+          color: '#fbbf24',
+          border: '1px solid rgba(245, 158, 11, 0.35)',
           padding: '8px 12px',
-          borderRadius: '6px',
-          marginBottom: '1rem',
-          fontSize: '0.875rem',
+          borderRadius: '8px',
+          fontSize: '0.78rem',
           fontWeight: 600,
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
         }}>
-          <span>⚠️</span>
-          {routingBanner}
+          <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+          <span>{routingBanner}</span>
         </div>
       )}
 
       <div style={{
         position: 'relative',
         flex: 1,
-        borderRadius: '12px',
+        borderRadius: '14px',
         overflow: 'hidden',
-        border: '1px solid var(--border-color)',
-        background: '#09101d', // matches dashboard background perfectly
-        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+        border: '1px solid var(--border-panel-bright)',
+        background: '#09101d',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         minHeight: '340px'
       }}>
         <MapContainer

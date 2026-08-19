@@ -1,4 +1,4 @@
-
+import { ShieldAlert, Navigation, FileEdit, SlidersHorizontal } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 import { getTranslation } from '../i18n/translations';
 
@@ -11,34 +11,53 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   const lang = useAppStore((state) => state.selectedLanguage);
 
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-dock">
       <button 
-        className={`nav-item ${activeTab === 'alerts' ? 'active' : ''}`}
+        className={`dock-item ${activeTab === 'alerts' ? 'active' : ''}`}
         onClick={() => onTabChange('alerts')}
+        aria-label="Alerts"
       >
-        <span className="nav-icon">⚠️</span>
-        <span>{getTranslation(lang, 'alerts')}</span>
+        {activeTab === 'alerts' && <span className="dock-glow-pill" />}
+        <div className="dock-icon-wrapper">
+          <ShieldAlert size={20} />
+        </div>
+        <span className="dock-label">{getTranslation(lang, 'alerts')}</span>
       </button>
+
       <button 
-        className={`nav-item ${activeTab === 'map' ? 'active' : ''}`}
+        className={`dock-item ${activeTab === 'map' ? 'active' : ''}`}
         onClick={() => onTabChange('map')}
+        aria-label="Safe Map"
       >
-        <span className="nav-icon">🗺️</span>
-        <span>{getTranslation(lang, 'safeMap')}</span>
+        {activeTab === 'map' && <span className="dock-glow-pill" />}
+        <div className="dock-icon-wrapper">
+          <Navigation size={20} />
+        </div>
+        <span className="dock-label">{getTranslation(lang, 'safeMap')}</span>
       </button>
+
       <button 
-        className={`nav-item ${activeTab === 'report' ? 'active' : ''}`}
+        className={`dock-item ${activeTab === 'report' ? 'active' : ''}`}
         onClick={() => onTabChange('report')}
+        aria-label="Report Incident"
       >
-        <span className="nav-icon">📷</span>
-        <span>{getTranslation(lang, 'reportIncident')}</span>
+        {activeTab === 'report' && <span className="dock-glow-pill" />}
+        <div className="dock-icon-wrapper">
+          <FileEdit size={20} />
+        </div>
+        <span className="dock-label">{getTranslation(lang, 'reportIncident')}</span>
       </button>
+
       <button 
-        className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+        className={`dock-item ${activeTab === 'settings' ? 'active' : ''}`}
         onClick={() => onTabChange('settings')}
+        aria-label="Settings"
       >
-        <span className="nav-icon">⚙️</span>
-        <span>{getTranslation(lang, 'settings')}</span>
+        {activeTab === 'settings' && <span className="dock-glow-pill" />}
+        <div className="dock-icon-wrapper">
+          <SlidersHorizontal size={20} />
+        </div>
+        <span className="dock-label">{getTranslation(lang, 'settings')}</span>
       </button>
     </nav>
   );
