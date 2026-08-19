@@ -197,7 +197,8 @@ function ZoneVolume({
   });
 
   return (
-    <Box ref={meshRef} args={layout.size} position={layout.center} castShadow receiveShadow>
+    <>
+      <Box ref={meshRef} args={layout.size} position={layout.center} castShadow receiveShadow>
       <meshStandardMaterial
         ref={materialRef}
         color={target.colorTarget}
@@ -208,21 +209,38 @@ function ZoneVolume({
         opacity={0.92}
       />
 
-      <Billboard follow lockX={false} lockY={false} lockZ={false} position={[0, 3.4, 0]}>
+      </Box>
+      <Billboard
+        follow
+        lockX={false}
+        lockY={false}
+        lockZ={false}
+        // Fixed HUD height: the card stays in view while the column grows
+        // underneath it, and depth testing keeps it readable over the scene.
+        position={[layout.center[0], 4.8, layout.center[2]]}
+        renderOrder={20}
+      >
+        <mesh renderOrder={20}>
+          <planeGeometry args={[2.85, 1.05]} />
+          <meshBasicMaterial color="#3b1d68" transparent opacity={0.95} depthTest={false} depthWrite={false} />
+        </mesh>
         <Text
-          fontSize={0.34}
+          fontSize={0.19}
           color="#f8fafc"
           anchorX="center"
           anchorY="middle"
-          outlineWidth={0.02}
-          outlineColor="#050811"
+          lineHeight={1.35}
+          letterSpacing={0.055}
+          outlineWidth={0.018}
+          outlineColor="#241044"
           textAlign="center"
           depthOffset={-1}
+          renderOrder={21}
         >
           {`${zoneConfig.zone_id}\nRisk ${labelRiskScore}\nDensity ${labelDensity}% · Crowd ${labelCrowd}`}
         </Text>
       </Billboard>
-    </Box>
+    </>
   );
 }
 
