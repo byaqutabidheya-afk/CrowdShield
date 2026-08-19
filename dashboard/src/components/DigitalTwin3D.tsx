@@ -86,7 +86,7 @@ function buildZoneMaps(source: unknown) {
   };
 }
 
-function normalizeSimulationSteps(data: unknown): SimulationStepRecord[] {
+function normalizeSimulationSteps(data: unknown, fallbackZones: any[] = []): SimulationStepRecord[] {
   if (!Array.isArray(data)) {
     return [];
   }
@@ -100,7 +100,7 @@ function normalizeSimulationSteps(data: unknown): SimulationStepRecord[] {
         return step;
       }
 
-      const existingZones = Array.isArray(step.zones) ? step.zones : [];
+      const existingZones = Array.isArray(step.zones) ? step.zones : fallbackZones;
       const zones = Object.entries(step.zone_risk_scores).map(([zone_id, rawScore]) => {
         const risk_score = clamp01(Number(rawScore) || 0);
         const existingZone = existingZones.find((zone: any) => zone?.zone_id === zone_id) || {};
@@ -130,7 +130,9 @@ function getRiskWeight(zone: RiskZoneMetric | undefined, cvZone: CVZoneMetric | 
 
   return {
     riskLevel,
-    heightTarget: Math.max(0.3, 0.18 + Math.max(riskScore / 45, densityScore / 6) * 3.2),
+    // Scores are normalized to 0..1. Scale them directly so prediction steps
+    // visibly change the height of each column.
+    heightTarget: Math.max(0.35, 0.35 + riskScore * 4.5 + densityScore * 1.5),
     colorTarget: RISK_COLOR_MAP[riskLevel],
   };
 }
@@ -143,9 +145,12 @@ function getSimulationStepLabel(step: SimulationStepRecord | undefined, index: n
   const timeOffset =
     step.time_offset ??
     step.timeOffset ??
+    step.time_offset_seconds ??
+    step.timeOffsetSeconds ??
     step.offset_seconds ??
     step.offsetSeconds ??
-    step.offset;
+    step.offset ??
+    step.predicted_critical_at_seconds;
 
   if (typeof timeOffset === 'number' && Number.isFinite(timeOffset)) {
     return `Step ${index + 1} · t+${timeOffset}s`;
@@ -227,7 +232,6 @@ function SimulationControls({
   onToggleSimulationMode,
   onSelectSimulationSource,
   onLoadLivePrediction,
-  livePredictionAvailable,
   zoneConfigs,
   entryZoneId,
   onEntryZoneChange,
@@ -236,13 +240,15 @@ function SimulationControls({
   onSubmitPreEvent,
   isSubmittingPreEvent,
   simulationMessage,
+  onResetSimulation,
+  isFullscreen,
+  onToggleFullscreen,
 }: {
   isSimulationMode: boolean;
   simulationSource: SimulationSource;
   onToggleSimulationMode: () => void;
   onSelectSimulationSource: (source: SimulationSource) => void;
   onLoadLivePrediction: () => void;
-  livePredictionAvailable: boolean;
   zoneConfigs: ZoneConfig[];
   entryZoneId: string;
   onEntryZoneChange: (value: string) => void;
@@ -251,6 +257,9 @@ function SimulationControls({
   onSubmitPreEvent: (event: React.FormEvent<HTMLFormElement>) => void;
   isSubmittingPreEvent: boolean;
   simulationMessage: string | null;
+  onResetSimulation?: () => void;
+  isFullscreen: boolean;
+  onToggleFullscreen: () => void;
 }) {
   return (
     <div
@@ -305,7 +314,6 @@ function SimulationControls({
             <button
               type="button"
               onClick={onLoadLivePrediction}
-              disabled={!livePredictionAvailable}
               style={{
                 width: '100%',
                 border: '1px solid rgba(167, 139, 250, 0.18)',
@@ -316,11 +324,30 @@ function SimulationControls({
                 fontSize: '0.71rem',
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
-                cursor: livePredictionAvailable ? 'pointer' : 'not-allowed',
-                opacity: livePredictionAvailable ? 1 : 0.55,
+                cursor: 'pointer',
               }}
             >
               Live Fast-Forward Prediction
+            </button>
+
+            <button
+              type="button"
+              onClick={onToggleFullscreen}
+              aria-label={isFullscreen ? 'Exit fullscreen simulation' : 'Open simulation fullscreen'}
+              style={{
+                width: '100%',
+                border: '1px solid rgba(56, 189, 248, 0.28)',
+                borderRadius: '8px',
+                background: isFullscreen ? 'rgba(14, 116, 144, 0.72)' : 'rgba(8, 47, 73, 0.68)',
+                color: '#bae6fd',
+                padding: '0.5rem 0.65rem',
+                fontSize: '0.71rem',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+              }}
+            >
+              {isFullscreen ? 'Exit Fullscreen' : 'Open Fullscreen'}
             </button>
 
             <div
@@ -404,25 +431,50 @@ function SimulationControls({
                     />
                   </label>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmittingPreEvent}
-                    style={{
-                      width: '100%',
-                      border: '1px solid rgba(167, 139, 250, 0.18)',
-                      borderRadius: '8px',
-                      background: 'rgba(59, 130, 246, 0.82)',
-                      color: '#e2e8f0',
-                      padding: '0.5rem 0.65rem',
-                      fontSize: '0.71rem',
-                      letterSpacing: '0.04em',
-                      textTransform: 'uppercase',
-                      cursor: isSubmittingPreEvent ? 'wait' : 'pointer',
-                      opacity: isSubmittingPreEvent ? 0.7 : 1,
-                    }}
-                  >
-                    {isSubmittingPreEvent ? 'Running Test...' : 'Run Stress Test'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button
+                      type="submit"
+                      disabled={isSubmittingPreEvent}
+                      style={{
+                        flex: 1,
+                        border: '1px solid rgba(167, 139, 250, 0.18)',
+                        borderRadius: '8px',
+                        background: 'rgba(59, 130, 246, 0.82)',
+                        color: '#e2e8f0',
+                        padding: '0.5rem 0.65rem',
+                        fontSize: '0.71rem',
+                        letterSpacing: '0.04em',
+                        textTransform: 'uppercase',
+                        cursor: isSubmittingPreEvent ? 'wait' : 'pointer',
+                        opacity: isSubmittingPreEvent ? 0.7 : 1,
+                      }}
+                    >
+                      {isSubmittingPreEvent ? 'Running Test...' : 'Run Stress Test'}
+                    </button>
+                    {onResetSimulation && (
+                      <button
+                        type="button"
+                        onClick={onResetSimulation}
+                        style={{
+                          border: '1px solid rgba(139, 92, 246, 0.3)',
+                          borderRadius: '8px',
+                          background: 'rgba(139, 92, 246, 0.18)',
+                          color: 'var(--color-accent-cyan)',
+                          padding: '0.5rem 0.65rem',
+                          fontSize: '0.71rem',
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                        }}
+                      >
+                        <span>↺</span>
+                        <span>Reset</span>
+                      </button>
+                    )}
+                  </div>
                 </form>
               )}
             </div>
@@ -458,6 +510,7 @@ function SimulationTimeline({
   onSelectedStepChange,
   isPlaying,
   onTogglePlay,
+  onResetSimulation,
   onExitSimulation,
 }: {
   isSimulationMode: boolean;
@@ -467,6 +520,7 @@ function SimulationTimeline({
   onSelectedStepChange: (index: number) => void;
   isPlaying: boolean;
   onTogglePlay: () => void;
+  onResetSimulation: () => void;
   onExitSimulation: () => void;
 }) {
   if (!isSimulationMode || simulationSteps.length === 0) {
@@ -477,16 +531,16 @@ function SimulationTimeline({
   const currentLabel = getSimulationStepLabel(currentStep, selectedStepIndex);
 
   return (
-          <div
-            style={{
-              padding: '0.75rem 0.9rem 0.85rem',
-              flex: '0 0 auto',
-              minHeight: '112px',
-              position: 'relative',
-              zIndex: 40,
-              borderTop: '1px solid rgba(139, 92, 246, 0.22)',
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.98) 100%)',
-            }}
+    <div
+      style={{
+        padding: '0.75rem 0.9rem 0.85rem',
+        flex: '0 0 auto',
+        minHeight: '112px',
+        position: 'relative',
+        zIndex: 40,
+        borderTop: '1px solid rgba(139, 92, 246, 0.22)',
+        background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.98) 100%)',
+      }}
     >
       <div
         style={{
@@ -533,6 +587,28 @@ function SimulationTimeline({
             }}
           >
             {isPlaying ? 'Pause' : 'Play'}
+          </button>
+
+          <button
+            type="button"
+            onClick={onResetSimulation}
+            style={{
+              border: '1px solid rgba(167, 139, 250, 0.35)',
+              borderRadius: '8px',
+              background: 'rgba(139, 92, 246, 0.2)',
+              color: 'var(--color-accent-cyan)',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.71rem',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+            }}
+          >
+            <span>↺</span>
+            <span>Reset Simulation</span>
           </button>
 
           <button
@@ -587,6 +663,7 @@ function SimulationTimeline({
 }
 
 export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }) => {
+  const twinRootRef = useRef<HTMLDivElement>(null);
   const [zoneConfigs, setZoneConfigs] = useState<ZoneConfig[]>([]);
   const latestFrame = useLiveDataStore((state) => state.latestFrame);
 
@@ -600,6 +677,23 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
   const [simulationSnapshotFrame, setSimulationSnapshotFrame] = useState<WebSocketFrameMessage | null>(null);
   const [entryZoneId, setEntryZoneId] = useState('');
   const [expectedAttendance, setExpectedAttendance] = useState(3000);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      setIsFullscreen(document.fullscreenElement === twinRootRef.current);
+    };
+
+    document.addEventListener('fullscreenchange', syncFullscreenState);
+    syncFullscreenState();
+    return () => document.removeEventListener('fullscreenchange', syncFullscreenState);
+  }, []);
+
+  useEffect(() => {
+    if (!isSimulationMode && document.fullscreenElement === twinRootRef.current) {
+      void document.exitFullscreen();
+    }
+  }, [isSimulationMode]);
 
   const liveFrameMaps = useMemo(() => buildZoneMaps(latestFrame), [latestFrame]);
   const snapshotFrameMaps = useMemo(() => buildZoneMaps(simulationSnapshotFrame), [simulationSnapshotFrame]);
@@ -626,32 +720,56 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
     const crushTimeline = Array.isArray(riskData?.predicted_crush_timeline)
       ? riskData.predicted_crush_timeline
       : [];
+    const liveRiskZones = Array.isArray(rawRiskData?.zones) ? rawRiskData.zones : [];
+    const liveCvZones = Array.isArray((latestFrame as any)?.cv_data?.zones)
+      ? (latestFrame as any).cv_data.zones
+      : [];
+    const liveZonesById = new Map<string, any>();
+    [...liveRiskZones, ...liveCvZones].forEach((zone: any) => {
+      if (zone?.zone_id) {
+        liveZonesById.set(zone.zone_id, {
+          ...(liveZonesById.get(zone.zone_id) || {}),
+          ...zone,
+        });
+      }
+    });
+    const liveFallbackZones = Array.from(liveZonesById.values());
 
     // Prefer the actual step-by-step diffusion timeline. The crush timeline is
     // only a list of predicted threshold crossings and may legitimately be empty.
     if (simulatedSteps.length > 0 || crushTimeline.length > 0) {
-      return normalizeSimulationSteps(simulatedSteps.length > 0 ? simulatedSteps : crushTimeline);
+      const normalizedSteps = normalizeSimulationSteps(
+        simulatedSteps.length > 0 ? simulatedSteps : crushTimeline,
+        liveFallbackZones,
+      );
+      if (normalizedSteps.length > 0) {
+        return normalizedSteps;
+      }
     }
 
     // Demo/fallback feeds may provide current zones without a prediction
     // timeline. Create a short, clearly-labelled projection so the control is
     // still usable during a presentation.
-    const currentZones = Array.isArray(rawRiskData?.zones)
-      ? rawRiskData.zones
-      : Array.isArray((latestFrame as any)?.cv_data?.zones)
-        ? (latestFrame as any).cv_data.zones
-        : [];
-    if (currentZones.length === 0) {
-      return [];
-    }
+    const currentZones = liveFallbackZones;
+
+    const baseZones = currentZones.length > 0
+      ? currentZones
+      : zoneConfigs.length > 0
+        ? zoneConfigs.map((z) => ({ zone_id: z.zone_id, risk_score: 0.1, risk_level: 'low', density_score: 0.1 }))
+        : [
+            { zone_id: 'zone_A1', risk_score: 0.1, risk_level: 'low', density_score: 0.1 },
+            { zone_id: 'zone_A2', risk_score: 0.1, risk_level: 'low', density_score: 0.1 },
+            { zone_id: 'zone_B1', risk_score: 0.1, risk_level: 'low', density_score: 0.1 },
+            { zone_id: 'zone_B2', risk_score: 0.1, risk_level: 'low', density_score: 0.1 },
+          ];
 
     return normalizeSimulationSteps(
       Array.from({ length: 8 }, (_, index) => ({
         step: index + 1,
         time_offset_seconds: (index + 1) * 30,
-        zones: currentZones.map((zone: any) => {
-          const baseScore = clamp01(Number(zone.risk_score ?? zone.density_score) || 0);
-          const risk_score = clamp01(baseScore + index * 0.035);
+        zones: baseZones.map((zone: any) => {
+          const baseScore = clamp01(Number(zone.risk_score ?? zone.density_score) || 0.1);
+          const risk_score = clamp01(baseScore + index * 0.08);
           const risk_level = risk_score < 0.3 ? 'low' : risk_score < 0.55 ? 'moderate' : risk_score < 0.75 ? 'high' : 'critical';
           return {
             ...zone,
@@ -662,7 +780,7 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
         }),
       }))
     );
-  }, [latestFrame?.risk_data]);
+  }, [latestFrame?.risk_data, zoneConfigs]);
 
   useEffect(() => {
     let isMounted = true;
@@ -755,6 +873,24 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
     loadSimulationSteps('prediction', livePredictionSteps, `Loaded ${livePredictionSteps.length} live prediction steps.`);
   };
 
+  const handleToggleFullscreen = async () => {
+    const root = twinRootRef.current;
+    if (!root) {
+      return;
+    }
+
+    try {
+      if (document.fullscreenElement === root) {
+        await document.exitFullscreen();
+      } else {
+        await root.requestFullscreen();
+      }
+    } catch (error) {
+      console.error('[DigitalTwin3D] Fullscreen request failed:', error);
+      setSimulationMessage('Fullscreen is unavailable in this browser.');
+    }
+  };
+
   const handleSelectSimulationSource = (source: SimulationSource) => {
     setIsSimulationMode(true);
     setSimulationSource(source);
@@ -814,6 +950,16 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
     }
   };
 
+  const handleResetSimulation = () => {
+    setIsPlaying(false);
+    setSelectedStepIndex(0);
+    if (zoneConfigs.length > 0) {
+      setEntryZoneId(zoneConfigs[0].zone_id);
+    }
+    setExpectedAttendance(3000);
+    setSimulationMessage('Simulation reset to initial state (Step 1).');
+  };
+
   const handleExitSimulation = () => {
     setIsSimulationMode(false);
     setIsPlaying(false);
@@ -840,10 +986,11 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
 
   return (
     <div
+      ref={twinRootRef}
       className={className}
       style={{
         width: '100%',
-        height: '100%',
+        height: isFullscreen ? '100vh' : '100%',
         minHeight: 0,
         overflow: 'hidden',
         borderRadius: '8px',
@@ -934,7 +1081,6 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
           onToggleSimulationMode={handleToggleSimulationMode}
           onSelectSimulationSource={handleSelectSimulationSource}
           onLoadLivePrediction={handleLoadLivePrediction}
-          livePredictionAvailable={livePredictionSteps.length > 0}
           zoneConfigs={zoneConfigs}
           entryZoneId={entryZoneId}
           onEntryZoneChange={setEntryZoneId}
@@ -943,6 +1089,9 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
           onSubmitPreEvent={handlePreEventSubmit}
           isSubmittingPreEvent={isSubmittingPreEvent}
           simulationMessage={simulationMessage}
+          onResetSimulation={handleResetSimulation}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={handleToggleFullscreen}
         />
       </div>
 
@@ -954,6 +1103,7 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
         onSelectedStepChange={setSelectedStepIndex}
         isPlaying={isPlaying}
         onTogglePlay={handleTogglePlay}
+        onResetSimulation={handleResetSimulation}
         onExitSimulation={handleExitSimulation}
       />
     </div>
