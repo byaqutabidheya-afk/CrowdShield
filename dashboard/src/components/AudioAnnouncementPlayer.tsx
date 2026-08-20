@@ -88,7 +88,12 @@ export const AudioAnnouncementPlayer: React.FC<AudioAnnouncementPlayerProps> = (
     if (!message) return;
 
     const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = REGIONAL_LANG_VOICE_MAP[languageCode] || 'hi-IN';
+    const requestedLanguage = REGIONAL_LANG_VOICE_MAP[languageCode] || 'hi-IN';
+    const availableVoices = window.speechSynthesis.getVoices();
+    const hasRequestedVoice = availableVoices.some((voice) =>
+      voice.lang.toLowerCase().startsWith(requestedLanguage.toLowerCase().split('-')[0])
+    );
+    utterance.lang = hasRequestedVoice ? requestedLanguage : 'en-IN';
     utterance.rate = 0.92;
     utterance.onstart = () => setIsSpeechPlaying(true);
     utterance.onend = () => setIsSpeechPlaying(false);

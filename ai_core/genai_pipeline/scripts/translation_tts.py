@@ -58,7 +58,8 @@ EDGE_TTS_VOICES: dict[str, str] = {
     "en": "en-IN-NeerjaNeural",
 }
 
-# Fallback translations if LLM is unavailable or fails
+# Reference examples only. Runtime fallbacks use the operator's message so a
+# failed translation cannot synthesize an unrelated demo announcement.
 FALLBACK_TRANSLATIONS: dict[str, str] = {
     "hi": "कृपया शांति से निकास बी की ओर बढ़ें। ज़ोन ए1 से बचें।",
     "ta": "தயவுசெய்து அமைதியாக வெளியேறும் பி நோக்கி செல்லவும். மண்டலம் ஏ1 ஐத் தவிர்க்கவும்.",
@@ -134,21 +135,14 @@ class MultilingualAnnouncer:
             )
             for lang in target_languages:
                 if lang not in validated:
-                    validated[lang] = FALLBACK_TRANSLATIONS.get(
-                        lang, f"[Translation unavailable] {base_message_en}"
-                    )
+                    validated[lang] = base_message_en
             return validated
 
         except Exception as exc:
             logger.warning(
-                "Translation failed: %s. Using local fallback translations.", exc
+                "Translation failed: %s. Speaking the operator-authored message as fallback.", exc
             )
-            return {
-                lang: FALLBACK_TRANSLATIONS.get(
-                    lang, f"[Translation unavailable] {base_message_en}"
-                )
-                for lang in target_languages
-            }
+            return {lang: base_message_en for lang in target_languages}
 
     async def generate_audio(
         self,
@@ -186,7 +180,7 @@ class MultilingualAnnouncer:
         if edge_tts is not None:
             try:
                 communicate = edge_tts.Communicate(translated_text, voice)
-                await asyncio.wait_for(communicate.save(str(filepath)), timeout=3.5)
+                await asyncio.wait_for(communicate.save(str(filepath)), timeout=15.0)
                 logger.info("Generated Edge-TTS audio: %s", filepath)
                 saved = True
             except Exception as exc:
@@ -201,15 +195,25 @@ class MultilingualAnnouncer:
             try:
                 loop = asyncio.get_running_loop()
                 tts = gTTS(text=translated_text, lang=language_code)
-                await asyncio.wait_for(loop.run_in_executor(None, tts.save, str(filepath)), timeout=3.0)
+                await asyncio.wait_for(loop.run_in_executor(None, tts.save, str(filepath)), timeout=15.0)
                 logger.info("Generated gTTS audio fallback: %s", filepath)
                 saved = True
             except Exception as exc:
                 logger.error("gTTS fallback also failed for %s: %s", language_code, exc)
 
-        # 3. Dummy file as last resort (fail-safe for offline testing)
+        # 3. No playable file available. Return an empty path so clients can
+        # fall back to browser speech synthesis instead of trying to play a
+        # zero-byte placeholder file.
         if not saved:
-            filepath.touch(exist_ok=True)
+            logger.error(
+                "No TTS provider could generate audio for language %s; returning no audio path.",
+                language_code,
+            )
+            try:
+                filepath.unlink(missing_ok=True)
+            except OSError:
+                pass
+            return ""
 
         # Sync copy to alternate audio_output paths
         import shutil
@@ -257,14 +261,11 @@ class MultilingualAnnouncer:
         try:
             translations_text = await asyncio.wait_for(
                 asyncio.to_thread(self.translate_message, base_message_en, target_languages),
-                timeout=4.0,
+                timeout=20.0,
             )
         except Exception as exc:
-            logger.warning("Translation timed out or failed: %s. Using local fallback translations.", exc)
-            translations_text = {
-                lang: FALLBACK_TRANSLATIONS.get(lang, f"[Safety Alert] {base_message_en}")
-                for lang in target_languages
-            }
+            logger.warning("Translation timed out or failed: %s. Speaking the operator-authored message as fallback.", exc)
+            translations_text = {lang: base_message_en for lang in target_languages}
 
         # Step 2: Generate audio concurrently for all target languages
         async def process_lang(lang: str):
