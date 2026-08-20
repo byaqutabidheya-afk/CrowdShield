@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useLiveDataStore } from './store/liveDataStore';
 import { useLiveWebSocket } from './hooks/useLiveWebSocket';
 
@@ -49,6 +49,7 @@ export const App: React.FC = () => {
 
   // Focused / Selected Zone state for live map panning & highlighting
   const [focusedZoneId, setFocusedZoneId] = useState<string | null>(null);
+  const mapSectionRef = useRef<HTMLElement | null>(null);
 
   // Live ticking clock for control room (IST - Indian Standard Time 12-hour AM/PM)
   const [currentTime, setCurrentTime] = useState<string>('');
@@ -163,8 +164,15 @@ export const App: React.FC = () => {
 
   // Shared zone navigation callback handler for ExternalTriggersPanel voice command & IncidentReportsPanel map link
   const handleNavigateToZone = useCallback((zoneId: string) => {
-    console.log(`[App] Shared Navigation Triggered: Panning map to zone '${zoneId}'`);
+    console.log(`[App] Shared Navigation Triggered: Scrolling to and focusing zone '${zoneId}'`);
     setFocusedZoneId(zoneId);
+    setActiveMapTab('2d');
+
+    // The dashboard content scrolls inside #crowdshield-scroll-container rather
+    // than the window, so scroll the map card into view explicitly.
+    window.requestAnimationFrame(() => {
+      mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }, []);
 
   // Status dot color mapping
@@ -438,7 +446,7 @@ export const App: React.FC = () => {
         {/* UPPER ROW - PANEL 1: Primary Venue Viewport & Video Feed (Span 9) */}
         <div style={{ gridColumn: 'span 9', display: 'flex', flexDirection: 'column', gap: '0.85rem', height: '100%', minHeight: 0 }}>
           {/* Top: Venue Map (2/3 of space) */}
-          <section className="control-card scroll-reveal" style={{ flex: '1 1 auto', minHeight: '480px', display: 'flex', flexDirection: 'column' }}>
+          <section ref={mapSectionRef} className="control-card scroll-reveal" style={{ flex: '1 1 auto', minHeight: '480px', display: 'flex', flexDirection: 'column' }}>
             <div className="control-card-header">
               <div className="control-card-title">
                 <span className="dashboard-section-icon"><DashboardIcon name="map" /></span>
