@@ -271,6 +271,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
 
   // Active Stream / Video Object URL & File
   const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
+  const [isCameraFeedEnabled, setIsCameraFeedEnabled] = useState(false);
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -428,6 +429,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       setActiveStream(stream);
+      setIsCameraFeedEnabled(true);
       setMode('camera');
       setSelectedFile(null);
 
@@ -453,6 +455,32 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     }
   }, [activeStream, cameraDevices, selectedDeviceId, onSourceChange]);
 
+  // Release the browser camera and stop backend processing when the operator
+  // turns the camera feed off. Keeping this separate from source selection
+  // makes the toggle reversible without losing the selected camera.
+  const handleToggleCameraFeed = async () => {
+    if (isCameraFeedEnabled) {
+      activeStream?.getTracks().forEach((track) => track.stop());
+      setActiveStream(null);
+      setIsCameraFeedEnabled(false);
+
+      if (previewVideoRef.current) previewVideoRef.current.srcObject = null;
+      if (modalVideoRef.current) {
+        modalVideoRef.current.pause();
+        modalVideoRef.current.srcObject = null;
+      }
+
+      if (isStreaming || isProcessingBackend) {
+        await handleStopBackend();
+      } else {
+        setBackendMessage('Camera feed is off. Turn it on to resume the live camera.');
+      }
+      return;
+    }
+
+    await startCameraStream(selectedDeviceId);
+  };
+
   // Clean up modal video stream when not in camera mode
   useEffect(() => {
     if (mode !== 'camera' && modalVideoRef.current) {
@@ -470,7 +498,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
 
   // Attach stream to video elements whenever stream or modal state changes
   useEffect(() => {
-    if (mode === 'camera' && activeStream) {
+    if (mode === 'camera' && isCameraFeedEnabled && activeStream) {
       if (previewVideoRef.current && previewVideoRef.current.srcObject !== activeStream) {
         previewVideoRef.current.srcObject = activeStream;
         previewVideoRef.current.play().catch(() => {});
@@ -480,7 +508,12 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
         modalVideoRef.current.play().catch(() => {});
       }
     }
-  }, [mode, activeStream]);
+  }, [mode, activeStream, isCameraFeedEnabled]);
+
+  // Always release the physical camera if the widget is removed.
+  useEffect(() => () => {
+    activeStream?.getTracks().forEach((track) => track.stop());
+  }, [activeStream]);
 
   // Handle selecting preset sample video
   const handleSelectSample = (sampleId: string) => {
@@ -488,6 +521,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       activeStream.getTracks().forEach((t) => t.stop());
       setActiveStream(null);
     }
+    setIsCameraFeedEnabled(false);
     setIsStreaming(false);
     isBackendActiveRef.current = false;
     setIsProcessingBackend(false);
@@ -517,6 +551,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       activeStream.getTracks().forEach((t) => t.stop());
       setActiveStream(null);
     }
+    setIsCameraFeedEnabled(false);
 
     // Reset the input value so the same filename can be selected again after a stop
     e.target.value = '';
@@ -754,7 +789,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
               justifyContent: 'center',
             }}
           >
-            {mode === 'camera' ? (
+            {mode === 'camera' && isCameraFeedEnabled ? (
               <video
                 ref={modalVideoRef}
                 autoPlay
@@ -762,6 +797,12 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
                 playsInline
                 style={{ display: 'block', width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', objectPosition: 'center' }}
               />
+            ) : mode === 'camera' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', color: 'var(--color-text-dim)', fontSize: '0.75rem', textAlign: 'center' }}>
+                <span style={{ fontSize: '2rem' }}>📷</span>
+                <span>Camera feed is off</span>
+                <span style={{ fontSize: '0.65rem' }}>Turn it on from the Live Camera controls.</span>
+              </div>
             ) : uploadedVideoUrl ? (
                 <video
                   key={uploadedVideoUrl}
@@ -956,11 +997,11 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
               </select>
 
               <button
-                onClick={() => startCameraStream(selectedDeviceId)}
+                onClick={handleToggleCameraFeed}
                 style={{
-                  backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                  border: '1px solid #10b981',
-                  color: '#10b981',
+                  backgroundColor: isCameraFeedEnabled ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                  border: `1px solid ${isCameraFeedEnabled ? '#ef4444' : '#10b981'}`,
+                  color: isCameraFeedEnabled ? '#ef4444' : '#10b981',
                   fontSize: '0.7rem',
                   fontWeight: 700,
                   padding: '0.35rem',
@@ -969,7 +1010,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
                   width: '100%',
                 }}
               >
-                Switch to Camera
+                {isCameraFeedEnabled ? 'Turn Off Camera Feed' : 'Turn On Camera Feed'}
               </button>
             </div>
           </div>
