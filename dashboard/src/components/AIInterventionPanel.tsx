@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLiveDataStore } from '../store/liveDataStore';
 import { postAnnouncement, postIntervention } from '../api/client';
 import type { AlertData, AnnouncementResponse, InterventionRecord } from '../types/api';
@@ -89,11 +89,6 @@ export const AIInterventionPanel: React.FC = () => {
   const [manualLogState, setManualLogState] = useState<
     Record<string, { loading: boolean; successRecord?: InterventionRecord; error?: string }>
   >({});
-
-  // Fetch logged interventions on initial mount
-  useEffect(() => {
-    fetchInterventions();
-  }, [fetchInterventions]);
 
   const handleRefreshLog = async () => {
     setIsRefreshingLog(true);
