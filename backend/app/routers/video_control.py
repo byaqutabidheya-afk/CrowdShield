@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, File, Form, UploadFile, status
+from fastapi import APIRouter, File, Form, UploadFile, status, HTTPException
 from pydantic import BaseModel, Field
 
 from app.services.orchestrator import EventOrchestrator
@@ -26,6 +26,9 @@ router = APIRouter(prefix="/api/processing", tags=["Video Processing Control"])
 orchestrator = EventOrchestrator()
 _current_processing_task: Optional[asyncio.Task] = None
 _current_session_id: Optional[str] = None
+_browser_frame_pipeline: Any = None
+_browser_frame_zones: Optional[List[Any]] = None
+_browser_frame_lock = asyncio.Lock()
 
 
 class StartProcessingRequest(BaseModel):
@@ -35,6 +38,85 @@ class StartProcessingRequest(BaseModel):
     )
     venue_id: str = Field("cam_01", description="Venue or stream identifier")
     sample_every_n_frames: int = Field(3, gt=0, description="Sampling rate")
+
+
+async def _process_browser_frame(frame_bytes: bytes, venue_id: str) -> Dict[str, Any]:
+    """Run CV on a JPEG captured from the browser's already-open camera."""
+    global _browser_frame_pipeline, _browser_frame_zones
+
+    try:
+        import cv2
+        import numpy as np
+        from ai_core.cv_pipeline.scripts.pipeline import CVPipeline
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"CV runtime unavailable: {exc}") from exc
+
+    frame = cv2.imdecode(np.frombuffer(frame_bytes, dtype=np.uint8), cv2.IMREAD_COLOR)
+    if frame is None:
+        raise HTTPException(status_code=400, detail="Invalid camera frame.")
+
+    async with _browser_frame_lock:
+        if _browser_frame_pipeline is None or _browser_frame_pipeline.source_id != f"browser_{venue_id}":
+            zones = _resolve_zones(None, venue_id)
+            from ai_core.shared.zone_config import Zone
+            zone_objects = [z if isinstance(z, Zone) else Zone.from_dict(z) for z in zones]
+            _browser_frame_zones = zone_objects
+            _browser_frame_pipeline = CVPipeline(
+                video_path="browser",
+                zones=zone_objects,
+                source_id=f"browser_{venue_id}",
+            )
+
+        pipeline = _browser_frame_pipeline
+        zones = _browser_frame_zones or []
+        height, width = frame.shape[:2]
+        tracked = pipeline.tracker.track_frame(frame)
+        assignments = pipeline.detector.assign_to_zones(tracked, zones, width, height)
+        zone_payloads = []
+        for zone in zones:
+            zone_tracks = assignments.get(zone.zone_id, [])
+            zone_payloads.append({
+                "zone_id": zone.zone_id,
+                "bounds_normalized": zone.bounds_normalized,
+                "crowd_count": len(zone_tracks),
+                "density_score": float(pipeline.detector.compute_density(zone_tracks, zone)),
+                "avg_flow_speed": 0.0,
+                "avg_flow_direction_deg": 0.0,
+                "avg_flow_direction_label": "N/A",
+                "reverse_flow_detected": False,
+                "bottleneck_detected": False,
+                "anomaly_flags": [],
+                "tracked_ids_in_zone": [int(t["track_id"]) for t in zone_tracks if "track_id" in t],
+            })
+
+        total_count = sum(z["crowd_count"] for z in zone_payloads)
+        max_zone = max(zone_payloads, key=lambda z: z["density_score"], default=None)
+        risk_zones = []
+        for zone in zone_payloads:
+            score = min(1.0, float(zone["density_score"]))
+            risk_zones.append({
+                "zone_id": zone["zone_id"],
+                "risk_score": score,
+                "risk_level": "critical" if score >= 0.8 else "high" if score >= 0.6 else "moderate" if score >= 0.3 else "low",
+                "contributing_factors": {"density": score},
+            })
+
+        payload = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "cv_data": {
+                "zones": zone_payloads,
+                "frame_totals": {
+                    "total_crowd_count": total_count,
+                    "max_zone_density": max_zone["density_score"] if max_zone else 0.0,
+                    "highest_risk_zone_id": max_zone["zone_id"] if max_zone else "",
+                },
+            },
+            "risk_data": {"zones": risk_zones, "resource_allocation_suggestions": []},
+            "frames_processed": 1,
+        }
+
+    await websocket_manager.broadcast(payload)
+    return {"status": "processed", "crowd_count": total_count}
 
 
 async def _stop_current_task() -> None:
@@ -73,6 +155,18 @@ def _resolve_zones(zones_config: Optional[List[Dict[str, Any]]], venue_id: str) 
         from ai_core.shared.zone_config import generate_grid_zones
         zones = [z.to_dict() for z in generate_grid_zones(2, 2)]
     return zones
+
+
+@router.post("/browser-frame", status_code=status.HTTP_200_OK)
+async def process_browser_frame(
+    file: UploadFile = File(...),
+    venue_id: str = Form("cam_01"),
+) -> Dict[str, Any]:
+    """Process one JPEG from the browser camera and broadcast its telemetry."""
+    frame_bytes = await file.read()
+    if not frame_bytes:
+        raise HTTPException(status_code=400, detail="Empty camera frame.")
+    return await _process_browser_frame(frame_bytes, venue_id)
 
 
 @router.post(

@@ -204,6 +204,18 @@ export const startVideoProcessing = async (
   return response.data;
 };
 
+/** Send one browser-camera JPEG to the backend CV pipeline. */
+export const processBrowserCameraFrame = async (
+  blob: Blob,
+  venueId: string = 'cam_01',
+): Promise<{ status: string; crowd_count: number }> => {
+  const formData = new FormData();
+  formData.append('file', blob, 'browser-camera.jpg');
+  formData.append('venue_id', venueId);
+  const response = await apiClient.post('/processing/browser-frame', formData);
+  return response.data;
+};
+
 /**
  * Upload local video file to backend and launch Python CV Pipeline processing loop.
  * POST /processing/upload

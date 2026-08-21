@@ -25,7 +25,6 @@ Thumbs.db
 # Models / large media (keep repo light — track via Git LFS or re-download scripts instead)
 ai_core/cv_pipeline/models/*.pt
 demo/videos/*.mp4
-ai_core/cv_pipeline/sample_videos/*.mp4
 **/audio_output/
 *.mp3
 *.wav

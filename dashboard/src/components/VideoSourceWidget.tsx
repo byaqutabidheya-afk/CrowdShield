@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { startVideoProcessing, uploadVideoAndStartProcessing, stopVideoProcessing, getVideoProcessingStatus } from '../api/client';
+import { startVideoProcessing, uploadVideoAndStartProcessing, stopVideoProcessing, getVideoProcessingStatus, processBrowserCameraFrame } from '../api/client';
 import { useLiveDataStore } from '../store/liveDataStore';
 import type { WebSocketFrameMessage } from '../types/api';
 
@@ -289,6 +289,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   // Backend processing status & active streaming toggle
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const [isProcessingBackend, setIsProcessingBackend] = useState<boolean>(false);
+  const [isBrowserCameraStreaming, setIsBrowserCameraStreaming] = useState(false);
   const [backendMessage, setBackendMessage] = useState<string | null>('Ready — Select a video source and click "Feed Video to AI Backend".');
 
   // Step counter for fallback telemetry streaming
@@ -300,6 +301,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);
   const modalVideoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const browserFrameBusyRef = useRef(false);
 
   // Read store state
   const latestFrame = useLiveDataStore((state) => state.latestFrame);
@@ -349,8 +351,8 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     const checkStatus = async () => {
       try {
         const res = await getVideoProcessingStatus();
-        setIsProcessingBackend(res.is_active);
-        if (typeof res.frames_processed === 'number' && res.frames_processed > 0) {
+        if (!isBrowserCameraStreaming) setIsProcessingBackend(res.is_active);
+        if (!isBrowserCameraStreaming && typeof res.frames_processed === 'number' && res.frames_processed > 0) {
           setCvFramesProcessed(res.frames_processed);
         }
         if (res.weather_state) {
@@ -363,7 +365,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     checkStatus();
     const interval = setInterval(checkStatus, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isBrowserCameraStreaming]);
 
   // Fallback Telemetry Generator loop:
   // Runs ONLY when a video stream is actively started/fed AND real backend Python CV Pipeline is NOT actively streaming
@@ -510,6 +512,46 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
     }
   }, [mode, activeStream, isCameraFeedEnabled]);
 
+  // Mirror the visible browser camera preview to the backend as JPEG frames.
+  // The stream remains attached to the video element, so operators keep the
+  // live preview while CV processing runs.
+  useEffect(() => {
+    if (!isBrowserCameraStreaming || mode !== 'camera' || !isCameraFeedEnabled || !activeStream) return;
+    const video = modalVideoRef.current;
+    const canvas = canvasRef.current || document.createElement('canvas');
+    if (!video) return;
+    canvas.width = 640;
+    canvas.height = 360;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    const sendFrame = () => {
+      if (browserFrameBusyRef.current || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
+      browserFrameBusyRef.current = true;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          try {
+            await processBrowserCameraFrame(blob, 'cam_01');
+          } catch (err) {
+            console.error('[VideoSourceWidget] Browser camera frame error:', err);
+            setBackendMessage('Unable to send browser camera frames to the CV backend.');
+          } finally {
+            browserFrameBusyRef.current = false;
+          }
+        } else {
+          browserFrameBusyRef.current = false;
+        }
+      }, 'image/jpeg', 0.82);
+    };
+
+    sendFrame();
+    // Target 5 FPS. The busy guard below skips a tick if the previous CV
+    // request is still running, preventing requests from piling up.
+    const interval = window.setInterval(sendFrame, 200);
+    return () => window.clearInterval(interval);
+  }, [isBrowserCameraStreaming, mode, isCameraFeedEnabled, activeStream]);
+
   // Always release the physical camera if the widget is removed.
   useEffect(() => () => {
     activeStream?.getTracks().forEach((track) => track.stop());
@@ -522,6 +564,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       setActiveStream(null);
     }
     setIsCameraFeedEnabled(false);
+    setIsBrowserCameraStreaming(false);
     setIsStreaming(false);
     isBackendActiveRef.current = false;
     setIsProcessingBackend(false);
@@ -552,6 +595,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       setActiveStream(null);
     }
     setIsCameraFeedEnabled(false);
+    setIsBrowserCameraStreaming(false);
 
     // Reset the input value so the same filename can be selected again after a stop
     e.target.value = '';
@@ -590,26 +634,22 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   const handleFeedToBackend = async (overrideFile?: File) => {
     const fileToFeed = overrideFile || selectedFile;
 
-    // The browser preview and OpenCV cannot reliably own the same webcam at
-    // the same time (especially on Windows). Release the browser camera so
-    // the backend's camera index `0` can acquire the device.
-    if (mode === 'camera' && activeStream) {
-      activeStream.getTracks().forEach((track) => track.stop());
-      setActiveStream(null);
-      setIsCameraFeedEnabled(false);
-      if (previewVideoRef.current) previewVideoRef.current.srcObject = null;
-      if (modalVideoRef.current) {
-        modalVideoRef.current.pause();
-        modalVideoRef.current.srcObject = null;
-      }
+    if (mode === 'camera') {
+      setIsBrowserCameraStreaming(true);
+      setIsStreaming(true);
+      setIsProcessingBackend(true);
+      isBackendActiveRef.current = true;
+      setBackendMessage('Live browser camera is being sent to the Python CV Pipeline...');
+      useLiveDataStore.getState().resetStreamData();
+      clearAlerts();
+      setCvFramesProcessed(0);
+      return;
     }
 
     setIsStreaming(true);
     isBackendActiveRef.current = true;
     setIsProcessingBackend(true);
-    setBackendMessage(mode === 'camera'
-      ? 'Camera released to OpenCV. Initializing Python CV Pipeline...'
-      : 'Uploading & initializing video in Python CV Pipeline...');
+    setBackendMessage('Uploading & initializing video in Python CV Pipeline...');
     
     // Completely clear old frame history and alerts for the fresh video feed
     useLiveDataStore.getState().resetStreamData();
@@ -657,6 +697,7 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   // Backend stop processing call — fully resets all state so a new video can be uploaded and fed
   const handleStopBackend = async () => {
     setIsStreaming(false);
+    setIsBrowserCameraStreaming(false);
     isBackendActiveRef.current = false;
     try {
       await stopVideoProcessing();
