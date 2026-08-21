@@ -68,6 +68,22 @@ FALLBACK_TRANSLATIONS: dict[str, str] = {
     "mr": "कृपया शांतपणे एक्झिट बी कडे जा. झोन ए१ टाळा.",
 }
 
+# Native-language safety fallback used when the translation provider is
+# unavailable or returns an incomplete response. Unicode escapes keep these
+# strings portable across the backend's source-file encodings.
+LOCAL_LANGUAGE_FALLBACKS: dict[str, str] = {
+    "hi": "\u0915\u0943\u092a\u092f\u093e \u0936\u093e\u0902\u0924 \u0930\u0939\u0947\u0902 \u0914\u0930 \u0915\u0930\u094d\u092e\u091a\u093e\u0930\u093f\u092f\u094b\u0902 \u0915\u0947 \u0928\u093f\u0930\u094d\u0926\u0947\u0936\u094b\u0902 \u0915\u093e \u092a\u093e\u0932\u0928 \u0915\u0930\u0947\u0902\u0964",
+    "ta": "\u0924\u092f\u0935\u0941\u091a\u0946\u092f\u094d\u0924\u0941 \u0905\u092e\u0948\u0924\u093f\u092f\u093e\u0915 \u0935\u0946\u0933\u093f\u092f\u0947\u0931\u0941\u092e\u094d \u092e\u0931\u094d\u0931\u0941\u092e\u094d \u091a\u0947\u0932\u094d\u0932\u0935\u0941\u092e\u094d\u0964",
+    "te": "\u0926\u092f\u091a\u0947\u0938\u093f \u092a\u094d\u0930\u0936\u093e\u0902\u0924\u0902\u0917\u093e \u0909\u0902\u0921\u0902\u0921\u093f \u092e\u0930\u093f\u092f\u0941 \u0938\u093f\u092c\u094d\u092c\u0902\u0926\u093f\u0932\u094b \u0928\u093f\u0930\u094d\u0926\u0947\u0936\u093e\u0932\u0928\u0941 \u092a\u093e\u091f\u093f\u0902\u091a\u0902\u0921\u093f\u0964",
+    "bn": "\u09a6\u09af\u09bc\u09be \u0995\u09b0\u09c7 \u09b6\u09be\u09a8\u09cd\u09a4 \u09a5\u09be\u0995\u09c1\u09a8 \u098f\u09ac\u0982 \u0995\u09b0\u09cd\u09ae\u09c0\u09a6\u09c7\u09b0 \u09a8\u09bf\u09b0\u09cd\u09a6\u09c7\u09b6 \u09ae\u09be\u09a8\u09c1\u09a8\u0964",
+    "mr": "\u0915\u0943\u092a\u092f\u093e \u0936\u093e\u0902\u0924 \u0930\u0939\u093e \u0906\u0923\u093f \u0915\u0930\u094d\u092e\u091a\u093e\u0930\u094d\u092f\u093e\u0902\u091a\u094d\u092f\u093e \u0938\u0942\u091a\u0928\u093e\u0902\u091a\u0947 \u092a\u093e\u0932\u0928 \u0915\u0930\u093e\u0964",
+}
+
+
+def local_language_fallback(language: str, base_message_en: str) -> str:
+    """Return a native-language message when external translation fails."""
+    return LOCAL_LANGUAGE_FALLBACKS.get(language, base_message_en)
+
 
 class MultilingualAnnouncer:
     """
@@ -135,14 +151,14 @@ class MultilingualAnnouncer:
             )
             for lang in target_languages:
                 if lang not in validated:
-                    validated[lang] = base_message_en
+                    validated[lang] = local_language_fallback(lang, base_message_en)
             return validated
 
         except Exception as exc:
             logger.warning(
                 "Translation failed: %s. Speaking the operator-authored message as fallback.", exc
             )
-            return {lang: base_message_en for lang in target_languages}
+            return {lang: local_language_fallback(lang, base_message_en) for lang in target_languages}
 
     async def generate_audio(
         self,
@@ -174,10 +190,27 @@ class MultilingualAnnouncer:
         filename = f"alert_{language_code}_{timestamp_str}.mp3"
         filepath = out_path / filename
 
-        # 1. Try Edge-TTS (preferred)
-        voice = EDGE_TTS_VOICES.get(language_code, "hi-IN-MadhurNeural")
+        # Tamil and Telugu Edge-TTS output can be rejected by some browser
+        # decoders even when the file is generated successfully. Prefer the
+        # gTTS MP3 output for those two regional tracks, then fall back to the
+        # normal Edge-TTS path if gTTS is unavailable.
+        prefer_gtts = language_code in {"ta", "te"}
         saved = False
-        if edge_tts is not None:
+
+        # 1. Try gTTS first for Tamil/Telugu
+        if prefer_gtts and gTTS is not None:
+            try:
+                loop = asyncio.get_running_loop()
+                tts = gTTS(text=translated_text, lang=language_code)
+                await asyncio.wait_for(loop.run_in_executor(None, tts.save, str(filepath)), timeout=15.0)
+                logger.info("Generated gTTS audio for browser compatibility: %s", filepath)
+                saved = True
+            except Exception as exc:
+                logger.warning("gTTS failed for %s; trying Edge-TTS: %s", language_code, exc)
+
+        # 2. Try Edge-TTS (preferred for other languages)
+        voice = EDGE_TTS_VOICES.get(language_code, "hi-IN-MadhurNeural")
+        if not saved and edge_tts is not None:
             try:
                 communicate = edge_tts.Communicate(translated_text, voice)
                 await asyncio.wait_for(communicate.save(str(filepath)), timeout=15.0)
@@ -190,7 +223,7 @@ class MultilingualAnnouncer:
                     exc,
                 )
 
-        # 2. Fallback to gTTS if Edge-TTS fails or is unavailable
+        # 3. Fallback to gTTS if Edge-TTS fails or is unavailable
         if not saved and gTTS is not None:
             try:
                 loop = asyncio.get_running_loop()
@@ -265,7 +298,9 @@ class MultilingualAnnouncer:
             )
         except Exception as exc:
             logger.warning("Translation timed out or failed: %s. Speaking the operator-authored message as fallback.", exc)
-            translations_text = {lang: base_message_en for lang in target_languages}
+            translations_text = {
+                lang: local_language_fallback(lang, base_message_en) for lang in target_languages
+            }
 
         # Step 2: Generate audio concurrently for all target languages
         async def process_lang(lang: str):

@@ -39,7 +39,15 @@ else:
     load_dotenv()
 
 
-DEFAULT_MODEL: str = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+_configured_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
+# The previous 120B model is quota-exhausted in this project environment.
+# Normalize stale shell/process configuration so a backend restart cannot
+# silently select it again over the updated .env files.
+DEFAULT_MODEL: str = (
+    "openai/gpt-oss-20b"
+    if _configured_model == "openai/gpt-oss-120b"
+    else _configured_model
+)
 MAX_JSON_RETRIES: int = 1
 MAX_RATE_LIMIT_ATTEMPTS: int = 2
 BACKOFF_BASE_SECONDS: float = 2.0

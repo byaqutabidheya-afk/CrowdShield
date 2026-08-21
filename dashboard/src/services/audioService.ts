@@ -42,7 +42,17 @@ class GlobalAudioManager {
     if (this.currentUrl !== url) {
       this.currentUrl = url;
       this.audio.src = url;
+      this.audio.addEventListener(
+        'canplay',
+        () => {
+          this.audio?.play().catch((err) => {
+            console.warn('[GlobalAudio] Deferred play error:', err);
+          });
+        },
+        { once: true },
+      );
       this.audio.load();
+      return;
     } else if (this.audio.ended || (this.audio.duration && this.audio.currentTime >= this.audio.duration)) {
       this.audio.currentTime = 0;
     }

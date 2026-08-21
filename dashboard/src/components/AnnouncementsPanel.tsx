@@ -1,13 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { postAnnouncement } from '../api/client';
+import { useLiveDataStore } from '../store/liveDataStore';
 import type { AnnouncementResponse } from '../types/api';
 import { AudioAnnouncementPlayer } from './AudioAnnouncementPlayer';
 
-export const AnnouncementsPanel: React.FC = () => {
+const AnnouncementsPanelContent: React.FC = () => {
+  const activeAlerts = useLiveDataStore((state) => state.activeAlerts);
   const [baseMessage, setBaseMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnnouncementResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const alertSignature = useMemo(
+    () => JSON.stringify(activeAlerts.map((alert) => ({
+      zone_id: alert.zone_id,
+      risk_level: alert.risk_level,
+      peak_risk_score: alert.peak_risk_score,
+      recommendations: alert.recommendations,
+    }))),
+    [activeAlerts],
+  );
+
+  useEffect(() => {
+    if (activeAlerts.length === 0) return;
+
+    const alertMessages = activeAlerts.map((alert) => {
+      const risk = alert.risk_level ? `${alert.risk_level} risk` : 'elevated risk';
+      const recommendation = alert.recommendations?.find((item) => typeof item === 'string' && item.trim());
+      return `Safety alert for ${alert.zone_id}: ${risk} conditions detected. ${
+        recommendation || 'Please remain calm, follow staff instructions, and move carefully away from congested areas.'
+      }`;
+    });
+
+    setBaseMessage(alertMessages.join(' '));
+  }, [alertSignature]);
 
   const handleBroadcast = async () => {
     if (!baseMessage.trim()) return;
@@ -191,14 +217,17 @@ export const AnnouncementsPanel: React.FC = () => {
                     paddingRight: '0.25rem',
                   }}
                 >
-                  {Object.entries(result.translations).map(([lang, detail]) => (
-                    <AudioAnnouncementPlayer
-                      key={lang}
-                      languageCode={lang}
-                      text={detail.text}
-                      audioUrl={detail.audio_path}
-                    />
-                  ))}
+                  {Object.entries(result.translations).map(([lang, detail]) => {
+                    const translation = typeof detail === 'string' ? { text: detail } : (detail || {});
+                    return (
+                      <AudioAnnouncementPlayer
+                        key={lang}
+                        languageCode={lang}
+                        text={translation.text || ''}
+                        audioUrl={translation.audio_path || null}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -239,5 +268,39 @@ export const AnnouncementsPanel: React.FC = () => {
     </div>
   );
 };
+
+class AnnouncementsPanelErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; message: string }
+> {
+  state = { hasError: false, message: '' };
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, message: error.message || 'Unknown announcement panel error.' };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[AnnouncementsPanel] Render error after announcement response:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '1rem', color: '#fca5a5', fontSize: '0.75rem' }}>
+          Announcement results could not be displayed. The rest of the dashboard is still available.
+          <div style={{ marginTop: '0.4rem', color: '#94a3b8', fontSize: '0.65rem' }}>{this.state.message}</div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export const AnnouncementsPanel: React.FC = () => (
+  <AnnouncementsPanelErrorBoundary>
+    <AnnouncementsPanelContent />
+  </AnnouncementsPanelErrorBoundary>
+);
 
 export default AnnouncementsPanel;

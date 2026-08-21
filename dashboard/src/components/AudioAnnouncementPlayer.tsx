@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { globalAudio } from '../services/audioService';
 
 interface AudioAnnouncementPlayerProps {
@@ -24,6 +24,7 @@ export const AudioAnnouncementPlayer: React.FC<AudioAnnouncementPlayerProps> = (
   label,
 }) => {
   const [isSpeechPlaying, setIsSpeechPlaying] = useState(false);
+  const nativeAudioRef = useRef<HTMLAudioElement | null>(null);
   const [playbackState, setPlaybackState] = useState<{
     isPlaying: boolean;
     currentTime: number;
@@ -36,11 +37,26 @@ export const AudioAnnouncementPlayer: React.FC<AudioAnnouncementPlayerProps> = (
 
   // Normalize audio path
   const resolvedUrl = React.useMemo(() => {
-    if (!audioUrl) return null;
-    if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
-      return audioUrl;
+    if (typeof audioUrl !== 'string' || !audioUrl.trim()) return null;
+    const normalizedAudioUrl = audioUrl.trim();
+    if (normalizedAudioUrl.startsWith('http://') || normalizedAudioUrl.startsWith('https://')) {
+      return normalizedAudioUrl;
     }
-    const cleanPath = audioUrl.replace(/\\/g, '/').replace(/^\//, '');
+    const cleanPath = normalizedAudioUrl.replace(/\\/g, '/').replace(/^\//, '');
+
+    // In deployed builds the dashboard and API may use different origins.
+    // Resolve generated audio against the configured backend instead of the
+    // dashboard host; local Vite development continues to use its proxy.
+    const configuredBackend = import.meta.env.VITE_BACKEND_HTTP_URL as string | undefined;
+    if (configuredBackend) {
+      const backendOrigin = configuredBackend.replace(/\/api\/?$/, '');
+      return `${backendOrigin}/${cleanPath}`;
+    }
+
+    if (typeof window !== 'undefined' && !['3000', '5173'].includes(window.location.port)) {
+      return `http://${window.location.hostname}:8000/${cleanPath}`;
+    }
+
     return `/${cleanPath}`;
   }, [audioUrl]);
 
@@ -120,13 +136,23 @@ export const AudioAnnouncementPlayer: React.FC<AudioAnnouncementPlayerProps> = (
       return;
     }
 
-    globalAudio.toggle(resolvedUrl);
+    const audio = nativeAudioRef.current;
+    if (!audio) return;
+
+    if (audio.paused || audio.ended) {
+      audio.play().catch((err) => {
+        console.warn('[AudioAnnouncementPlayer] Native playback failed:', err);
+        speakText();
+      });
+    } else {
+      audio.pause();
+    }
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const seekTo = parseFloat(e.target.value);
+    if (nativeAudioRef.current) nativeAudioRef.current.currentTime = seekTo;
     setPlaybackState((prev) => ({ ...prev, currentTime: seekTo }));
-    globalAudio.seek(seekTo);
   };
 
   const formatTime = (seconds: number) => {
@@ -152,6 +178,33 @@ export const AudioAnnouncementPlayer: React.FC<AudioAnnouncementPlayerProps> = (
         transition: 'border 0.2s ease, box-shadow 0.2s ease',
       }}
     >
+      <audio
+        ref={nativeAudioRef}
+        src={resolvedUrl || undefined}
+        preload="metadata"
+        data-announcement-audio="true"
+        onLoadedMetadata={(event) => {
+          const audio = event.currentTarget;
+          const duration = audio.duration || 0;
+          setPlaybackState((prev) => ({ ...prev, duration }));
+        }}
+        onTimeUpdate={(event) => {
+          const audio = event.currentTarget;
+          const currentTime = audio.currentTime;
+          setPlaybackState((prev) => ({ ...prev, currentTime }));
+        }}
+        onPlay={() => setPlaybackState((prev) => ({ ...prev, isPlaying: true }))}
+        onPause={() => setPlaybackState((prev) => ({ ...prev, isPlaying: false }))}
+        onEnded={(event) => {
+          const audio = event.currentTarget;
+          audio.currentTime = 0;
+          setPlaybackState((prev) => ({ ...prev, isPlaying: false, currentTime: 0 }));
+        }}
+        onError={(event) => {
+          console.warn('[AudioAnnouncementPlayer] Audio file could not be decoded:', event.currentTarget.src);
+        }}
+        style={{ display: 'none' }}
+      />
       {/* Header Info */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
         <div style={{ fontSize: '0.75rem', color: 'var(--color-accent-blue)', fontWeight: 600, flex: 1 }}>
