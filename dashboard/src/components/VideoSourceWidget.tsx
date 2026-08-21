@@ -590,10 +590,26 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
   const handleFeedToBackend = async (overrideFile?: File) => {
     const fileToFeed = overrideFile || selectedFile;
 
+    // The browser preview and OpenCV cannot reliably own the same webcam at
+    // the same time (especially on Windows). Release the browser camera so
+    // the backend's camera index `0` can acquire the device.
+    if (mode === 'camera' && activeStream) {
+      activeStream.getTracks().forEach((track) => track.stop());
+      setActiveStream(null);
+      setIsCameraFeedEnabled(false);
+      if (previewVideoRef.current) previewVideoRef.current.srcObject = null;
+      if (modalVideoRef.current) {
+        modalVideoRef.current.pause();
+        modalVideoRef.current.srcObject = null;
+      }
+    }
+
     setIsStreaming(true);
     isBackendActiveRef.current = true;
     setIsProcessingBackend(true);
-    setBackendMessage('Uploading & initializing video in Python CV Pipeline...');
+    setBackendMessage(mode === 'camera'
+      ? 'Camera released to OpenCV. Initializing Python CV Pipeline...'
+      : 'Uploading & initializing video in Python CV Pipeline...');
     
     // Completely clear old frame history and alerts for the fresh video feed
     useLiveDataStore.getState().resetStreamData();
@@ -626,6 +642,9 @@ export const VideoSourceWidget: React.FC<VideoSourceWidgetProps> = ({ onSourceCh
       }, 50);
     } catch (err: any) {
       console.error('[VideoSourceWidget] Start processing error:', err);
+      setIsStreaming(false);
+      isBackendActiveRef.current = false;
+      setIsProcessingBackend(false);
       const detailMsg = err?.response?.data?.detail || '✓ Video processing request dispatched to backend.';
       setBackendMessage(detailMsg);
 
