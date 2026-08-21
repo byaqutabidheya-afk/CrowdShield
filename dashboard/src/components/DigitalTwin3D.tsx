@@ -1,6 +1,6 @@
 import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Billboard, Box, OrbitControls, Text } from '@react-three/drei';
 import { getZones, postPreEventSimulation } from '../api/client';
 import { useLiveDataStore } from '../store/liveDataStore';
@@ -31,6 +31,35 @@ const EMPTY_CV_ZONES: CVZoneMetric[] = [];
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const lerp = (current: number, target: number, factor: number) => current + (target - current) * factor;
+
+function DigitalTwinCameraZoom({ distance }: { distance: number }) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    const target = new THREE.Vector3(0, 0, 0);
+    const offset = camera.position.clone().sub(target);
+    if (offset.length() > 0) {
+      camera.position.copy(offset.normalize().multiplyScalar(distance));
+      camera.updateProjectionMatrix();
+    }
+  }, [camera, distance]);
+
+  return null;
+}
+
+const MAP_ZOOM_SLIDER_STYLE: React.CSSProperties = {
+  width: '150px',
+  accentColor: '#a78bfa',
+  cursor: 'pointer',
+};
+
+const MAP_ZOOM_SLIDER_PANEL_STYLE: React.CSSProperties = {
+  border: '1px solid rgba(167, 139, 250, 0.3)',
+  borderRadius: '8px',
+  background: 'rgba(9, 16, 29, 0.92)',
+  boxShadow: '0 6px 14px rgba(0, 0, 0, 0.24)',
+  padding: '0.5rem 0.65rem',
+};
 
 function mapNormalizedRectToWorld(bounds: ZoneConfig['bounds_normalized']) {
   const xMin = clamp01(bounds.x_min) * FLOOR_SIZE - FLOOR_HALF;
@@ -696,6 +725,7 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
   const [entryZoneId, setEntryZoneId] = useState('');
   const [expectedAttendance, setExpectedAttendance] = useState(3000);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [cameraDistance, setCameraDistance] = useState(14);
 
   useEffect(() => {
     const syncFullscreenState = () => {
@@ -1028,6 +1058,7 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
           gl={{ antialias: true, alpha: false, preserveDrawingBuffer: false }}
           style={{ width: '100%', height: '100%' }}
         >
+          <DigitalTwinCameraZoom distance={cameraDistance} />
           <ambientLight intensity={0.65} />
           <directionalLight
             position={[8, 12, 6]}
@@ -1065,8 +1096,42 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
             maxPolarAngle={Math.PI / 2.05}
             minDistance={4}
             maxDistance={30}
+            onChange={(event: any) => {
+              const orbitCamera = event.target?.object as THREE.Camera | undefined;
+              if (orbitCamera) {
+                setCameraDistance(THREE.MathUtils.clamp(orbitCamera.position.length(), 4, 30));
+              }
+            }}
           />
         </Canvas>
+
+        <div
+          aria-label="3D map zoom slider"
+          style={{
+            ...MAP_ZOOM_SLIDER_PANEL_STYLE,
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            zIndex: 40,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.55rem',
+          }}
+        >
+          <span style={{ color: '#cbd5e1', fontSize: '0.7rem' }} aria-hidden="true">−</span>
+          <input
+            type="range"
+            min={4}
+            max={30}
+            step={0.25}
+            value={34 - cameraDistance}
+            onChange={(event) => setCameraDistance(34 - Number(event.target.value))}
+            aria-label="Zoom level for 3D map"
+            title="Adjust 3D map zoom"
+            style={MAP_ZOOM_SLIDER_STYLE}
+          />
+          <span style={{ color: '#cbd5e1', fontSize: '0.95rem' }} aria-hidden="true">+</span>
+        </div>
 
         {isSimulationMode && (
           <div

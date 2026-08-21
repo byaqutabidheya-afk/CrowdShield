@@ -1,7 +1,7 @@
-import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet.heat';
-import { Circle, ImageOverlay, MapContainer, Polygon, Popup, Tooltip, useMap } from 'react-leaflet';
+import { Circle, ImageOverlay, MapContainer, Polygon, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getZones } from '../api/client';
 import { useLiveDataStore } from '../store/liveDataStore';
@@ -178,6 +178,73 @@ function MapViewportController() {
   }, [map]);
 
   return null;
+}
+
+function MapZoomSlider() {
+  const map = useMap();
+  const sliderPanelRef = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(map.getZoom());
+
+  useEffect(() => {
+    const sliderPanel = sliderPanelRef.current;
+    if (!sliderPanel) return;
+
+    // Leaflet listens for native pointer/mouse events on the map container.
+    // Isolate the slider so dragging it cannot pan the map underneath it.
+    L.DomEvent.disableClickPropagation(sliderPanel);
+    L.DomEvent.disableScrollPropagation(sliderPanel);
+
+    const onZoom = () => setZoom(map.getZoom());
+    map.on('zoomend', onZoom);
+    return () => {
+      map.off('zoomend', onZoom);
+    };
+  }, [map]);
+
+  return (
+    <div
+      ref={sliderPanelRef}
+      aria-label="2D map zoom slider"
+      onPointerDown={(event) => event.stopPropagation()}
+      onMouseDown={(event) => event.stopPropagation()}
+      onTouchStart={(event) => event.stopPropagation()}
+      onWheel={(event) => event.stopPropagation()}
+      style={{
+        position: 'absolute',
+        top: '12px',
+        left: '12px',
+        zIndex: 500,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.55rem',
+        width: '190px',
+        boxSizing: 'border-box',
+        padding: '0.5rem 0.65rem',
+        border: '1px solid rgba(167, 139, 250, 0.3)',
+        borderRadius: '8px',
+        background: 'rgba(9, 16, 29, 0.92)',
+        boxShadow: '0 6px 14px rgba(0, 0, 0, 0.24)',
+      }}
+    >
+      <span style={{ color: '#cbd5e1', fontSize: '0.7rem' }} aria-hidden="true">−</span>
+      <input
+        type="range"
+        min={-2}
+        max={4}
+        step={0.25}
+        value={zoom}
+        onInput={(event) => {
+          const nextZoom = event.currentTarget.valueAsNumber;
+          setZoom(nextZoom);
+          map.setZoom(nextZoom, { animate: false });
+        }}
+        aria-label="Zoom level for 2D map"
+        title="Adjust 2D map zoom"
+        style={{ flex: '1 1 auto', minWidth: 0, width: 0, accentColor: '#a78bfa', cursor: 'pointer' }}
+      />
+      <span style={{ color: '#cbd5e1', fontSize: '0.95rem' }} aria-hidden="true">+</span>
+    </div>
+  );
 }
 
 function HeatmapLayer({
@@ -500,6 +567,9 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
         zoomControl={false}
         attributionControl={false}
         scrollWheelZoom
+        zoomSnap={0.25}
+        zoomDelta={0.5}
+        maxZoom={4}
         doubleClickZoom
         dragging
         touchZoom
@@ -508,6 +578,7 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
         <ImageOverlay url={overlayUrl} bounds={bounds} opacity={0.98} />
 
         <MapViewportController />
+        <MapZoomSlider />
 
         <MapFlyToZone
           selectedZoneId={selectedZoneId}
@@ -539,11 +610,6 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
                   width: imageWidth,
                   height: imageHeight,
                 })}
-                eventHandlers={{
-                  click: (event) => {
-                    event.target.openPopup();
-                  },
-                }}
                 bubblingMouseEvents={false}
               >
                 <Tooltip direction="top" sticky opacity={1} className="live-venue-tooltip">
@@ -553,13 +619,6 @@ export const LiveVenueMap: React.FC<LiveVenueMapProps> = ({
                     cvZone={cvByZoneId.get(zoneConfig.zone_id)}
                   />
                 </Tooltip>
-                <Popup autoPan={false} className="live-venue-popup">
-                  <ZoneDetailsContent
-                    zoneId={zoneConfig.zone_id}
-                    riskZone={riskZone}
-                    cvZone={cvByZoneId.get(zoneConfig.zone_id)}
-                  />
-                </Popup>
               </Polygon>
             );
           })}
