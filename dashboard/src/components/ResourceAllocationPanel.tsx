@@ -80,6 +80,7 @@ const getSuggestionMeta = (suggestionType: string = '') => {
 
 export const ResourceAllocationPanel: React.FC = () => {
   const suggestions = useLiveDataStore((state) => state.resourceAllocationSuggestions);
+  const dismissSuggestion = useLiveDataStore((state) => state.dismissResourceAllocationSuggestion);
 
   // Sort suggestions: High priority first, then medium, then low (preserving order received)
   const sortedSuggestions = useMemo(() => {
@@ -149,9 +150,12 @@ export const ResourceAllocationPanel: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         gap: '0.65rem',
-        overflowY: 'auto',
-        flex: 1,
+        overflow: 'visible',
+        flex: '0 0 auto',
+        height: 'auto',
+        maxHeight: 'none',
         minHeight: 0,
+        minWidth: 0,
         paddingRight: '0.2rem',
       }}
     >
@@ -204,6 +208,23 @@ export const ResourceAllocationPanel: React.FC = () => {
               >
                 {priorityMeta.label}
               </span>
+              <button
+                type="button"
+                onClick={() => dismissSuggestion(item)}
+                title="Remove this deployment"
+                aria-label={`Remove ${typeMeta.label} for ${item.zone_id}`}
+                style={{
+                  border: '1px solid rgba(148, 163, 184, 0.28)',
+                  borderRadius: '5px',
+                  background: 'rgba(15, 23, 42, 0.72)',
+                  color: '#cbd5e1',
+                  padding: '0.15rem 0.4rem',
+                  fontSize: '0.62rem',
+                  cursor: 'pointer',
+                }}
+              >
+                Remove
+              </button>
             </div>
 
             {/* Reason Description */}

@@ -511,6 +511,8 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
       {/* SECTION 2: Digital Signage Hardware Webhook Trigger */}
       <div className="trigger-subcontainer"
         style={{
+          gridRow: 'span 2',
+          height: '100%',
           backgroundColor: 'rgba(5, 8, 17, 0.7)',
           border: '1px solid var(--border-panel)',
           borderRadius: '8px',
@@ -762,7 +764,8 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
         )}
       </div>
 
-      {/* SECTION 4: Multilingual Public Address (PA) */}
+      {false && (
+      /* SECTION 4: Multilingual Public Address (PA) */
       <div className="trigger-subcontainer"
         style={{
           backgroundColor: 'rgba(5, 8, 17, 0.7)',
@@ -897,6 +900,7 @@ export const ExternalTriggersPanel: React.FC<ExternalTriggersPanelProps> = ({ on
           </div>
         )}
       </div>
+      )}
 
     </div>
   );

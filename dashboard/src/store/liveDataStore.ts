@@ -12,12 +12,16 @@ import type {
 
 const MAX_ZONE_HISTORY_POINTS = 100;
 
+const resourceSuggestionKey = (suggestion: ResourceAllocationSuggestion): string =>
+  `${suggestion.zone_id}|${suggestion.suggestion_type}|${suggestion.reason}`;
+
 export interface LiveDataState {
   // State
   latestFrame: WebSocketFrameMessage | null;
   zoneHistory: Map<string, ZoneHistoryPoint[]>;
   activeAlerts: AlertData[];
   resourceAllocationSuggestions: ResourceAllocationSuggestion[];
+  dismissedResourceAllocationSuggestionKeys: string[];
   incidentReports: IncidentReport[];
   interventions: InterventionRecord[];
   connectionStatus: ConnectionStatus;
@@ -30,6 +34,7 @@ export interface LiveDataState {
   fetchInterventions: (params?: { zone_id?: string }) => Promise<void>;
   setInterventions: (interventions: InterventionRecord[]) => void;
   addIntervention: (intervention: InterventionRecord) => void;
+  dismissResourceAllocationSuggestion: (suggestion: ResourceAllocationSuggestion) => void;
   dismissIntervention: (id: string) => void;
   dismissAlert: (alertIdOrZoneId: string) => void;
   clearAlerts: () => void;
@@ -54,6 +59,7 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
   zoneHistory: new Map<string, ZoneHistoryPoint[]>(),
   activeAlerts: [],
   resourceAllocationSuggestions: [],
+  dismissedResourceAllocationSuggestionKeys: [],
   incidentReports: [],
   interventions: [],
   connectionStatus: 'connecting',
@@ -73,8 +79,23 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
   processWebSocketMessage: (message: WebSocketFrameMessage) => {
     const timestamp = message.timestamp || new Date().toISOString();
 
-    // 1. Extract resource allocation suggestions (replaced wholesale on each frame if present)
-    const newSuggestions = message.risk_data?.resource_allocation_suggestions ?? get().resourceAllocationSuggestions;
+    // 1. Keep generated resource suggestions until the operator dismisses them.
+    // Live frames frequently contain an empty suggestions array, which must not
+    // clear deployments that were already generated in this dashboard session.
+    const incomingSuggestions = message.risk_data?.resource_allocation_suggestions ?? [];
+    const currentSuggestions = get().resourceAllocationSuggestions;
+    const dismissedSuggestionKeys = new Set(get().dismissedResourceAllocationSuggestionKeys);
+    const newSuggestions = [...currentSuggestions];
+    for (const suggestion of incomingSuggestions) {
+      const key = resourceSuggestionKey(suggestion);
+      if (dismissedSuggestionKeys.has(key)) continue;
+      const existingIndex = newSuggestions.findIndex((item) => resourceSuggestionKey(item) === key);
+      if (existingIndex >= 0) {
+        newSuggestions[existingIndex] = suggestion;
+      } else {
+        newSuggestions.push(suggestion);
+      }
+    }
 
     // 2. Process alerts (avoiding duplicates by zone_id — an alert already in activeAlerts for that zone_id is updated in-place)
     const incomingAlerts: AlertData[] = [];
@@ -197,6 +218,20 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
     }));
   },
 
+  // Keep a deployment dismissed for this page session so later live frames do
+  // not immediately add it back. A full page reload resets this state.
+  dismissResourceAllocationSuggestion: (suggestion: ResourceAllocationSuggestion) => {
+    const key = resourceSuggestionKey(suggestion);
+    set((state) => ({
+      resourceAllocationSuggestions: state.resourceAllocationSuggestions.filter(
+        (item) => resourceSuggestionKey(item) !== key,
+      ),
+      dismissedResourceAllocationSuggestionKeys: state.dismissedResourceAllocationSuggestionKeys.includes(key)
+        ? state.dismissedResourceAllocationSuggestionKeys
+        : [...state.dismissedResourceAllocationSuggestionKeys, key],
+    }));
+  },
+
   // Dismiss / close a single recorded intervention by ID
   dismissIntervention: (id: string) => {
     set((state) => ({
@@ -223,7 +258,6 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
     set({
       latestFrame: null,
       activeAlerts: [],
-      resourceAllocationSuggestions: [],
       zoneHistory: new Map<string, ZoneHistoryPoint[]>(),
     });
   },

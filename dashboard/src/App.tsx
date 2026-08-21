@@ -438,7 +438,7 @@ export const App: React.FC = () => {
           padding: '0 1.25rem 1.25rem 1.25rem',
           display: 'grid',
           gridTemplateColumns: 'repeat(12, 1fr)',
-          gridTemplateRows: 'minmax(940px, 1.2fr) minmax(380px, 1fr) minmax(560px, auto)',
+          gridTemplateRows: 'minmax(940px, 1.2fr) 560px 560px',
           gap: '20px',
           overflowY: 'auto',
         }}
@@ -537,8 +537,14 @@ export const App: React.FC = () => {
         </section>
 
         {/* LOWER ROW - PANEL 4: Resource Allocation (Span 3) */}
-        <section className="control-card scroll-reveal scroll-reveal-delay-1" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
-          <div className="control-card-header">
+        <section
+          className="control-card scroll-reveal scroll-reveal-delay-1"
+          style={{ gridColumn: 'span 3', height: '100%', minHeight: 0, minWidth: 0, alignSelf: 'stretch', position: 'relative', overflow: 'hidden' }}
+        >
+          <div
+            className="control-card-header"
+            style={{ position: 'relative', zIndex: 2, background: 'rgba(16, 25, 40, 0.98)' }}
+          >
             <div className="control-card-title">
               <span className="dashboard-section-icon"><DashboardIcon name="resources" /></span>
               <span className="gradient-text">Resource Deployments</span>
@@ -547,7 +553,7 @@ export const App: React.FC = () => {
               {resourceAllocationSuggestions.length} SUGGESTIONS
             </span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'absolute', top: '60px', right: 0, bottom: 0, left: 0, minHeight: 0, minWidth: 0, padding: '1.5rem', overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <ResourceAllocationPanel />
           </div>
         </section>
