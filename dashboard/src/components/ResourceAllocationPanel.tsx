@@ -48,32 +48,85 @@ const getPriorityStyle = (priority: string = '') => {
 const getSuggestionMeta = (suggestionType: string = '') => {
   switch (suggestionType.toLowerCase()) {
     case 'security_personnel':
+    case 'crowd_marshals':
       return {
         icon: '👮‍♂️',
-        label: 'Security Personnel Deployment',
+        label: 'Security & Crowd Stewards',
         badgeBg: 'rgba(139, 92, 246, 0.1)',
         badgeColor: 'var(--color-accent-cyan)',
+        category: 'Perimeter & Crowd Marshals',
       };
     case 'medical_tent':
+    case 'medical_station':
+    case 'paramedic_team':
       return {
         icon: '🚑',
-        label: 'Medical Station Setup',
+        label: 'Medical & Triage Station',
         badgeBg: 'rgba(244, 63, 94, 0.1)',
         badgeColor: '#fb7185',
+        category: 'Emergency Medical Response',
       };
     case 'barricade_reconfiguration':
+    case 'flow_deflection_barriers':
       return {
         icon: '🚧',
         label: 'Barricade Flow Control',
         badgeBg: 'rgba(245, 158, 11, 0.1)',
         badgeColor: '#fcd34d',
+        category: 'Flow Deflection & Channeling',
+      };
+    case 'rapid_egress_team':
+    case 'emergency_exit_dispatch':
+      return {
+        icon: '🚪',
+        label: 'Emergency Egress Dispatch',
+        badgeBg: 'rgba(16, 185, 129, 0.1)',
+        badgeColor: '#34d399',
+        category: 'Bottleneck & Gate Clearance',
+      };
+    case 'surge_response_team':
+    case 'rapid_intervention_unit':
+      return {
+        icon: '⚡',
+        label: 'Rapid Surge Response Unit',
+        badgeBg: 'rgba(239, 68, 68, 0.1)',
+        badgeColor: '#f87171',
+        category: 'Surge Momentum Absorption',
+      };
+    case 'drone_surveillance':
+    case 'aerial_monitoring':
+      return {
+        icon: '🛸',
+        label: 'Aerial Drone Reconnaissance',
+        badgeBg: 'rgba(168, 85, 247, 0.1)',
+        badgeColor: '#c084fc',
+        category: 'Overhead Situational Awareness',
+      };
+    case 'public_address_broadcaster':
+    case 'audio_visual_guidance':
+      return {
+        icon: '📢',
+        label: 'PA & Signage Guidance',
+        badgeBg: 'rgba(56, 189, 248, 0.1)',
+        badgeColor: '#38bdf8',
+        category: 'Acoustic Redistribution',
+      };
+    case 'cooling_water_station':
+    case 'hydration_relief_post':
+      return {
+        icon: '💧',
+        label: 'Hydration & Cooling Post',
+        badgeBg: 'rgba(6, 182, 212, 0.1)',
+        badgeColor: '#22d3ee',
+        category: 'Thermal & Heat Relief',
       };
     default:
       return {
-        icon: '⚡',
+        icon: '🛡️',
         label: suggestionType.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
         badgeBg: 'rgba(148, 163, 184, 0.1)',
         badgeColor: '#cbd5e1',
+        category: 'Tactical Deployment',
       };
   }
 };
@@ -182,10 +235,25 @@ export const ResourceAllocationPanel: React.FC = () => {
               {/* Type Icon & Label */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <span style={{ fontSize: '1.1rem' }}>{typeMeta.icon}</span>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f8fafc' }}>
-                    {typeMeta.label}
-                  </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f8fafc' }}>
+                      {typeMeta.label}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.58rem',
+                        fontWeight: 600,
+                        padding: '0.08rem 0.35rem',
+                        borderRadius: '4px',
+                        backgroundColor: typeMeta.badgeBg,
+                        color: typeMeta.badgeColor,
+                        border: `1px solid ${typeMeta.badgeBg}`,
+                      }}
+                    >
+                      {typeMeta.category}
+                    </span>
+                  </div>
                   <span className="font-mono" style={{ fontSize: '0.68rem', color: 'var(--color-accent-cyan)' }}>
                     TARGET ZONE: {item.zone_id}
                   </span>

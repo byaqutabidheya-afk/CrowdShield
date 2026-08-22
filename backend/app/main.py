@@ -146,8 +146,7 @@ cwd_audio_dir = Path(os.getcwd()) / "ai_core" / "genai_pipeline" / "audio_output
 for d in [primary_audio_dir, backend_audio_dir, cwd_audio_dir]:
     d.mkdir(parents=True, exist_ok=True)
 
-# Prefer directory that contains files
-chosen_audio_dir = str(backend_audio_dir) if any(backend_audio_dir.iterdir()) else str(primary_audio_dir)
+chosen_audio_dir = str(primary_audio_dir) if primary_audio_dir.exists() else str(backend_audio_dir)
 app.mount("/ai_core/genai_pipeline/audio_output", StaticFiles(directory=chosen_audio_dir), name="audio_output")
 app.mount("/audio", StaticFiles(directory=chosen_audio_dir), name="audio_short")
 

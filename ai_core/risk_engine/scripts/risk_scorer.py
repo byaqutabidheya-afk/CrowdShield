@@ -186,7 +186,12 @@ class RiskScorer:
         )
         anomaly_flags = zone_frame_data.get("anomaly_flags", [])
         anomaly_score = _clamp(
-            len(anomaly_flags) / 3.0 if isinstance(anomaly_flags, list) else 0.0
+            len(anomaly_flags) / 3.0
+            if isinstance(anomaly_flags, list)
+            else _safe_float(
+                zone_frame_data.get("anomaly_score")
+                or zone_frame_data.get("anomaly_indicator")
+            )
         )
 
         weighted_density = self.w_density * density_score
@@ -205,13 +210,12 @@ class RiskScorer:
 
         # Critical override: if a bottleneck is detected, it is a high-risk situation
         # regardless of YOLO density score (e.g., flow-only surge without detected persons).
-        if bottleneck_score > 0.0:
+        if bottleneck_score > 0.0 or (isinstance(anomaly_flags, list) and "bottleneck" in anomaly_flags):
             risk_score = max(risk_score, 0.75)
 
-        # High override: if erratic movement is detected, flag as high risk
-        # regardless of crowd density.
-        if "erratic_movement" in anomaly_flags:
-            risk_score = max(risk_score, 0.60)
+        # High override: if erratic movement, stampede, or anomaly is detected, flag as elevated risk
+        if (isinstance(anomaly_flags, list) and len(anomaly_flags) > 0) or anomaly_score > 0.0:
+            risk_score = max(risk_score, 0.65)
 
         return {
             "risk_score": risk_score,
@@ -222,6 +226,7 @@ class RiskScorer:
                 "flow_convergence_score": flow_convergence_score,
                 "bottleneck_score": bottleneck_score,
                 "anomaly_score": anomaly_score,
+                "anomaly_flags": list(anomaly_flags) if isinstance(anomaly_flags, list) else [],
                 "weights": {
                     "density": self.w_density,
                     "rate": self.w_rate,

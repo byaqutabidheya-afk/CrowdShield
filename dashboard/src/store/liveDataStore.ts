@@ -258,6 +258,8 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
     set({
       latestFrame: null,
       activeAlerts: [],
+      resourceAllocationSuggestions: [],
+      dismissedResourceAllocationSuggestionKeys: [],
       zoneHistory: new Map<string, ZoneHistoryPoint[]>(),
     });
   },

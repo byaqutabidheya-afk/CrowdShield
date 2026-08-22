@@ -69,19 +69,97 @@ FALLBACK_TRANSLATIONS: dict[str, str] = {
 }
 
 # Native-language safety fallback used when the translation provider is
-# unavailable or returns an incomplete response. Unicode escapes keep these
-# strings portable across the backend's source-file encodings.
+# unavailable or returns an incomplete response. Accurate Unicode native scripts.
 LOCAL_LANGUAGE_FALLBACKS: dict[str, str] = {
-    "hi": "\u0915\u0943\u092a\u092f\u093e \u0936\u093e\u0902\u0924 \u0930\u0939\u0947\u0902 \u0914\u0930 \u0915\u0930\u094d\u092e\u091a\u093e\u0930\u093f\u092f\u094b\u0902 \u0915\u0947 \u0928\u093f\u0930\u094d\u0926\u0947\u0936\u094b\u0902 \u0915\u093e \u092a\u093e\u0932\u0928 \u0915\u0930\u0947\u0902\u0964",
-    "ta": "\u0924\u092f\u0935\u0941\u091a\u0946\u092f\u094d\u0924\u0941 \u0905\u092e\u0948\u0924\u093f\u092f\u093e\u0915 \u0935\u0946\u0933\u093f\u092f\u0947\u0931\u0941\u092e\u094d \u092e\u0931\u094d\u0931\u0941\u092e\u094d \u091a\u0947\u0932\u094d\u0932\u0935\u0941\u092e\u094d\u0964",
-    "te": "\u0926\u092f\u091a\u0947\u0938\u093f \u092a\u094d\u0930\u0936\u093e\u0902\u0924\u0902\u0917\u093e \u0909\u0902\u0921\u0902\u0921\u093f \u092e\u0930\u093f\u092f\u0941 \u0938\u093f\u092c\u094d\u092c\u0902\u0926\u093f\u0932\u094b \u0928\u093f\u0930\u094d\u0926\u0947\u0936\u093e\u0932\u0928\u0941 \u092a\u093e\u091f\u093f\u0902\u091a\u0902\u0921\u093f\u0964",
-    "bn": "\u09a6\u09af\u09bc\u09be \u0995\u09b0\u09c7 \u09b6\u09be\u09a8\u09cd\u09a4 \u09a5\u09be\u0995\u09c1\u09a8 \u098f\u09ac\u0982 \u0995\u09b0\u09cd\u09ae\u09c0\u09a6\u09c7\u09b0 \u09a8\u09bf\u09b0\u09cd\u09a6\u09c7\u09b6 \u09ae\u09be\u09a8\u09c1\u09a8\u0964",
-    "mr": "\u0915\u0943\u092a\u092f\u093e \u0936\u093e\u0902\u0924 \u0930\u0939\u093e \u0906\u0923\u093f \u0915\u0930\u094d\u092e\u091a\u093e\u0930\u094d\u092f\u093e\u0902\u091a\u094d\u092f\u093e \u0938\u0942\u091a\u0928\u093e\u0902\u091a\u0947 \u092a\u093e\u0932\u0928 \u0915\u0930\u093e\u0964",
+    "hi": "कृपया शांत रहें और कर्मचारियों के निर्देशों का पालन करें।",
+    "ta": "தயவுசெய்து அமைதியாக இருங்கள் மற்றும் ஊழியர்களின் வழிகாட்டுதலைப் பின்பற்றுங்கள்.",
+    "te": "దయచేసి ప్రశాంతంగా ఉండండి మరియు సిబ్బంది సూచనలను పాటించండి.",
+    "bn": "অনুগ্রহ করে শান্ত থাকুন এবং কর্মীদের নির্দেশাবলী মেনে চলুন।",
+    "mr": "कृपया शांत राहा आणि कर्मचाऱ्यांच्या सूचनांचे पालन करा.",
 }
 
 
 def local_language_fallback(language: str, base_message_en: str) -> str:
-    """Return a native-language message when external translation fails."""
+    """Return an accurate native-language message when external translation is unavailable."""
+    msg = base_message_en.strip().lower()
+
+    # Greetings / Casual
+    if msg in {"hello", "hi", "hey", "greetings", "hello!", "hi!", "hello."}:
+        table = {
+            "hi": "नमस्ते",
+            "ta": "வணக்கம்",
+            "te": "నమస్కారం",
+            "bn": "নমস্কার",
+            "mr": "नमस्कार",
+        }
+        return table.get(language, base_message_en)
+
+    # Welcome
+    if "welcome" in msg:
+        table = {
+            "hi": "स्वागत है",
+            "ta": "வரவேற்கிறோம்",
+            "te": "స్వాగతం",
+            "bn": "স্বাগতম",
+            "mr": "स्वागत आहे",
+        }
+        return table.get(language, base_message_en)
+
+    # Attention / Announcement
+    if "attention" in msg or "announcement" in msg or "notice" in msg:
+        table = {
+            "hi": "कृपया ध्यान दें।",
+            "ta": "தயவுசெய்து கவனிக்கவும்.",
+            "te": "దయచేసి గమనించండి.",
+            "bn": "অনুগ্রহ করে মনোযোগ দিন।",
+            "mr": "कृपया लक्ष द्या.",
+        }
+        return table.get(language, base_message_en)
+
+    # All Clear / Safe
+    if "all clear" in msg or "safe" in msg or "normal" in msg:
+        table = {
+            "hi": "स्थिति अब सामान्य और सुरक्षित है।",
+            "ta": "நிலைமை இப்போது பாதுகாப்பாகவும் இயல்பாகவும் உள்ளது.",
+            "te": "పరిస్థితి ఇప్పుడు సురక్షితంగా మరియు సాధారణంగా ఉంది.",
+            "bn": "পরিস্থিতি এখন স্বাভাবিক এবং নিরাপদ।",
+            "mr": "परिस्थिती आता सामान्य आणि सुरक्षित आहे.",
+        }
+        return table.get(language, base_message_en)
+
+    # Exit / Evacuation / Move
+    if "exit" in msg or "move" in msg or "evacuate" in msg or "gate" in msg:
+        table = {
+            "hi": "कृपया शांत रहें और निकटतम निकास द्वार की ओर सुरक्षित रूप से बढ़ें।",
+            "ta": "தயவுசெய்து அமைதியாக இருங்கள் மற்றும் அருகிலுள்ள வெளியேறும் வழியை நோக்கி செல்லுங்கள்.",
+            "te": "దయచేసి ప్రశాంతంగా ఉండండి మరియు సమీప నిష్క్రమణ ద్వారం వైపు వెళ్ళండి.",
+            "bn": "অনুগ্রহ করে শান্ত থাকুন এবং নিকটতম বহির্গমন দ্বারের দিকে যান।",
+            "mr": "कृपया शांत राहा आणि जवळच्या बाहेर पडण्याच्या मार्गाकडे जा.",
+        }
+        return table.get(language, base_message_en)
+
+    # Avoid / Danger
+    if "avoid" in msg or "stay away" in msg or "danger" in msg or "warning" in msg:
+        table = {
+            "hi": "कृपया प्रभावित क्षेत्र से दूर रहें और सुरक्षा निर्देशों का पालन करें।",
+            "ta": "தயவுசெய்து பாதிக்கப்பட்ட பகுதிக்கு செல்வதைத் தவிர்த்து பாதுகாப்பு வழிகாட்டுதலைப் பின்பற்றுங்கள்.",
+            "te": "దయచేసి ప్రభావిత ప్రాంతానికి దూరంగా ఉండండి మరియు భద్రతా సూచనలను పాటించండి.",
+            "bn": "অনুগ্রহ করে ক্ষতিগ্রস্ত এলাকা এড়িয়ে চলুন এবং নিরাপত্তা নির্দেশাবলী মেনে চলুন।",
+            "mr": "कृपया प्रभावित क्षेत्रापासून दूर राहा आणि सुरक्षा सूचनांचे पालन करा.",
+        }
+        return table.get(language, base_message_en)
+
+    # Test
+    if "test" in msg or "testing" in msg:
+        table = {
+            "hi": "यह एक सार्वजनिक उद्घोषणा प्रणाली परीक्षण है।",
+            "ta": "இது ஒரு பொது முகவரி சோதனை அறிவிப்பு.",
+            "te": "ఇది పబ్లిక్ అడ్రస్ సిస్టమ్ పరీక్ష ప్రకటన.",
+            "bn": "এটি একটি সর্বজনীন ঘোষণা ব্যবস্থা পরীক্ষা।",
+            "mr": "ही एक सार्वजनिक घोषणा प्रणाली चाचणी आहे.",
+        }
+        return table.get(language, base_message_en)
+
     return LOCAL_LANGUAGE_FALLBACKS.get(language, base_message_en)
 
 
@@ -118,21 +196,22 @@ class MultilingualAnnouncer:
             target_languages = ["hi", "ta", "te", "bn", "mr"]
 
         lang_specs = [
-            f"'{lang}': {LANGUAGE_NAMES.get(lang, lang)}" for lang in target_languages
+            f"- '{lang}': {LANGUAGE_NAMES.get(lang, lang)} (native script)" for lang in target_languages
         ]
         prompt = (
-            f"You are a public safety translator for an emergency broadcast system.\n"
-            f"Base English Announcement:\n\"{base_message_en}\"\n\n"
-            f"Translate this message accurately into the following regional languages:\n"
-            + "\n".join(f"- {spec}" for spec in lang_specs)
-            + "\n\nInstructions:\n"
-            "1. Keep each translation clear, concise, calm, and suitable for a public address system.\n"
-            "2. Preserve the urgency and safety instructions without adding extra information.\n"
-            "3. Return JSON mapping language code to translated string.\n\n"
-            f'Return JSON: {{{", ".join(f"{lang}: str" for lang in target_languages)}}}'
+            "You are a public safety translator for an emergency public address (PA) broadcast system.\n"
+            f"Original English Message:\n\"{base_message_en}\"\n\n"
+            "Translate this announcement accurately into the following regional Indian languages:\n"
+            + "\n".join(lang_specs)
+            + "\n\nCRITICAL TRANSLATION RULES:\n"
+            "1. Output the translation in the official native script of each language (Hindi in Devanagari हिन्दी, Tamil in தமிழ், Telugu in తెలుగు, Bengali in বাংলা, Marathi in मराठी).\n"
+            "2. Do NOT use Latin/English transliteration. Use proper native Unicode characters.\n"
+            "3. Keep each translation clear, calm, natural, and directly actionable for loudspeaker announcements.\n"
+            "4. Return ONLY a valid JSON object mapping each language code to its translated string.\n\n"
+            f'JSON Output Format: {{{", ".join(f"\"{lang}\": \"<native text>\"" for lang in target_languages)}}}'
         )
 
-        schema_hint = f'{{{", ".join(f"{lang}: str" for lang in target_languages)}}}'
+        schema_hint = f'{{{", ".join(f"\"{lang}\": str" for lang in target_languages)}}}'
 
         try:
             raw_response = self.client.generate_json(prompt, schema_hint)
@@ -156,7 +235,7 @@ class MultilingualAnnouncer:
 
         except Exception as exc:
             logger.warning(
-                "Translation failed: %s. Speaking the operator-authored message as fallback.", exc
+                "Translation failed: %s. Using local language fallback.", exc
             )
             return {lang: local_language_fallback(lang, base_message_en) for lang in target_languages}
 
@@ -190,31 +269,15 @@ class MultilingualAnnouncer:
         filename = f"alert_{language_code}_{timestamp_str}.mp3"
         filepath = out_path / filename
 
-        # Tamil and Telugu Edge-TTS output can be rejected by some browser
-        # decoders even when the file is generated successfully. Prefer the
-        # gTTS MP3 output for those two regional tracks, then fall back to the
-        # normal Edge-TTS path if gTTS is unavailable.
-        prefer_gtts = language_code in {"ta", "te"}
         saved = False
 
-        # 1. Try gTTS first for Tamil/Telugu
-        if prefer_gtts and gTTS is not None:
-            try:
-                loop = asyncio.get_running_loop()
-                tts = gTTS(text=translated_text, lang=language_code)
-                await asyncio.wait_for(loop.run_in_executor(None, tts.save, str(filepath)), timeout=15.0)
-                logger.info("Generated gTTS audio for browser compatibility: %s", filepath)
-                saved = True
-            except Exception as exc:
-                logger.warning("gTTS failed for %s; trying Edge-TTS: %s", language_code, exc)
-
-        # 2. Try Edge-TTS (preferred for other languages)
+        # 1. Primary: Edge-TTS neural high-definition voices for all languages (including ta and te)
         voice = EDGE_TTS_VOICES.get(language_code, "hi-IN-MadhurNeural")
-        if not saved and edge_tts is not None:
+        if edge_tts is not None:
             try:
                 communicate = edge_tts.Communicate(translated_text, voice)
-                await asyncio.wait_for(communicate.save(str(filepath)), timeout=15.0)
-                logger.info("Generated Edge-TTS audio: %s", filepath)
+                await asyncio.wait_for(communicate.save(str(filepath)), timeout=12.0)
+                logger.info("Generated Edge-TTS audio for %s: %s", language_code, filepath)
                 saved = True
             except Exception as exc:
                 logger.warning(
@@ -223,20 +286,18 @@ class MultilingualAnnouncer:
                     exc,
                 )
 
-        # 3. Fallback to gTTS if Edge-TTS fails or is unavailable
+        # 2. Secondary Fallback: gTTS if Edge-TTS is unavailable or timed out
         if not saved and gTTS is not None:
             try:
                 loop = asyncio.get_running_loop()
                 tts = gTTS(text=translated_text, lang=language_code)
-                await asyncio.wait_for(loop.run_in_executor(None, tts.save, str(filepath)), timeout=15.0)
+                await asyncio.wait_for(loop.run_in_executor(None, tts.save, str(filepath)), timeout=10.0)
                 logger.info("Generated gTTS audio fallback: %s", filepath)
                 saved = True
             except Exception as exc:
                 logger.error("gTTS fallback also failed for %s: %s", language_code, exc)
 
-        # 3. No playable file available. Return an empty path so clients can
-        # fall back to browser speech synthesis instead of trying to play a
-        # zero-byte placeholder file.
+        # 3. No playable file available. Return empty path for browser Web Speech synthesis fallback.
         if not saved:
             logger.error(
                 "No TTS provider could generate audio for language %s; returning no audio path.",

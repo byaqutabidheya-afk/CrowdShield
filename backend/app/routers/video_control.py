@@ -98,8 +98,18 @@ async def _process_browser_frame(frame_bytes: bytes, venue_id: str) -> Dict[str,
                 "zone_id": zone["zone_id"],
                 "risk_score": score,
                 "risk_level": "critical" if score >= 0.8 else "high" if score >= 0.6 else "moderate" if score >= 0.3 else "low",
-                "contributing_factors": {"density": score},
+                "contributing_factors": {
+                    "density_score": score,
+                    "density_rate_of_change": 0.0,
+                    "flow_convergence_score": 0.0,
+                    "bottleneck_score": 0.0,
+                    "anomaly_score": 0.0,
+                },
             })
+
+        from ai_core.risk_engine.scripts.resource_allocator import ResourceAllocator
+        allocator = ResourceAllocator()
+        resource_suggestions = allocator.suggest_allocations(risk_zones, {})
 
         payload = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -111,7 +121,7 @@ async def _process_browser_frame(frame_bytes: bytes, venue_id: str) -> Dict[str,
                     "highest_risk_zone_id": max_zone["zone_id"] if max_zone else "",
                 },
             },
-            "risk_data": {"zones": risk_zones, "resource_allocation_suggestions": []},
+            "risk_data": {"zones": risk_zones, "resource_allocation_suggestions": resource_suggestions},
             "frames_processed": 1,
         }
 

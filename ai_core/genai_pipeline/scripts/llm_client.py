@@ -155,22 +155,43 @@ class LLMClient:
                     self._model_name,
                 )
 
-                response = self._client.chat.completions.create(
-                    model=self._model_name,
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": (
-                                "You are CrowdShield, a precise crowd-safety "
-                                "and emergency-response assistant."
-                            ),
-                        },
-                        {"role": "user", "content": prompt},
-                    ],
-                    temperature=self._temperature,
-                    response_format={"type": "json_object"},
-                    max_completion_tokens=1200,
-                )
+                try:
+                    response = self._client.chat.completions.create(
+                        model=self._model_name,
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": (
+                                    "You are CrowdShield, a precise crowd-safety "
+                                    "and emergency-response assistant. Respond with valid JSON."
+                                ),
+                            },
+                            {"role": "user", "content": prompt},
+                        ],
+                        temperature=self._temperature,
+                        response_format={"type": "json_object"},
+                        max_completion_tokens=400,
+                    )
+                except Exception as json_format_err:
+                    if "json_validate_failed" in str(json_format_err) or "400" in str(json_format_err):
+                        # Retry without strict json_object format flag
+                        response = self._client.chat.completions.create(
+                            model=self._model_name,
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": (
+                                        "You are CrowdShield. Respond ONLY with a valid raw JSON object. "
+                                        "Do not output markdown code blocks or explanations."
+                                    ),
+                                },
+                                {"role": "user", "content": prompt},
+                            ],
+                            temperature=self._temperature,
+                            max_completion_tokens=400,
+                        )
+                    else:
+                        raise json_format_err
 
                 if not response.choices:
                     raise LLMClientError("Groq returned no completion choices.")

@@ -231,7 +231,16 @@ export interface RiskZoneMetric {
 
 export interface ResourceAllocationSuggestion {
   zone_id: string;
-  suggestion_type: 'security_personnel' | 'medical_tent' | 'barricade_reconfiguration' | string;
+  suggestion_type:
+    | 'security_personnel'
+    | 'medical_tent'
+    | 'barricade_reconfiguration'
+    | 'rapid_egress_team'
+    | 'surge_response_team'
+    | 'drone_surveillance'
+    | 'public_address_broadcaster'
+    | 'cooling_water_station'
+    | string;
   reason: string;
   priority: 'high' | 'medium' | 'low' | string;
   [key: string]: any;

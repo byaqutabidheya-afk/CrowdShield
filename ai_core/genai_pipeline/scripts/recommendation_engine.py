@@ -26,32 +26,64 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+FALLBACK_RECOMMENDATIONS: list[dict[str, str]] = [
+    {
+        "action": "Increase monitoring of this zone",
+        "category": "crowd_control",
+        "urgency": "soon",
+        "reasoning": "Generic fallback recommendation due to invalid LLM output or API failure.",
+    }
+]
+
+
 def _generate_contextual_fallback(zone_risk_data: dict[str, Any]) -> list[dict[str, str]]:
     factors = zone_risk_data.get("contributing_factors", {})
     recs = []
     zone_id = zone_risk_data.get("zone_id", "Zone")
     risk_level = str(zone_risk_data.get("risk_level", "high")).lower()
+    risk_score = float(zone_risk_data.get("risk_score", 0.0))
 
-    if factors.get("bottleneck_indicator", 0) > 0.3:
+    if factors.get("bottleneck_indicator", 0) > 0.3 or factors.get("bottleneck_score", 0) > 0.3:
         recs.append({
-            "action": f"Deploy crowd marshals to open secondary egress and clear bottlenecks in {zone_id}.",
-            "category": "crowd_control",
+            "action": f"Dispatch rapid egress team to unlock secondary exit gates and clear corridors in {zone_id}.",
+            "category": "flow_management",
             "urgency": "immediate" if risk_level == "critical" else "soon",
             "reasoning": f"Severe bottleneck accumulation detected in {zone_id}."
         })
     if factors.get("flow_convergence_score", 0) > 0.3 or factors.get("reverse_flow_indicator", 0) > 0.3:
         recs.append({
-            "action": f"Erect directional barrier stanchions at {zone_id} transition point.",
+            "action": f"Erect directional flow deflection barricades and enforce one-way movement at {zone_id}.",
             "category": "flow_management",
             "urgency": "immediate" if risk_level == "critical" else "soon",
             "reasoning": f"Counter-flow opposing vectors causing turbulent crowd pressure in {zone_id}."
         })
+    if factors.get("anomaly_indicator", 0) > 0.25 or factors.get("anomaly_score", 0) > 0.25:
+        recs.append({
+            "action": f"Launch aerial drone surveillance over {zone_id} for wide-area overhead situational tracking.",
+            "category": "resource_deployment",
+            "urgency": "immediate",
+            "reasoning": f"Anomalous crowd motion or stampede turbulence flagged in {zone_id}."
+        })
+    if factors.get("density_rate_of_change", 0) > 0.15:
+        recs.append({
+            "action": f"Deploy rapid surge intervention unit with safety marshals to absorb influx momentum in {zone_id}.",
+            "category": "crowd_control",
+            "urgency": "immediate",
+            "reasoning": f"Rapid crowd surge buildup rate observed in {zone_id}."
+        })
+    if risk_score >= 0.7 or risk_level == "critical":
+        recs.append({
+            "action": f"Stage mobile paramedic triage station and emergency AED first-responders near {zone_id}.",
+            "category": "resource_deployment",
+            "urgency": "immediate",
+            "reasoning": f"Critical risk score ({risk_score:.2f}) requires precautionary medical staging in {zone_id}."
+        })
     if factors.get("density_score", 0) > 0.2:
         recs.append({
-            "action": f"Broadcast automated crowd redistribution announcement to divert incoming flow from {zone_id}.",
+            "action": f"Broadcast localized directional PA announcement and update digital signage to divert incoming flow from {zone_id}.",
             "category": "communication",
             "urgency": "soon",
-            "reasoning": f"Density exceeding safety margins in {zone_id}."
+            "reasoning": f"Crowd density exceeding nominal safety margins in {zone_id}."
         })
     if not recs:
         recs.append({
@@ -60,7 +92,7 @@ def _generate_contextual_fallback(zone_risk_data: dict[str, Any]) -> list[dict[s
             "urgency": "soon",
             "reasoning": f"Elevated crowd risk level ({risk_level}) observed in {zone_id}."
         })
-    return recs
+    return recs[:4]
 
 
 class RecommendationEngine:
@@ -97,7 +129,7 @@ class RecommendationEngine:
                 zone_id,
                 exc,
             )
-            validated_recs = _generate_contextual_fallback(zone_risk_data)
+            validated_recs = _generate_contextual_fallback(zone_risk_data) or FALLBACK_RECOMMENDATIONS
 
         return {
             "zone_id": zone_id,
@@ -136,9 +168,15 @@ class RecommendationEngine:
 
         prompt_lines.extend([
             "",
-            "Given this zone's risk data, suggest 2-4 SPECIFIC, ACTIONABLE interventions.",
+            "Given this zone's risk data, suggest 2-4 DIVERSE, SPECIFIC, ACTIONABLE interventions covering multiple tactical dimensions.",
+            "Draw from diverse tactical measures including:",
+            "- flow_management: Directional flow-deflection barricades, one-way pedestrian routing, or metering ingress gates.",
+            "- resource_deployment: Emergency paramedic/medical station staging, autonomous aerial drone reconnaissance, mobile cooling/hydration stations, or dynamic signage.",
+            "- crowd_control: Rapid surge intervention units, perimeter safety marshals, or emergency egress teams opening secondary gates.",
+            "- communication: Directional PA acoustic broadcast announcements and digital signage crowd redistribution guidance.",
+            "",
             "For each intervention provide:",
-            "- action: an imperative sentence (e.g. 'Close entry gate 3', 'Institute one-way pedestrian flow from the north entrance toward the main exit')",
+            "- action: an imperative sentence (e.g. 'Close entry gate 3', 'Institute one-way pedestrian flow from the north entrance toward the main exit', 'Deploy rapid egress team to unlock emergency gate 2B', 'Stage mobile paramedic triage unit at zone perimeter')",
             "- category: one of: flow_management, resource_deployment, crowd_control, communication",
             "- urgency: one of: immediate, soon, monitor",
             "- reasoning: 1 sentence referencing the SPECIFIC contributing factor driving this recommendation.",
