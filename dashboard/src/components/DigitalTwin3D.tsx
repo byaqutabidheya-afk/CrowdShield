@@ -203,6 +203,7 @@ function ZoneVolume({
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const labelRef = useRef<THREE.Group>(null);
 
   const target = useMemo(() => getRiskWeight(riskZone, cvZone), [cvZone, riskZone]);
   const layout = useMemo(() => mapNormalizedRectToWorld(zoneConfig.bounds_normalized), [zoneConfig.bounds_normalized]);
@@ -221,6 +222,9 @@ function ZoneVolume({
     const nextScaleY = lerp(mesh.scale.y, target.heightTarget, smoothFactor);
     mesh.scale.y = nextScaleY;
     mesh.position.y = nextScaleY / 2;
+    if (labelRef.current) {
+      labelRef.current.position.y = nextScaleY + 0.7;
+    }
     material.color.lerp(target.colorTarget, smoothFactor);
     material.emissive.lerp(target.colorTarget.clone().multiplyScalar(0.25), smoothFactor);
   });
@@ -240,13 +244,13 @@ function ZoneVolume({
 
       </Box>
       <Billboard
+        ref={labelRef}
         follow
         lockX={false}
         lockY={false}
         lockZ={false}
-        // Fixed HUD height: the card stays in view while the column grows
-        // underneath it, and depth testing keeps it readable over the scene.
-        position={[layout.center[0], 4.8, layout.center[2]]}
+        // Keep the HUD above the top of the animated column.
+        position={[layout.center[0], target.heightTarget + 0.7, layout.center[2]]}
         renderOrder={20}
       >
         <mesh renderOrder={20}>
@@ -976,7 +980,7 @@ export const DigitalTwin3D: React.FC<DigitalTwin3DProps> = ({ className, style }
 
       const responseObject = response as Record<string, any>;
       const steps = normalizeSimulationSteps(
-        response.steps ?? responseObject.simulation_steps ?? responseObject.timeline ?? responseObject.predicted_crush_timeline
+        response.steps ?? responseObject.simulated_steps ?? responseObject.simulation_steps ?? responseObject.timeline ?? responseObject.predicted_crush_timeline
       );
 
       if (steps.length === 0) {
