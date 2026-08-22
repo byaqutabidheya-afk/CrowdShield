@@ -438,7 +438,7 @@ export const App: React.FC = () => {
           padding: '0 1.25rem 1.25rem 1.25rem',
           display: 'grid',
           gridTemplateColumns: 'repeat(12, 1fr)',
-          gridTemplateRows: 'minmax(940px, 1.2fr) 560px 560px',
+          gridTemplateRows: 'minmax(940px, 1.2fr) 560px auto auto',
           gap: '20px',
           overflowY: 'auto',
         }}
@@ -520,26 +520,10 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* LOWER ROW - PANEL 3: Data Analytics & Predictive Trends (Span 3) */}
-        <section className="control-card scroll-reveal" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
-          <div className="control-card-header">
-            <div className="control-card-title">
-              <span className="dashboard-section-icon"><DashboardIcon name="analytics" /></span>
-              <span className="gradient-text">Density & Risk Time-Series Analytics</span>
-            </div>
-            <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)' }}>
-              Recharts Engine
-            </span>
-          </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <AnalyticsPanel />
-          </div>
-        </section>
-
-        {/* LOWER ROW - PANEL 4: Resource Allocation (Span 3) */}
+        {/* MIDDLE ROW - PANEL 1: Resource Allocation (Span 4) */}
         <section
           className="control-card scroll-reveal scroll-reveal-delay-1"
-          style={{ gridColumn: 'span 3', height: '100%', minHeight: 0, minWidth: 0, alignSelf: 'stretch', position: 'relative', overflow: 'hidden' }}
+          style={{ gridColumn: 'span 4', height: '100%', minHeight: '560px', minWidth: 0, alignSelf: 'stretch', position: 'relative', overflow: 'hidden' }}
         >
           <div
             className="control-card-header"
@@ -558,8 +542,8 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* LOWER ROW - PANEL 5: Incident Reports (Span 3) */}
-        <section className="control-card scroll-reveal scroll-reveal-delay-2" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
+        {/* MIDDLE ROW - PANEL 2: Incident Reports (Span 4) */}
+        <section className="control-card scroll-reveal scroll-reveal-delay-2" style={{ gridColumn: 'span 4', height: '100%', minHeight: '560px' }}>
           <div className="control-card-header">
             <div className="control-card-title">
               <span className="dashboard-section-icon"><DashboardIcon name="incident" /></span>
@@ -574,9 +558,25 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* LOWER ROW - PANEL 6: Announcements (Span 3) */}
-        <section className="control-card scroll-reveal scroll-reveal-delay-3" style={{ gridColumn: 'span 3', height: '100%', minHeight: 0 }}>
+        {/* MIDDLE ROW - PANEL 3: Announcements (Span 4) */}
+        <section className="control-card scroll-reveal scroll-reveal-delay-3" style={{ gridColumn: 'span 4', height: '100%', minHeight: '560px' }}>
           <AnnouncementsPanel />
+        </section>
+
+        {/* DEDICATED FULL-WIDTH SECTION - MULTI-GRAPH ANALYTICS & TELEMETRY SUITE */}
+        <section className="control-card scroll-reveal" style={{ gridColumn: '1 / -1', minHeight: '660px', display: 'flex', flexDirection: 'column' }}>
+          <div className="control-card-header">
+            <div className="control-card-title">
+              <span className="dashboard-section-icon"><DashboardIcon name="analytics" /></span>
+              <span className="gradient-text">Crowd Dynamics & Multi-Dimensional Telemetry Analytics</span>
+            </div>
+            <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--color-accent-cyan)' }}>
+              Recharts Multi-Series Suite
+            </span>
+          </div>
+          <div style={{ flex: 1, minHeight: 0, padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <AnalyticsPanel />
+          </div>
         </section>
 
         {/* SEPARATE ROW - EXTERNAL TRIGGERS & VOICE CONTROLS */}

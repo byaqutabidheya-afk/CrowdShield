@@ -278,4 +278,14 @@ export interface ZoneHistoryPoint {
   timestamp: string | number;
   density_score: number;
   risk_score: number;
+  crowd_count?: number;
+  avg_flow_speed?: number;
+  avg_flow_direction_deg?: number;
+  avg_flow_direction_label?: string;
+  density_rate_of_change?: number;
+  flow_convergence_score?: number;
+  bottleneck_score?: number;
+  anomaly_score?: number;
+  anomaly_flags?: string[];
+  [key: string]: any;
 }

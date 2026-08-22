@@ -126,22 +126,33 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
     const cvZones = message.cv_data?.zones || [];
     const riskZones = message.risk_data?.zones || [];
 
-    const riskMap = new Map<string, number>();
+    const riskMap = new Map<string, any>();
     for (const rZone of riskZones) {
-      riskMap.set(rZone.zone_id, rZone.risk_score ?? 0);
+      riskMap.set(rZone.zone_id, rZone);
     }
 
     for (const cvZone of cvZones) {
       const zoneId = cvZone.zone_id || (cvZone as any).id;
       if (!zoneId) continue;
       const densityScore = cvZone.density_score ?? 0;
-      const riskScore = riskMap.get(zoneId) ?? 0;
+      const rZone = riskMap.get(zoneId);
+      const riskScore = rZone?.risk_score ?? 0;
+      const factors = rZone?.contributing_factors || {};
 
       const existingPoints = nextZoneHistory.get(zoneId) || [];
       const newPoint: ZoneHistoryPoint = {
         timestamp,
         density_score: densityScore,
         risk_score: riskScore,
+        crowd_count: cvZone.crowd_count ?? 0,
+        avg_flow_speed: cvZone.avg_flow_speed ?? 0,
+        avg_flow_direction_deg: cvZone.avg_flow_direction_deg ?? 0,
+        avg_flow_direction_label: cvZone.avg_flow_direction_label || 'N/A',
+        density_rate_of_change: factors.density_rate_of_change ?? 0,
+        flow_convergence_score: factors.flow_convergence_score ?? 0,
+        bottleneck_score: factors.bottleneck_score ?? (cvZone.bottleneck_detected ? 1.0 : 0.0),
+        anomaly_score: factors.anomaly_score ?? (cvZone.anomaly_flags?.length ? cvZone.anomaly_flags.length / 3 : 0),
+        anomaly_flags: cvZone.anomaly_flags || factors.anomaly_flags || [],
       };
 
       const updatedPoints = [...existingPoints, newPoint];
@@ -158,10 +169,19 @@ export const useLiveDataStore = create<LiveDataState>((set, get) => ({
       if (!zoneId) continue;
       if (!cvZones.some((z) => (z.zone_id || (z as any).id) === zoneId)) {
         const existingPoints = nextZoneHistory.get(zoneId) || [];
+        const factors = rZone.contributing_factors || {};
         const newPoint: ZoneHistoryPoint = {
           timestamp,
-          density_score: rZone.contributing_factors?.density_score ?? 0,
+          density_score: factors.density_score ?? 0,
           risk_score: rZone.risk_score ?? 0,
+          crowd_count: factors.crowd_count ?? 0,
+          avg_flow_speed: factors.avg_flow_speed ?? 0,
+          avg_flow_direction_deg: factors.avg_flow_direction_deg ?? 0,
+          density_rate_of_change: factors.density_rate_of_change ?? 0,
+          flow_convergence_score: factors.flow_convergence_score ?? 0,
+          bottleneck_score: factors.bottleneck_score ?? 0,
+          anomaly_score: factors.anomaly_score ?? 0,
+          anomaly_flags: factors.anomaly_flags || [],
         };
         const updatedPoints = [...existingPoints, newPoint];
         if (updatedPoints.length > MAX_ZONE_HISTORY_POINTS) {
